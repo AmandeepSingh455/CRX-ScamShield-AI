@@ -305,11 +305,11 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={openHelpline}
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#eb3b4a] hover:bg-[#d92d3c] active:scale-95 text-white transition-all shadow-xs cursor-pointer select-none"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-[12px] bg-[#ef4444] hover:bg-[#dc2626] active:scale-95 text-white transition-all shadow-xs cursor-pointer select-none"
                 title={t('cyberHelplineTooltip')}
                 aria-label={t('cyberHelplineTooltip')}
               >
-                <PhoneCall className="w-4 h-4 text-white shrink-0" />
+                <PhoneCall className="w-4 h-4 text-white shrink-0 stroke-[2.2]" />
                 <span className="font-bold text-sm text-white tracking-normal font-sans">
                   1930
                 </span>
@@ -320,15 +320,15 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-text-primary hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
+                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
                   aria-label={t('language')}
                   title={t('language')}
                 >
-                  <Languages className="w-4 h-4 text-text-secondary shrink-0" />
-                  <span className="text-xs sm:text-sm font-semibold tracking-wide text-text-primary uppercase font-sans">
+                  <Languages className="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" />
+                  <span className="text-sm font-medium tracking-normal text-slate-700 dark:text-slate-200 uppercase font-sans">
                     {language.toUpperCase()}
                   </span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-text-secondary transition-transform duration-200 ${langDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 text-slate-500 dark:text-slate-400 transition-transform duration-200 ${langDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {langDropdownOpen && (
@@ -704,11 +704,11 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={openHelpline}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-[#eb3b4a] hover:bg-[#d92d3c] text-white font-bold text-xs transition-colors shadow-xs cursor-pointer active:scale-98"
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-[#ef4444] hover:bg-[#dc2626] text-white font-bold text-xs transition-colors shadow-xs cursor-pointer active:scale-98"
                   title={t('cyberHelplineTooltip')}
                 >
                   <div className="flex items-center gap-2">
-                    <PhoneCall className="w-4 h-4 text-white" />
+                    <PhoneCall className="w-4 h-4 text-white stroke-[2.2]" />
                     <span className="text-white text-xs font-semibold">{t('cyberHelpline')}</span>
                   </div>
                   <span className="font-bold text-sm text-white px-2 py-0.5 bg-black/20 rounded-md font-sans">
