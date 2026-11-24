@@ -87,14 +87,9 @@ export default function Dashboard() {
   const [fileSize, setFileSize] = useState("");
   const [isDragActive, setIsDragActive] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [latestScanResult, setLatestScanResult] = useState(() => activeScan || null);
+  const [latestScanResult, setLatestScanResult] = useState(null);
   const [currentPreviewUrl, setCurrentPreviewUrl] = useState(null);
-
-  useEffect(() => {
-    if (activeScan) {
-      setLatestScanResult(activeScan);
-    }
-  }, [activeScan]);
+  const resultsRef = useRef(null);
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const unsavedPreviewRef = useRef(null);
 
@@ -457,7 +452,10 @@ export default function Dashboard() {
         addToast("Success: Document evaluated authentic & genuine.", "success");
       }
 
-      navigate("/analysis-result", { state: { scan: newScan } });
+      // Smoothly scroll down to the Results Dashboard card
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     } catch (err) {
       console.error("Analysis execution error:", err);
       const fallbackResult = analyzeScam(textToScan, filename);
@@ -469,7 +467,9 @@ export default function Dashboard() {
       );
       setActiveScan(newScan);
       setLatestScanResult(newScan);
-      navigate("/analysis-result", { state: { scan: newScan } });
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     } finally {
       setIsAnalyzing(false);
     }
@@ -480,6 +480,7 @@ export default function Dashboard() {
     setFilename("");
     setFileSize("");
     setOcrError("");
+    setLatestScanResult(null);
     if (
       unsavedPreviewRef.current &&
       unsavedPreviewRef.current.startsWith("blob:")
@@ -855,6 +856,7 @@ export default function Dashboard() {
               {/* Comprehensive Results Dashboard Section */}
               {latestScanResult && (
                 <motion.div
+                  ref={resultsRef}
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="rounded-2xl border border-border-color bg-card-bg shadow-sm p-6 space-y-5 card-premium text-left"
@@ -1051,6 +1053,7 @@ export default function Dashboard() {
                       onClick={() => {
                         setLatestScanResult(null);
                         handleClear();
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
                       className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-text-primary px-3.5 py-2 rounded-xl border border-border-color hover:bg-app-bg transition-colors cursor-pointer"
                     >
