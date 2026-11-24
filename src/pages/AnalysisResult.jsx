@@ -308,34 +308,34 @@ ${text.slice(0, 300)}...
               className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Dashboard
+              {t('backToDashboard')}
             </button>
             <div className="flex gap-2.5">
               <button
                 onClick={handleCopy}
-                className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl border border-border-color bg-card-bg hover:bg-app-bg transition-all cursor-pointer shadow-sm text-text-primary"
+                className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl border border-border-color bg-card-bg hover:bg-app-bg transition-all cursor-pointer shadow-xs text-text-primary"
               >
                 {copied ? (
                   <Check className="w-4 h-4 text-accent-color" />
                 ) : (
                   <Copy className="w-4 h-4" />
                 )}
-                {copied ? "Copied!" : "Copy Summary"}
+                {copied ? t('copied') : t('copySummary')}
               </button>
               <button
                 onClick={handleDownloadPDF}
-                className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-btn-bg text-btn-text hover:opacity-90 transition-all cursor-pointer shadow-md active:scale-95 btn-premium"
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-btn-bg text-btn-text hover:opacity-90 transition-all cursor-pointer shadow-sm active:scale-98 btn-premium"
               >
                 <Download className="w-4 h-4" />
-                Download PDF Report
+                {t('downloadPdf')}
               </button>
             </div>
           </div>
           <div className="grid grid-cols-1 xl:grid-cols-5 gap-8 items-start">
             <div className="xl:col-span-2 space-y-6">
-              <div className="rounded-2xl border border-border-color bg-card-bg p-6 shadow-sm flex flex-col items-center text-center card-premium">
+              <div className="rounded-2xl border border-border-color bg-card-bg p-6 shadow-xs flex flex-col items-center text-center card-premium">
                 <span className="text-[10px] font-bold text-text-secondary dark:text-accent-color uppercase tracking-widest mb-6">
-                  Threat Analysis Index
+                  {t('threatAnalysisIndex')}
                 </span>
                 <div className="relative flex items-center justify-center">
                   <svg className="w-36 h-36 transform -rotate-90">
@@ -429,10 +429,10 @@ ${text.slice(0, 300)}...
                 <div className="flex justify-between items-center border-b border-border-color pb-3">
                   <h3 className="text-xs font-bold text-text-primary dark:text-accent-color uppercase tracking-wider flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4 text-warning-color" />
-                    Highlighted Document Preview
+                    {t('highlightedTextTitle')}
                   </h3>
                   <span className="text-[10px] text-danger-color font-semibold px-2 py-0.5 rounded border border-danger-color/20 bg-danger-color/5">
-                    Red Flags Highlighted
+                    {t('detectedFlags')}
                   </span>
                 </div>
 
@@ -446,22 +446,24 @@ ${text.slice(0, 300)}...
 
               {/* Emergency Cyber Helpline 1930 Warning for High Threats */}
               {riskScore >= 40 && (
-                <div className="p-4.5 rounded-2xl border border-red-500/40 bg-red-500/10 dark:bg-red-500/15 flex items-start gap-3.5 text-left shadow-sm">
-                  <PhoneCall className="w-5 h-5 text-red-500 shrink-0 mt-0.5 animate-bounce" />
+                <div className="p-4 rounded-2xl border border-red-300 dark:border-red-900/60 bg-red-50/80 dark:bg-red-950/25 flex items-start gap-3.5 text-left shadow-xs">
+                  <div className="w-6 h-6 rounded-md bg-red-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                    <PhoneCall className="w-3.5 h-3.5" />
+                  </div>
                   <div className="space-y-1 grow">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wide">
-                        National Cyber Crime Reporting Helpline &bull; 1930
+                      <span className="text-xs font-bold text-red-700 dark:text-red-300 uppercase tracking-wide">
+                        {t('criticalAdvisoryTitle')} &bull; {t('cyberHelpline')}
                       </span>
                       <a
                         href="tel:1930"
-                        className="px-3 py-1 rounded-xl bg-red-500 hover:bg-red-600 text-white font-mono text-xs font-bold transition-all shadow-sm flex items-center gap-1 active:scale-95"
+                        className="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white font-mono text-xs font-bold transition-colors shadow-xs flex items-center gap-1 cursor-pointer"
                       >
                         <PhoneCall className="w-3 h-3" />
-                        Call 1930
+                        {t('cyberHelplineShort')}
                       </a>
                     </div>
-                    <p className="text-[11px] text-red-600/90 dark:text-red-300 leading-relaxed">
+                    <p className="text-[11px] text-red-700/90 dark:text-red-300/90 leading-relaxed">
                       {t("call1930Notice")}
                     </p>
                   </div>

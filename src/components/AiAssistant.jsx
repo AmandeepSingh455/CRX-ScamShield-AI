@@ -36,14 +36,14 @@ const PREDEFINED_PROMPTS = [
 ];
 
 export default function AiAssistant() {
-  const { activeScan, updateScanChat } = useApp();
+  const { activeScan, updateScanChat, t } = useApp();
   const [isOpen, setIsOpen] = useState(false);
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState(() => [
     {
       sender: "ai",
-      text: "Hello Analyst. I have activated your custom cognitive safety node. I don't just match keywords—I run multi-layered intent maps on message profiles, behavioral pressure blocks, and telemetry vectors.\n\nWhat scenario or communication layout are we auditing today?",
+      text: t('aiAssistantGreeting'),
       timestamp: new Date().toISOString(),
     }
   ]);
@@ -160,10 +160,12 @@ export default function AiAssistant() {
                   <Bot className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-100 dark:text-emerald-400">ScamShield Advisor</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-100 dark:text-emerald-400">
+                    {t('aiAssistantTitle')}
+                  </h3>
                   <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-semibold">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Cognitive System Armed
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    {t('aiAssistantSubtitle')}
                   </span>
                 </div>
               </div>
@@ -231,7 +233,7 @@ export default function AiAssistant() {
                 value={inputText}
                 disabled={isTyping}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder={isTyping ? "Engine is parsing data..." : "Ask 'why is this flagged' or describe the situation..."}
+                placeholder={isTyping ? t('scanningBtn') : t('aiInputPlaceholder')}
                 className="grow bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-500 font-medium disabled:opacity-50"
               />
               <button

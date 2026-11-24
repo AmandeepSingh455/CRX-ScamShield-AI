@@ -24,27 +24,32 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const MOCK_SCAM_TEMPLATES = [
   {
+    key: "templateTaskScam",
     name: "YouTube / Telegram Task Scam",
     filename: "Telegram_Task_Trap.txt",
     text: "Hello! You have been selected for online work from home. Earn ₹3000 to ₹5000 daily by liking YouTube videos and subscribing to Telegram channels. 100% guaranteed job. Direct daily payout to UPI or GPay. To activate your merchant task account, please deposit ₹500 security deposit. Pay now immediately as limited slots remain.",
   },
   {
+    key: "templateDigitalArrest",
     name: "Digital Arrest Cyber Extortion Scam",
     filename: "Mumbai_Police_Customs_Notice.txt",
     text: "URGENT LEGAL NOTICE: This is officer Sharma from Mumbai Police Crime Branch and Narcotics Department. A parcel seized by customs at airport contains 5 passports and illegal drugs registered under your Aadhaar. You are under digital arrest. Connect to Skype video call immediately for clearance. Transfer ₹45,000 to government clearance account to avoid immediate physical arrest warrant.",
   },
   {
+    key: "templateFakeTata",
     name: "Fake Tata Offer (Fake CIN + Gmail)",
     filename: "Tata_Motors_Appointment_Letter.pdf",
     text: "OFFER LETTER - TATA MOTORS LIMITED\nCorporate Identity No: CIN-FAKE99999\nContact: tatamotors.recruitment@gmail.com\n\nDear Applicant, You have been directly selected for the position of Senior Executive. Salary: ₹12,00,000 per annum. Direct offer letter without interview. You must pay ₹2,500 onboarding gate pass and laptop security fee to our account via PhonePe / UPI today to confirm placement.",
   },
   {
+    key: "templateGenuineTcs",
     name: "Genuine TCS Offer (Verified MCA CIN)",
     filename: "TCS_Genuine_Appointment_Letter.pdf",
     text: "TATA CONSULTANCY SERVICES LIMITED\nCorporate Identification Number (CIN): L22210MH1995PLC084781\nWebsite: https://www.tcs.com | careers@tcs.com\nTCS House, Raveline Street, Fort, Mumbai - 400001, Maharashtra, India\n\nDear Candidate, We take pleasure in offering you the role of Systems Engineer with Tata Consultancy Services Limited. This offer is contingent upon successful verification of your educational credentials and background check. Please note: TCS does not charge any registration, recruitment, or laptop security fees from candidates at any stage of the recruitment process.",
   },
   {
-    name: "Work From Home Data Entry Scam",
+    key: "templateDataEntry",
+    name: "Work From Home Data Entry Trap",
     filename: "WFH_DataEntry_Offer.txt",
     text: "CONGRATULATIONS! You have been selected for our Work From Home Data Entry position. The salary is $45 per hour. To proceed, please pay a registration fee of $30 to cover the software licensing fee. We guarantee 100% placement and limited seats are available. Pay now immediately to secure your seat.",
   },
@@ -483,88 +488,92 @@ export default function Dashboard() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border-color pb-6">
             <div>
               <h2 className="text-2xl font-bold tracking-tight text-text-primary">
-                Security Workspace
+                {t('securityWorkspaceTitle')}
               </h2>
               <p className="text-xs text-text-secondary mt-1">
-                Verify job offers, contracts, and recruiter emails with
-                AI-powered scam detection
+                {t('securityWorkspaceSubtitle')}
               </p>
             </div>
-            <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full border border-accent-color/20 bg-accent-color/5 dark:bg-accent-color/10 text-accent-color self-start md:self-auto shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-accent-color animate-pulse" />
-              Scanner Engine v4.2 Active
+            <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full border border-accent-color/20 bg-accent-color/5 dark:bg-accent-color/10 text-accent-color self-start md:self-auto shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-accent-color" />
+              {t('scannerVersion')}
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Stat 1: Total Scans */}
             <motion.div
-              whileHover={{ y: -3, scale: 1.01 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="p-5 rounded-2xl border border-border-color bg-card-bg shadow-sm card-premium relative overflow-hidden"
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.15 }}
+              className="p-5 rounded-2xl border border-border-color bg-card-bg shadow-xs card-premium relative overflow-hidden"
             >
-              <div className="absolute top-0 right-0 w-24 h-24 bg-accent-color/2 rounded-full blur-xl" />
               <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider block">
-                Total Scans
+                {t('totalScans')}
               </span>
               <span className="text-3xl font-extrabold block mt-2 font-mono text-text-primary">
                 {totalScans}
               </span>
               <span className="text-[9px] text-text-secondary mt-1 block">
-                Scans completed
+                {t('totalScansDesc')}
               </span>
             </motion.div>
+
+            {/* Stat 2: Scams Detected */}
             <motion.div
-              whileHover={{ y: -3, scale: 1.01 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="p-5 rounded-2xl border border-danger-color/20 bg-card-bg dark:bg-danger-color/5 shadow-sm card-premium relative overflow-hidden"
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.15 }}
+              className="p-5 rounded-2xl border border-danger-color/20 bg-card-bg dark:bg-danger-color/5 shadow-xs card-premium relative overflow-hidden"
             >
-              <div className="absolute top-3 right-3 text-danger-color/30">
+              <div className="absolute top-3 right-3 text-danger-color/40">
                 <ShieldAlert className="w-4.5 h-4.5" />
               </div>
               <span className="text-[10px] font-bold text-danger-color uppercase tracking-wider block">
-                Scams Detected
+                {t('scamsDetected')}
               </span>
               <span className="text-3xl font-extrabold block mt-2 font-mono text-danger-color">
                 {flaggedScams}
               </span>
               <span className="text-[9px] text-danger-color/80 mt-1 block">
-                Threat index score &ge; 50%
+                {t('scamsDetectedDesc')}
               </span>
             </motion.div>
+
+            {/* Stat 3: Suspicious Logs */}
             <motion.div
-              whileHover={{ y: -3, scale: 1.01 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="p-5 rounded-2xl border border-warning-color/20 bg-card-bg dark:bg-warning-color/5 shadow-sm card-premium relative overflow-hidden"
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.15 }}
+              className="p-5 rounded-2xl border border-warning-color/20 bg-card-bg dark:bg-warning-color/5 shadow-xs card-premium relative overflow-hidden"
             >
-              <div className="absolute top-3 right-3 text-warning-color/30">
+              <div className="absolute top-3 right-3 text-warning-color/40">
                 <AlertTriangle className="w-4.5 h-4.5" />
               </div>
               <span className="text-[10px] font-bold text-warning-color uppercase tracking-wider block">
-                Suspicious Logs
+                {t('suspiciousLogs')}
               </span>
               <span className="text-3xl font-extrabold block mt-2 font-mono text-warning-color">
                 {suspiciousScams}
               </span>
               <span className="text-[9px] text-warning-color/80 mt-1 block">
-                Threat index 20-49%
+                {t('suspiciousLogsDesc')}
               </span>
             </motion.div>
+
+            {/* Stat 4: Avg Threat Index */}
             <motion.div
-              whileHover={{ y: -3, scale: 1.01 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="p-5 rounded-2xl border border-accent-color/20 bg-card-bg dark:bg-accent-color/5 shadow-sm card-premium relative overflow-hidden"
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.15 }}
+              className="p-5 rounded-2xl border border-accent-color/20 bg-card-bg dark:bg-accent-color/5 shadow-xs card-premium relative overflow-hidden"
             >
-              <div className="absolute top-3 right-3 text-accent-color/30">
+              <div className="absolute top-3 right-3 text-accent-color/40">
                 <CheckCircle2 className="w-4.5 h-4.5" />
               </div>
               <span className="text-[10px] font-bold text-accent-color uppercase tracking-wider block">
-                Avg Threat Index
+                {t('avgThreatIndex')}
               </span>
               <span className="text-3xl font-extrabold block mt-2 font-mono text-accent-color">
                 {avgRisk}%
               </span>
               <span className="text-[9px] text-accent-color/80 mt-1 block">
-                System average risk index
+                {t('avgThreatIndexDesc')}
               </span>
             </motion.div>
           </div>
@@ -572,7 +581,7 @@ export default function Dashboard() {
             <div className="lg:col-span-2 space-y-6">
               <div className="flex justify-between items-center">
                 <h3 className="text-xs font-bold text-text-secondary dark:text-accent-color uppercase tracking-wider">
-                  Document Workspace
+                  {t('documentWorkspaceTitle')}
                 </h3>
               </div>
               <div
@@ -580,17 +589,17 @@ export default function Dashboard() {
                 onDragOver={handleDrag}
                 onDragLeave={handleDrag}
                 onDrop={handleDrop}
-                onClick={(e) => {
+                onClick={(_e) => {
                   if (isOcrProcessing || isUploading || filename) return;
                   fileInputRef.current?.click();
                 }}
-                className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center text-center transition-all duration-300 shadow-sm relative overflow-hidden min-h-60 ${
+                className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center text-center transition-all duration-200 shadow-xs relative overflow-hidden min-h-60 ${
                   isOcrProcessing || isUploading
                     ? "cursor-default"
                     : "cursor-pointer"
                 } ${
                   isDragActive
-                    ? "border-accent-color bg-accent-color/5 scale-[0.99]"
+                    ? "border-accent-color bg-accent-color/5"
                     : filename && !isOcrProcessing && !isUploading
                       ? "border-emerald-500/40 bg-emerald-500/5 dark:bg-emerald-500/5"
                       : "border-border-color hover:border-accent-color bg-card-bg/30"
@@ -609,16 +618,16 @@ export default function Dashboard() {
                     // --- State 1: Uploading Progress bar ---
                     <motion.div
                       key="uploading-progress"
-                      initial={{ opacity: 0, scale: 0.95 }}
+                      initial={{ opacity: 0, scale: 0.98 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
                       className="flex flex-col items-center w-full max-w-xs"
                     >
                       <div className="w-12 h-12 rounded-xl bg-app-bg border border-border-color flex items-center justify-center text-accent-color mb-3">
                         <RefreshCw className="w-5 h-5 animate-spin text-accent-color" />
                       </div>
                       <span className="text-xs font-bold text-text-primary uppercase tracking-wider">
-                        Uploading... {uploadProgress}%
+                        {t('uploadingTitle')} {uploadProgress}%
                       </span>
                       <span className="text-[10px] text-text-secondary mt-1.5 max-w-55 truncate block font-mono">
                         {filename}
@@ -637,9 +646,9 @@ export default function Dashboard() {
                     // --- State 2: OCR Processing ---
                     <motion.div
                       key="ocr-processing"
-                      initial={{ opacity: 0, scale: 0.95 }}
+                      initial={{ opacity: 0, scale: 0.98 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
                       transition={{ duration: 0.2 }}
                       className="flex flex-col items-center"
                     >
@@ -647,15 +656,15 @@ export default function Dashboard() {
                         <RefreshCw className="w-5 h-5 animate-spin text-accent-color" />
                       </div>
                       <span className="text-xs font-bold text-text-primary uppercase tracking-wider">
-                        Reading Your Document...
+                        {t('readingDocumentTitle')}
                       </span>
                       <span className="text-[11px] text-text-secondary mt-1.5">
-                        Extracting content from file layout.
+                        {t('extractingContentDesc')}
                       </span>
 
                       <div className="mt-4 w-full max-w-xs">
                         <div className="flex justify-between text-[10px] text-text-secondary mb-1">
-                          <span>OCR Processing</span>
+                          <span>{t('ocrProcessing')}</span>
                           <span>{ocrProgress}%</span>
                         </div>
                         <div className="w-full h-1.5 rounded-full bg-border-color overflow-hidden">
@@ -667,26 +676,26 @@ export default function Dashboard() {
                       </div>
                     </motion.div>
                   ) : filename ? (
-                    // --- State 3: Upload Success state with green check ---
+                    // --- State 3: Upload Success state with clean check ---
                     <motion.div
                       key="upload-success"
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.25 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      transition={{ duration: 0.2 }}
                       className="flex flex-col items-center"
                     >
-                      <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500 mb-3 shadow-[0_0_20px_rgba(16,185,129,0.15)] animate-bounce">
-                        <CheckCircle2 className="w-7 h-7 text-emerald-500" />
+                      <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500 mb-3 shadow-xs">
+                        <CheckCircle2 className="w-6 h-6 text-emerald-500" />
                       </div>
                       <span className="text-xs font-bold text-text-primary">
-                        Document Uploaded Successfully
+                        {t('uploadSuccessTitle')}
                       </span>
-                      <span className="text-[11px] text-emerald-500 font-mono mt-1.5 max-w-xs truncate font-bold bg-emerald-500/5 px-2.5 py-1 border border-emerald-500/10 rounded-lg">
+                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono mt-1.5 max-w-xs truncate font-bold bg-emerald-500/10 px-2.5 py-1 border border-emerald-500/20 rounded-lg">
                         {filename} {fileSize ? `(${fileSize})` : ""}
                       </span>
                       <span className="text-[10px] text-text-secondary mt-2">
-                        Review/edit extracted details in workspace below.
+                        {t('uploadSuccessDesc')}
                       </span>
 
                       <div
@@ -696,18 +705,18 @@ export default function Dashboard() {
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border-color text-xs font-semibold text-text-primary bg-card-bg hover:bg-app-bg transition-colors shadow-sm cursor-pointer"
+                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border-color text-xs font-semibold text-text-primary bg-card-bg hover:bg-app-bg transition-colors shadow-xs cursor-pointer"
                         >
                           <Upload className="w-4 h-4 text-accent-color" />
-                          Change File
+                          {t('changeFile')}
                         </button>
                         <button
                           type="button"
                           onClick={startCamera}
-                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border-color text-xs font-semibold text-text-primary bg-card-bg hover:bg-app-bg transition-colors shadow-sm cursor-pointer"
+                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border-color text-xs font-semibold text-text-primary bg-card-bg hover:bg-app-bg transition-colors shadow-xs cursor-pointer"
                         >
                           <Camera className="w-4 h-4 text-accent-color" />
-                          Use Camera
+                          {t('useCamera')}
                         </button>
                       </div>
                     </motion.div>
@@ -720,15 +729,15 @@ export default function Dashboard() {
                       exit={{ opacity: 0 }}
                       className="flex flex-col items-center"
                     >
-                      <div className="w-12 h-12 rounded-xl bg-app-bg border border-border-color flex items-center justify-center text-text-secondary mb-3 hover:scale-105 transition-transform">
+                      <div className="w-12 h-12 rounded-xl bg-app-bg border border-border-color flex items-center justify-center text-text-secondary mb-3">
                         <Upload className="w-5 h-5" />
                       </div>
 
                       <span className="text-xs font-bold text-text-primary uppercase tracking-wider">
-                        Drag & Drop Documents Here
+                        {t('dragDropTitle')}
                       </span>
                       <span className="text-[11px] text-text-secondary mt-1.5">
-                        PDF, PNG, JPG, or JPEG (Max 5MB)
+                        {t('dragDropSubtitle')}
                       </span>
 
                       <div
@@ -738,10 +747,10 @@ export default function Dashboard() {
                         <button
                           type="button"
                           onClick={startCamera}
-                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border-color text-xs font-semibold text-text-primary bg-card-bg hover:bg-app-bg transition-colors shadow-sm cursor-pointer"
+                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border-color text-xs font-semibold text-text-primary bg-card-bg hover:bg-app-bg transition-colors shadow-xs cursor-pointer"
                         >
                           <Camera className="w-4 h-4 text-accent-color" />
-                          Scan with Camera
+                          {t('scanWithCamera')}
                         </button>
                       </div>
                     </motion.div>
@@ -760,19 +769,19 @@ export default function Dashboard() {
                     htmlFor="scan-text"
                     className="font-bold text-text-secondary uppercase tracking-wider"
                   >
-                    Extracted Text Content
+                    {t('extractedTextLabel')}
                   </label>
                   <span className="text-text-secondary font-semibold font-mono">
-                    {text.trim().split(/\s+/).filter(Boolean).length} words
+                    {text.trim().split(/\s+/).filter(Boolean).length} {t('wordsCount')}
                   </span>
                 </div>
                 <textarea
                   id="scan-text"
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  placeholder="Paste details of the job description, interview invite, or click templates to test..."
+                  placeholder={t('textPlaceholder')}
                   rows={8}
-                  className="w-full bg-card-bg/40 border border-border-color text-text-primary focus:border-accent-color focus:ring-2 focus:ring-accent-color/15 focus:outline-none rounded-2xl p-4 text-xs font-medium leading-relaxed resize-y font-sans transition-all shadow-sm"
+                  className="w-full bg-card-bg/40 border border-border-color text-text-primary focus:border-accent-color focus:ring-2 focus:ring-accent-color/15 focus:outline-none rounded-2xl p-4 text-xs font-medium leading-relaxed resize-y font-sans transition-all shadow-xs"
                 />
                 <div className="flex justify-end gap-3 pt-1">
                   {text && (
@@ -782,7 +791,7 @@ export default function Dashboard() {
                       className="flex items-center gap-1 px-4 py-2 rounded-xl border border-danger-color/30 hover:bg-danger-color/10 text-xs font-bold text-danger-color transition-colors cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
-                      Clear
+                      {t('clearBtn')}
                     </button>
                   )}
                   <button
@@ -794,13 +803,13 @@ export default function Dashboard() {
                       isUploading
                     }
                     onClick={handleAnalyze}
-                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold bg-btn-bg text-btn-text hover:opacity-90 transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer shadow-md active:scale-[0.98] btn-premium"
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold bg-btn-bg text-btn-text hover:opacity-90 transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer shadow-sm active:scale-98 btn-premium"
                   >
                     {isAnalyzing ? (
                       <RefreshCw className="w-4 h-4 animate-spin text-btn-text" />
                     ) : (
                       <>
-                        <span>Scan Document</span>
+                        <span>{t('scanDocumentBtn')}</span>
                         <ArrowRight className="w-4 h-4" />
                       </>
                     )}
@@ -813,10 +822,10 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={() => setIsCompanyModalOpen(true)}
-                className="w-full p-3.5 rounded-2xl border border-accent-color/30 bg-accent-color/10 hover:bg-accent-color/15 text-accent-color transition-all flex items-center justify-between gap-3 shadow-sm cursor-pointer group card-premium"
+                className="w-full p-3.5 rounded-2xl border border-accent-color/30 bg-accent-color/10 hover:bg-accent-color/15 text-accent-color transition-all flex items-center justify-between gap-3 shadow-xs cursor-pointer group card-premium"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-accent-color/20 text-accent-color flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-8 h-8 rounded-xl bg-accent-color/20 text-accent-color flex items-center justify-center shrink-0 group-hover:scale-102 transition-transform">
                     <Building2 className="w-4.5 h-4.5" />
                   </div>
                   <div className="text-left">
@@ -824,29 +833,31 @@ export default function Dashboard() {
                       {t('companyRegistryBtn')}
                     </span>
                     <span className="text-[10px] text-text-secondary block">
-                      Verify MCA CIN numbers & official domains
+                      {t('companyRegistryBtnSub')}
                     </span>
                   </div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-accent-color shrink-0 group-hover:translate-x-0.5 transition-transform" />
               </button>
 
-              <div className="rounded-2xl border border-border-color bg-card-bg shadow-sm card-premium p-5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-warning-color/2 rounded-full blur-xl" />
-                <h3 className="text-xs font-bold text-text-primary dark:text-accent-color uppercase tracking-wider mb-4 flex items-center gap-2">
+              <div className="rounded-2xl border border-border-color bg-card-bg shadow-xs card-premium p-5 relative overflow-hidden">
+                <h3 className="text-xs font-bold text-text-primary dark:text-accent-color uppercase tracking-wider mb-3 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-warning-color" />
-                  {t('sampleTemplates')}
+                  {t('quickTemplatesTitle')}
                 </h3>
+                <p className="text-[11px] text-text-secondary mb-3">
+                  {t('quickTemplatesDesc')}
+                </p>
                 <div className="flex flex-col gap-2.5">
                   {MOCK_SCAM_TEMPLATES.map((tmpl, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => loadTemplate(tmpl)}
-                      className="w-full text-left p-3 rounded-xl border border-border-color bg-app-bg hover:border-accent-color/50 text-xs transition-all flex flex-col gap-1.5 cursor-pointer shadow-sm text-text-primary"
+                      className="w-full text-left p-3 rounded-xl border border-border-color bg-app-bg hover:border-accent-color/50 text-xs transition-colors flex flex-col gap-1 cursor-pointer shadow-xs text-text-primary"
                     >
                       <span className="font-bold text-text-primary">
-                        {tmpl.name}
+                        {t(tmpl.key) || tmpl.name}
                       </span>
                       <span className="text-[10px] text-text-secondary line-clamp-1">
                         {tmpl.text}
@@ -857,7 +868,7 @@ export default function Dashboard() {
               </div>
               <div
                 id="threat-trend-chart"
-                className="rounded-2xl border border-border-color bg-card-bg shadow-sm card-premium p-5 relative overflow-hidden"
+                className="rounded-2xl border border-border-color bg-card-bg shadow-xs card-premium p-5 relative overflow-hidden"
               >
                 <RiskChart />
               </div>
@@ -877,7 +888,7 @@ export default function Dashboard() {
               <div className="px-4 py-3 border-b border-border-color bg-app-bg flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-text-primary dark:text-accent-color flex items-center gap-2">
                   <Camera className="w-4 h-4 text-accent-color" />
-                  Live Camera Capture
+                  {t('cameraTitle')}
                 </span>
                 <button
                   type="button"
@@ -913,11 +924,11 @@ export default function Dashboard() {
 
                     {isCapturing && (
                       <div className="absolute inset-0 border-y-2 border-accent-color/80 bg-accent-color/5 flex items-center justify-center">
-                        <div className="w-full h-0.5 bg-accent-color shadow-[0_0_12px_#10b981] absolute animate-[bounce_1.5s_infinite]" />
-                        <span className="text-xs font-bold text-accent-color uppercase tracking-widest font-mono drop-shadow-md bg-black/80 px-3 py-1.5 rounded-md">
+                        <div className="w-full h-0.5 bg-accent-color absolute" />
+                        <span className="text-xs font-bold text-accent-color uppercase tracking-widest font-mono bg-black/80 px-3 py-1.5 rounded-md">
                           {isOcrProcessing
-                            ? `Extracting Text (OCR)... ${ocrProgress}%`
-                            : "Capturing Frame..."}
+                            ? `${t('ocrProcessing')}... ${ocrProgress}%`
+                            : t('scanningBtn')}
                         </span>
                       </div>
                     )}
@@ -930,7 +941,7 @@ export default function Dashboard() {
                   onClick={stopCamera}
                   className="px-4 py-2 rounded-xl border border-border-color hover:bg-border-color text-xs font-bold text-text-secondary cursor-pointer"
                 >
-                  Cancel
+                  {t('cancel')}
                 </button>
                 <button
                   type="button"
@@ -939,7 +950,7 @@ export default function Dashboard() {
                   className="px-5 py-2.5 rounded-xl bg-btn-bg text-btn-text hover:opacity-90 font-bold text-xs flex items-center gap-1.5 disabled:opacity-40 cursor-pointer btn-premium"
                 >
                   <Play className="w-4 h-4" />
-                  Capture & Parse
+                  {t('takePhoto')}
                 </button>
               </div>
             </motion.div>
