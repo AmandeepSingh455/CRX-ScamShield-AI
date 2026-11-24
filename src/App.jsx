@@ -4,6 +4,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import Scan from './pages/Scan';
 import AnalysisResult from './pages/AnalysisResult';
 import LiveMonitor from './pages/LiveMonitor';
 import ThreatMap from './pages/ThreatMap';
@@ -18,7 +19,7 @@ function ProtectedRoute({ children }) {
       // If page was restored from browser BFcache and user is not authenticated
       if (e.persisted && !isAuthenticated) {
         window.location.replace('/login');
-      }
+      }             
     };
     window.addEventListener('pageshow', handlePageShow);
     return () => window.removeEventListener('pageshow', handlePageShow);
@@ -90,6 +91,14 @@ function AppContent() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/scan"
+        element={
+          <ProtectedRoute>
+            <Scan />
           </ProtectedRoute>
         }
       />

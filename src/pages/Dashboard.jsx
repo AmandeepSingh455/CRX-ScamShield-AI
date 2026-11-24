@@ -1,500 +1,45 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import Navbar from "../components/Navbar";
 import RiskChart from "../components/RiskChart";
 import CompanyRegistryModal from "../components/CompanyRegistryModal";
-import { analyzeScam, analyzeScamAsync } from "../utils/scamAnalyzer";
-import { createWorker } from "tesseract.js";
 import {
-  Upload,
-  Camera,
-  Trash2,
   ArrowRight,
   ShieldAlert,
   ShieldCheck,
   CheckCircle2,
   AlertTriangle,
-  Play,
-  X,
-  Sparkles,
-  RefreshCw,
   Building2,
+  Plus,
+  PhoneCall,
+  Sparkles,
+  Shield,
+  Scan as ScanIcon,
+  ExternalLink,
+  Lock,
+  FileText,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-
-const MOCK_SCAM_TEMPLATES = [
-  {
-    key: "templateTaskScam",
-    name: "YouTube / Telegram Task Scam",
-    filename: "Telegram_Task_Trap.txt",
-    text: "Hello! You have been selected for online work from home. Earn ₹3000 to ₹5000 daily by liking YouTube videos and subscribing to Telegram channels. 100% guaranteed job. Direct daily payout to UPI or GPay. To activate your merchant task account, please deposit ₹500 security deposit. Pay now immediately as limited slots remain.",
-  },
-  {
-    key: "templateDigitalArrest",
-    name: "Digital Arrest Cyber Extortion Scam",
-    filename: "Mumbai_Police_Customs_Notice.txt",
-    text: "URGENT LEGAL NOTICE: This is officer Sharma from Mumbai Police Crime Branch and Narcotics Department. A parcel seized by customs at airport contains 5 passports and illegal drugs registered under your Aadhaar. You are under digital arrest. Connect to Skype video call immediately for clearance. Transfer ₹45,000 to government clearance account to avoid immediate physical arrest warrant.",
-  },
-  {
-    key: "templateFakeTata",
-    name: "Fake Tata Offer (Fake CIN + Gmail)",
-    filename: "Tata_Motors_Appointment_Letter.pdf",
-    text: "OFFER LETTER - TATA MOTORS LIMITED\nCorporate Identity No: CIN-FAKE99999\nContact: tatamotors.recruitment@gmail.com\n\nDear Applicant, You have been directly selected for the position of Senior Executive. Salary: ₹12,00,000 per annum. Direct offer letter without interview. You must pay ₹2,500 onboarding gate pass and laptop security fee to our account via PhonePe / UPI today to confirm placement.",
-  },
-  {
-    key: "templateGenuineTcs",
-    name: "Genuine TCS Offer (Verified MCA CIN)",
-    filename: "TCS_Genuine_Appointment_Letter.pdf",
-    text: "TATA CONSULTANCY SERVICES LIMITED\nCorporate Identification Number (CIN): L22210MH1995PLC084781\nWebsite: https://www.tcs.com | careers@tcs.com\nTCS House, Raveline Street, Fort, Mumbai - 400001, Maharashtra, India\n\nDear Candidate, We take pleasure in offering you the role of Systems Engineer with Tata Consultancy Services Limited. This offer is contingent upon successful verification of your educational credentials and background check. Please note: TCS does not charge any registration, recruitment, or laptop security fees from candidates at any stage of the recruitment process.",
-  },
-  {
-    key: "templateDataEntry",
-    name: "Work From Home Data Entry Trap",
-    filename: "WFH_DataEntry_Offer.txt",
-    text: "CONGRATULATIONS! You have been selected for our Work From Home Data Entry position. The salary is $45 per hour. To proceed, please pay a registration fee of $30 to cover the software licensing fee. We guarantee 100% placement and limited seats are available. Pay now immediately to secure your seat.",
-  },
-];
-
-const convertToBase64 = (fileOrBlob) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(fileOrBlob);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
-};
+import { motion } from "framer-motion";
 
 export default function Dashboard() {
   const {
-    user,
     history,
-    addScan,
-    activeScan,
-    setActiveScan,
-    shouldOpenFilePicker,
-    setShouldOpenFilePicker,
+    user,
     isLeftDrawerOpen,
-    setIsLeftDrawerOpen,
-    setIsRightDrawerOpen,
-    addToast,
+    openHelpline,
     t,
   } = useApp();
   const navigate = useNavigate();
 
-  const [text, setText] = useState("");
-  const [filename, setFilename] = useState("");
-  const [fileSize, setFileSize] = useState("");
-  const [isDragActive, setIsDragActive] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [latestScanResult, setLatestScanResult] = useState(null);
-  const [currentPreviewUrl, setCurrentPreviewUrl] = useState(null);
-  const resultsRef = useRef(null);
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
-  const unsavedPreviewRef = useRef(null);
-
-  useEffect(() => {
-    return () => {
-      if (
-        unsavedPreviewRef.current &&
-        unsavedPreviewRef.current.startsWith("blob:")
-      ) {
-        try {
-          URL.revokeObjectURL(unsavedPreviewRef.current);
-        } catch (e) {}
-      }
-    };
-  }, []);
-
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-
-  const [isOcrProcessing, setIsOcrProcessing] = useState(false);
-  const [ocrProgress, setOcrProgress] = useState(0);
-  const [ocrError, setOcrError] = useState("");
-
-  const [cameraOpen, setCameraOpen] = useState(false);
-  const [cameraStream, setCameraStream] = useState(null);
-  const [cameraError, setCameraError] = useState("");
-  const [isCapturing, setIsCapturing] = useState(false);
-
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const fileInputRef = useRef(null);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
   useEffect(() => {
     if (!user) {
-      navigate("/login");
+      navigate("/login", { replace: true });
     }
   }, [user, navigate]);
-
-  useEffect(() => {
-    if (shouldOpenFilePicker) {
-      setShouldOpenFilePicker(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.click();
-      }
-    }
-  }, [shouldOpenFilePicker, setShouldOpenFilePicker]);
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.ctrlKey && e.key.toLowerCase() === "u") {
-        e.preventDefault();
-        if (fileInputRef.current) {
-          fileInputRef.current.click();
-        }
-      }
-      if (e.ctrlKey && e.key.toLowerCase() === "h") {
-        e.preventDefault();
-        setIsRightDrawerOpen((prev) => !prev);
-      }
-      if (e.key === "Escape") {
-        setIsLeftDrawerOpen(false);
-        setIsRightDrawerOpen(false);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [setIsLeftDrawerOpen, setIsRightDrawerOpen]);
-
-  const totalScans = history.length;
-  const flaggedScams = history.filter(
-    (scan) => scan.result.riskScore >= 50,
-  ).length;
-  const suspiciousScams = history.filter(
-    (scan) => scan.result.riskScore >= 20 && scan.result.riskScore < 50,
-  ).length;
-  const avgRisk =
-    totalScans > 0
-      ? Math.round(
-          history.reduce((sum, item) => sum + item.result.riskScore, 0) /
-            totalScans,
-        )
-      : 0;
-
-  const runOcr = async (imageSource) => {
-    setIsOcrProcessing(true);
-    setOcrProgress(0);
-    setOcrError("");
-
-    try {
-      const worker = await createWorker("eng", 1, {
-        logger: (m) => {
-          if (m.status === "recognizing text") {
-            setOcrProgress(Math.round(m.progress * 100));
-          }
-        },
-      });
-
-      const {
-        data: { text: extractedText },
-      } = await worker.recognize(imageSource);
-
-      await worker.terminate();
-      return extractedText.trim();
-    } catch (err) {
-      console.error("OCR failed:", err);
-      setOcrError(
-        "Could not read text from this image. Try a clearer photo or paste the text manually.",
-      );
-      addToast("OCR Text extraction failed.", "error");
-      return "";
-    } finally {
-      setIsOcrProcessing(false);
-      setOcrProgress(0);
-    }
-  };
-
-  const handleDrag = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setIsDragActive(true);
-    } else if (e.type === "dragleave") {
-      setIsDragActive(false);
-    }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      processFile(e.dataTransfer.files[0]);
-    }
-  };
-
-  const handleFileInput = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      processFile(e.target.files[0]);
-      // Reset input value so re-selecting the exact same file fires onChange cleanly
-      e.target.value = "";
-    }
-  };
-
-  const processFile = async (file) => {
-    if (
-      unsavedPreviewRef.current &&
-      unsavedPreviewRef.current.startsWith("blob:")
-    ) {
-      try {
-        URL.revokeObjectURL(unsavedPreviewRef.current);
-      } catch (err) {}
-    }
-    setCurrentPreviewUrl(null);
-    unsavedPreviewRef.current = null;
-
-    if (
-      file.type.match("image.*") ||
-      file.name.match(/\.(png|jpe?g|gif|webp)$/i)
-    ) {
-      try {
-        const base64 = await convertToBase64(file);
-        setCurrentPreviewUrl(base64);
-        unsavedPreviewRef.current = base64;
-      } catch (err) {
-        console.error("Failed to convert image to Base64:", err);
-      }
-    }
-
-    setIsUploading(true);
-    setUploadProgress(40);
-    setFilename(file.name);
-
-    const sizeStr =
-      file.size > 1024 * 1024
-        ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
-        : `${Math.round(file.size / 1024)} KB`;
-    setFileSize(sizeStr);
-    setOcrError("");
-
-    setTimeout(async () => {
-      setUploadProgress(100);
-      setIsUploading(false);
-      addToast(`Document "${file.name}" uploaded successfully.`, "success");
-
-      if (
-        file.type.match("image.*") ||
-        file.name.match(/\.(png|jpe?g|gif|webp)$/i)
-      ) {
-        setText("");
-        const extractedText = await runOcr(file);
-        if (extractedText && extractedText.trim()) {
-          setText(extractedText.trim());
-          addToast("OCR text extraction complete.", "success");
-        } else {
-          setText(
-            `[DOCUMENT IMAGE: ${file.name}]\nNo clear text could be read by OCR. You can paste the offer or recruitment message manually, or click Scan Document to inspect available document metadata.`
-          );
-        }
-      } else if (file.name.endsWith(".pdf")) {
-        // PDF document processing
-        setText(
-          `OFFICIAL APPOINTMENT / OFFER DOCUMENT [${file.name}]\nCorporate verification & offer document loaded.\nPlease verify corporate identification, HR contacts, and terms.`
-        );
-        addToast("PDF document processed.", "info");
-      } else {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const content = e.target.result || "";
-          setText(content);
-          addToast("Document text loaded.", "success");
-        };
-        reader.readAsText(file);
-      }
-    }, 250);
-  };
-
-  const loadTemplate = (template) => {
-    setFilename(template.filename);
-    setFileSize("1.2 KB");
-    setText(template.text);
-    addToast(`Template loaded: ${template.name}`, "info");
-  };
-
-  const handleSelectCompany = (company) => {
-    const fname = `${company.name.replace(/[^a-zA-Z0-9]/g, "_")}_Offer_Letter.pdf`;
-    setFilename(fname);
-    setFileSize("3.4 KB");
-    setText(
-      `OFFICIAL APPOINTMENT LETTER\n\n` +
-      `Organization: ${company.name}\n` +
-      `Corporate Identification Number (CIN): ${company.cin}\n` +
-      `Sector: ${company.sector}\n` +
-      `Registered Office: ${company.city}, ${company.state}, India\n` +
-      `Official Career Portal: https://${company.domain}/careers\n` +
-      `HR Contact: talent@${company.domain}\n\n` +
-      `Dear Candidate,\n\n` +
-      `We are pleased to inform you that you have been offered employment with ${company.name}. Following technical assessment and interview rounds, your appointment is confirmed for the role of Senior Associate.\n\n` +
-      `Please review the enclosed terms. Note that ${company.name} never solicits money, registration fees, laptop charges, or deposits from candidates at any time.\n\n` +
-      `Corporate HR Team\n${company.name}`
-    );
-    addToast(`Loaded ${company.name} offer with verified CIN: ${company.cin}`, "success");
-  };
-
-  // Camera
-  const startCamera = async () => {
-    setCameraError("");
-    setCameraOpen(true);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-      });
-      setCameraStream(stream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-    } catch (err) {
-      console.error(err);
-      setCameraError(
-        "Webcam access was denied or is unavailable. Please check permission settings.",
-      );
-    }
-  };
-
-  const stopCamera = () => {
-    if (cameraStream) {
-      cameraStream.getTracks().forEach((track) => track.stop());
-      setCameraStream(null);
-    }
-    setCameraOpen(false);
-  };
-
-  const capturePhoto = async () => {
-    if (!videoRef.current) return;
-
-    setIsCapturing(true);
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    const blob = await new Promise((resolve) =>
-      canvas.toBlob(resolve, "image/png"),
-    );
-
-    stopCamera();
-
-    if (
-      unsavedPreviewRef.current &&
-      unsavedPreviewRef.current.startsWith("blob:")
-    ) {
-      try {
-        URL.revokeObjectURL(unsavedPreviewRef.current);
-      } catch (err) {}
-    }
-    unsavedPreviewRef.current = null;
-
-    const capturedFilename = `camera_scan_${Date.now().toString().slice(-4)}.png`;
-    setFilename(capturedFilename);
-    setFileSize("450 KB");
-    setText("");
-
-    try {
-      const base64 = await convertToBase64(blob);
-      setCurrentPreviewUrl(base64);
-      unsavedPreviewRef.current = base64;
-    } catch (err) {
-      console.error("Failed to convert captured photo to Base64:", err);
-    }
-
-    const extractedText = await runOcr(blob);
-
-    setText(
-      extractedText ||
-        "No readable text was found. Try holding the camera steadier and closer to the text.",
-    );
-
-    setIsCapturing(false);
-    addToast("Camera capture processed.", "success");
-  };
-
-  const handleAnalyze = async () => {
-    if (isOcrProcessing) {
-      addToast("Extracting text from document image... Please wait a moment.", "info");
-      return;
-    }
-
-    const textToScan = text.trim() || (filename ? `[SCANNED DOCUMENT FILE: ${filename}]\nUploaded document verified for recruitment anomalies and credentials.` : "");
-    if (!textToScan) {
-      addToast("Please upload a document or paste recruitment message text to scan.", "warning");
-      return;
-    }
-
-    setIsAnalyzing(true);
-    try {
-      const result = await analyzeScamAsync(textToScan, filename);
-      const newScan = addScan(
-        filename || "Direct Document Scan",
-        textToScan,
-        result,
-        currentPreviewUrl,
-      );
-      setActiveScan(newScan);
-      setLatestScanResult(newScan);
-      setCurrentPreviewUrl(null);
-      unsavedPreviewRef.current = null;
-
-      // Trigger notifications depending on diagnostic danger score
-      if (result.verdict === "Scam" || result.riskScore >= 70) {
-        addToast("Alert: High-threat scam document detected!", "error");
-      } else if (result.verdict === "Suspicious" || result.riskScore >= 35) {
-        addToast("Warning: Suspicious document anomalies identified.", "warning");
-      } else if (result.verdict === "Needs Verification") {
-        addToast("Caution: Document unverified. Independent verification needed.", "warning");
-      } else {
-        addToast("Success: Document evaluated authentic & genuine.", "success");
-      }
-
-      // Smoothly scroll down to the Results Dashboard card
-      setTimeout(() => {
-        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
-    } catch (err) {
-      console.error("Analysis execution error:", err);
-      const fallbackResult = analyzeScam(textToScan, filename);
-      const newScan = addScan(
-        filename || "Direct Document Scan",
-        textToScan,
-        fallbackResult,
-        null,
-      );
-      setActiveScan(newScan);
-      setLatestScanResult(newScan);
-      setTimeout(() => {
-        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const handleClear = () => {
-    setText("");
-    setFilename("");
-    setFileSize("");
-    setOcrError("");
-    setLatestScanResult(null);
-    if (
-      unsavedPreviewRef.current &&
-      unsavedPreviewRef.current.startsWith("blob:")
-    ) {
-      try {
-        URL.revokeObjectURL(unsavedPreviewRef.current);
-      } catch (err) {}
-    }
-    setCurrentPreviewUrl(null);
-    unsavedPreviewRef.current = null;
-    addToast("Workspace cleared.", "info");
-  };
-
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
   useEffect(() => {
     const handleResize = () => {
@@ -504,49 +49,84 @@ export default function Dashboard() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Compute metrics from history
+  const totalScans = history.length;
+  const flaggedScams = history.filter(
+    (item) => item.result?.verdict === "Scam" || (item.result?.riskScore ?? 0) >= 70
+  ).length;
+  const suspiciousScams = history.filter(
+    (item) =>
+      item.result?.verdict === "Suspicious" ||
+      ((item.result?.riskScore ?? 0) >= 35 && (item.result?.riskScore ?? 0) < 70)
+  ).length;
+  const avgRisk =
+    totalScans > 0
+      ? Math.round(
+          history.reduce((acc, curr) => acc + (curr.result?.riskScore ?? 0), 0) /
+            totalScans
+        )
+      : 0;
+
+  const handleSelectCompany = (company) => {
+    setIsCompanyModalOpen(false);
+    navigate("/scan", { state: { templateCompany: company } });
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-app-bg text-text-primary transition-all duration-300 pt-18">
       <Navbar />
-      <canvas ref={canvasRef} className="hidden" />
+
       <div className="grow w-full flex flex-col min-w-0 overflow-hidden">
         <motion.main
           animate={{
             marginLeft: isDesktop && isLeftDrawerOpen ? "320px" : "0px",
-            width:
-              isDesktop && isLeftDrawerOpen ? "calc(100% - 320px)" : "100%",
+            width: isDesktop && isLeftDrawerOpen ? "calc(100% - 320px)" : "100%",
           }}
           transition={{ type: "tween", ease: "easeInOut", duration: 0.25 }}
           className="flex-1 p-4 sm:p-6 lg:p-8 space-y-8 overflow-x-hidden min-w-0"
         >
+          {/* Header Title Bar */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border-color pb-6">
             <div>
               <h2 className="text-2xl font-bold tracking-tight text-text-primary">
-                {t('securityWorkspaceTitle')}
+                {t('securityWorkspaceTitle') || "Security Workspace"}
               </h2>
               <p className="text-xs text-text-secondary mt-1">
-                {t('securityWorkspaceSubtitle')}
+                {t('securityWorkspaceSubtitle') || "Enterprise AI-powered scam defense, offer authentication, and threat telemetry."}
               </p>
             </div>
-            <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full border border-accent-color/20 bg-accent-color/5 dark:bg-accent-color/10 text-accent-color self-start md:self-auto shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-accent-color" />
-              {t('scannerVersion')}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full border border-accent-color/20 bg-accent-color/5 dark:bg-accent-color/10 text-accent-color shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-accent-color animate-pulse" />
+                {t('scannerVersion') || "Scanner Engine v4.2 Active"}
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate("/scan")}
+                className="bg-blue-600 hover:bg-blue-500 active:scale-98 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              >
+                <Plus className="w-4 h-4 stroke-[2.5]" />
+                <span>New scan</span>
+              </button>
             </div>
           </div>
+
+          {/* Top 4 KPI Metrics Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Stat 1: Total Scans */}
             <motion.div
               whileHover={{ y: -2 }}
               transition={{ duration: 0.15 }}
-              className="p-5 rounded-2xl border border-border-color bg-card-bg shadow-xs card-premium relative overflow-hidden"
+              className="p-5 rounded-2xl border border-border-color bg-card-bg shadow-xs card-premium relative overflow-hidden text-left"
             >
               <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider block">
-                {t('totalScans')}
+                {t('totalScans') || "TOTAL SCANS PROCESSED"}
               </span>
               <span className="text-3xl font-extrabold block mt-2 font-mono text-text-primary">
                 {totalScans}
               </span>
               <span className="text-[9px] text-text-secondary mt-1 block">
-                {t('totalScansDesc')}
+                {t('totalScansDesc') || "Total forensic diagnostic jobs conducted"}
               </span>
             </motion.div>
 
@@ -554,19 +134,19 @@ export default function Dashboard() {
             <motion.div
               whileHover={{ y: -2 }}
               transition={{ duration: 0.15 }}
-              className="p-5 rounded-2xl border border-danger-color/20 bg-card-bg dark:bg-danger-color/5 shadow-xs card-premium relative overflow-hidden"
+              className="p-5 rounded-2xl border border-danger-color/20 bg-card-bg dark:bg-danger-color/5 shadow-xs card-premium relative overflow-hidden text-left"
             >
               <div className="absolute top-3 right-3 text-danger-color/40">
                 <ShieldAlert className="w-4.5 h-4.5" />
               </div>
               <span className="text-[10px] font-bold text-danger-color uppercase tracking-wider block">
-                {t('scamsDetected')}
+                {t('scamsDetected') || "SCAMS DETECTED"}
               </span>
               <span className="text-3xl font-extrabold block mt-2 font-mono text-danger-color">
                 {flaggedScams}
               </span>
               <span className="text-[9px] text-danger-color/80 mt-1 block">
-                {t('scamsDetectedDesc')}
+                {t('scamsDetectedDesc') || "Critical fraud & extortion demands flagged"}
               </span>
             </motion.div>
 
@@ -574,19 +154,19 @@ export default function Dashboard() {
             <motion.div
               whileHover={{ y: -2 }}
               transition={{ duration: 0.15 }}
-              className="p-5 rounded-2xl border border-warning-color/20 bg-card-bg dark:bg-warning-color/5 shadow-xs card-premium relative overflow-hidden"
+              className="p-5 rounded-2xl border border-warning-color/20 bg-card-bg dark:bg-warning-color/5 shadow-xs card-premium relative overflow-hidden text-left"
             >
               <div className="absolute top-3 right-3 text-warning-color/40">
                 <AlertTriangle className="w-4.5 h-4.5" />
               </div>
               <span className="text-[10px] font-bold text-warning-color uppercase tracking-wider block">
-                {t('suspiciousLogs')}
+                {t('suspiciousLogs') || "SUSPICIOUS ANOMALIES"}
               </span>
               <span className="text-3xl font-extrabold block mt-2 font-mono text-warning-color">
                 {suspiciousScams}
               </span>
               <span className="text-[9px] text-warning-color/80 mt-1 block">
-                {t('suspiciousLogsDesc')}
+                {t('suspiciousLogsDesc') || "Unverified recruiter entities and warnings"}
               </span>
             </motion.div>
 
@@ -594,616 +174,262 @@ export default function Dashboard() {
             <motion.div
               whileHover={{ y: -2 }}
               transition={{ duration: 0.15 }}
-              className="p-5 rounded-2xl border border-accent-color/20 bg-card-bg dark:bg-accent-color/5 shadow-xs card-premium relative overflow-hidden"
+              className="p-5 rounded-2xl border border-accent-color/20 bg-card-bg dark:bg-accent-color/5 shadow-xs card-premium relative overflow-hidden text-left"
             >
               <div className="absolute top-3 right-3 text-accent-color/40">
                 <CheckCircle2 className="w-4.5 h-4.5" />
               </div>
               <span className="text-[10px] font-bold text-accent-color uppercase tracking-wider block">
-                {t('avgThreatIndex')}
+                {t('avgThreatIndex') || "AVERAGE THREAT INDEX"}
               </span>
               <span className="text-3xl font-extrabold block mt-2 font-mono text-accent-color">
                 {avgRisk}%
               </span>
               <span className="text-[9px] text-accent-color/80 mt-1 block">
-                {t('avgThreatIndexDesc')}
+                {t('avgThreatIndexDesc') || "Aggregate risk baseline across user records"}
               </span>
             </motion.div>
           </div>
+
+          {/* Main 2-Column Dashboard Sections */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
-              <div className="flex justify-between items-center">
-                <h3 className="text-xs font-bold text-text-secondary dark:text-accent-color uppercase tracking-wider">
-                  {t('documentWorkspaceTitle')}
-                </h3>
-              </div>
-              <div
-                onDragEnter={handleDrag}
-                onDragOver={handleDrag}
-                onDragLeave={handleDrag}
-                onDrop={handleDrop}
-                onClick={(_e) => {
-                  if (isOcrProcessing || isUploading || filename) return;
-                  fileInputRef.current?.click();
-                }}
-                className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center text-center transition-all duration-200 shadow-xs relative overflow-hidden min-h-60 ${
-                  isOcrProcessing || isUploading
-                    ? "cursor-default"
-                    : "cursor-pointer"
-                } ${
-                  isDragActive
-                    ? "border-accent-color bg-accent-color/5"
-                    : filename && !isOcrProcessing && !isUploading
-                      ? "border-emerald-500/40 bg-emerald-500/5 dark:bg-emerald-500/5"
-                      : "border-border-color hover:border-accent-color bg-card-bg/30"
-                }`}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  onChange={handleFileInput}
-                  accept=".pdf,.png,.jpg,.jpeg"
-                  className="hidden"
-                />
+            {/* Left 2 Columns: Executive Overview & Scan Launch Hero */}
+            <div className="lg:col-span-2 space-y-6 text-left">
+              {/* Hero Quick Launch Card */}
+              <div className="rounded-2xl border border-border-color bg-gradient-to-br from-card-bg to-accent-color/5 p-6 sm:p-8 shadow-sm card-premium space-y-5">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div className="space-y-2 max-w-xl">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Dedicated Scanning Workspace Ready</span>
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-text-primary">
+                      AI-Powered Scam & Fraud Detection
+                    </h3>
+                    <p className="text-xs text-text-secondary leading-relaxed">
+                      Verify offer letters, task screenshots, recruiter WhatsApp/Telegram messages, and suspicious URLs against verified MCA corporate registries and multi-factor neural fraud models.
+                    </p>
+                  </div>
 
-                <AnimatePresence mode="wait">
-                  {isUploading ? (
-                    // --- State 1: Uploading Progress bar ---
-                    <motion.div
-                      key="uploading-progress"
-                      initial={{ opacity: 0, scale: 0.98 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.98 }}
-                      className="flex flex-col items-center w-full max-w-xs"
-                    >
-                      <div className="w-12 h-12 rounded-xl bg-app-bg border border-border-color flex items-center justify-center text-accent-color mb-3">
-                        <RefreshCw className="w-5 h-5 animate-spin text-accent-color" />
-                      </div>
-                      <span className="text-xs font-bold text-text-primary uppercase tracking-wider">
-                        {t('uploadingTitle')} {uploadProgress}%
-                      </span>
-                      <span className="text-[10px] text-text-secondary mt-1.5 max-w-55 truncate block font-mono">
-                        {filename}
-                      </span>
-
-                      <div className="mt-4 w-full">
-                        <div className="w-full h-1.5 rounded-full bg-border-color overflow-hidden">
-                          <div
-                            className="h-full bg-accent-color transition-all duration-100"
-                            style={{ width: `${uploadProgress}%` }}
-                          />
-                        </div>
-                      </div>
-                    </motion.div>
-                  ) : isOcrProcessing ? (
-                    // --- State 2: OCR Processing ---
-                    <motion.div
-                      key="ocr-processing"
-                      initial={{ opacity: 0, scale: 0.98 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.98 }}
-                      transition={{ duration: 0.2 }}
-                      className="flex flex-col items-center"
-                    >
-                      <div className="w-12 h-12 rounded-xl bg-app-bg border border-border-color flex items-center justify-center text-accent-color mb-3">
-                        <RefreshCw className="w-5 h-5 animate-spin text-accent-color" />
-                      </div>
-                      <span className="text-xs font-bold text-text-primary uppercase tracking-wider">
-                        {t('readingDocumentTitle')}
-                      </span>
-                      <span className="text-[11px] text-text-secondary mt-1.5">
-                        {t('extractingContentDesc')}
-                      </span>
-
-                      <div className="mt-4 w-full max-w-xs">
-                        <div className="flex justify-between text-[10px] text-text-secondary mb-1">
-                          <span>{t('ocrProcessing')}</span>
-                          <span>{ocrProgress}%</span>
-                        </div>
-                        <div className="w-full h-1.5 rounded-full bg-border-color overflow-hidden">
-                          <div
-                            className="h-full bg-accent-color transition-all duration-200"
-                            style={{ width: `${ocrProgress}%` }}
-                          />
-                        </div>
-                      </div>
-                    </motion.div>
-                  ) : filename ? (
-                    // --- State 3: Upload Success state with clean check ---
-                    <motion.div
-                      key="upload-success"
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      transition={{ duration: 0.2 }}
-                      className="flex flex-col items-center"
-                    >
-                      <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500 mb-3 shadow-xs">
-                        <CheckCircle2 className="w-6 h-6 text-emerald-500" />
-                      </div>
-                      <span className="text-xs font-bold text-text-primary">
-                        {t('uploadSuccessTitle')}
-                      </span>
-                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono mt-1.5 max-w-xs truncate font-bold bg-emerald-500/10 px-2.5 py-1 border border-emerald-500/20 rounded-lg">
-                        {filename} {fileSize ? `(${fileSize})` : ""}
-                      </span>
-                      <span className="text-[10px] text-text-secondary mt-2">
-                        {t('uploadSuccessDesc')}
-                      </span>
-
-                      <div
-                        className="flex gap-2.5 mt-5"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border-color text-xs font-semibold text-text-primary bg-card-bg hover:bg-app-bg transition-colors shadow-xs cursor-pointer"
-                        >
-                          <Upload className="w-4 h-4 text-accent-color" />
-                          {t('changeFile')}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={startCamera}
-                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border-color text-xs font-semibold text-text-primary bg-card-bg hover:bg-app-bg transition-colors shadow-xs cursor-pointer"
-                        >
-                          <Camera className="w-4 h-4 text-accent-color" />
-                          {t('useCamera')}
-                        </button>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    // --- State 4: Empty State ---
-                    <motion.div
-                      key="empty-upload"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex flex-col items-center"
-                    >
-                      <div className="w-12 h-12 rounded-xl bg-app-bg border border-border-color flex items-center justify-center text-text-secondary mb-3">
-                        <Upload className="w-5 h-5" />
-                      </div>
-
-                      <span className="text-xs font-bold text-text-primary uppercase tracking-wider">
-                        {t('dragDropTitle')}
-                      </span>
-                      <span className="text-[11px] text-text-secondary mt-1.5">
-                        {t('dragDropSubtitle')}
-                      </span>
-
-                      <div
-                        className="flex gap-2.5 mt-5"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <button
-                          type="button"
-                          onClick={startCamera}
-                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border-color text-xs font-semibold text-text-primary bg-card-bg hover:bg-app-bg transition-colors shadow-xs cursor-pointer"
-                        >
-                          <Camera className="w-4 h-4 text-accent-color" />
-                          {t('scanWithCamera')}
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {ocrError && !isOcrProcessing && (
-                  <p className="mt-3 text-[11px] text-danger-color font-semibold max-w-xs">
-                    {ocrError}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center text-xs">
-                  <label
-                    htmlFor="scan-text"
-                    className="font-bold text-text-secondary uppercase tracking-wider"
-                  >
-                    {t('extractedTextLabel')}
-                  </label>
-                  <span className="text-text-secondary font-semibold font-mono">
-                    {text.trim().split(/\s+/).filter(Boolean).length} {t('wordsCount')}
-                  </span>
-                </div>
-                <textarea
-                  id="scan-text"
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  placeholder={t('textPlaceholder')}
-                  rows={8}
-                  className="w-full bg-card-bg/40 border border-border-color text-text-primary focus:border-accent-color focus:ring-2 focus:ring-accent-color/15 focus:outline-none rounded-2xl p-4 text-xs font-medium leading-relaxed resize-y font-sans transition-all shadow-xs"
-                />
-                <div className="flex justify-end gap-3 pt-1">
-                  {text && (
-                    <button
-                      type="button"
-                      onClick={handleClear}
-                      className="flex items-center gap-1 px-4 py-2 rounded-xl border border-danger-color/30 hover:bg-danger-color/10 text-xs font-bold text-danger-color transition-colors cursor-pointer"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      {t('clearBtn')}
-                    </button>
-                  )}
                   <button
                     type="button"
-                    disabled={isAnalyzing}
-                    onClick={handleAnalyze}
-                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold bg-btn-bg text-btn-text hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer shadow-sm active:scale-98 btn-premium"
+                    onClick={() => navigate("/scan")}
+                    className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-98 text-white font-bold text-xs shadow-md flex items-center gap-2 cursor-pointer transition-all shrink-0"
                   >
-                    {isAnalyzing ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin text-btn-text" />
-                        <span>Analyzing Document...</span>
-                      </>
-                    ) : isOcrProcessing ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin text-btn-text" />
-                        <span>Extracting OCR...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>{t('scanDocumentBtn') || "Scan Document"}</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
+                    <ScanIcon className="w-4 h-4" />
+                    <span>Launch New Scan</span>
+                    <ArrowRight className="w-4 h-4" />
                   </button>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-border-color/60 text-center">
+                  <div className="p-2 rounded-xl bg-app-bg/50 border border-border-color">
+                    <span className="text-[10px] text-text-secondary font-medium block">Analysis Engine</span>
+                    <span className="text-xs font-bold text-text-primary mt-0.5 block">Groq AI + OCR</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-app-bg/50 border border-border-color">
+                    <span className="text-[10px] text-text-secondary font-medium block">Verification Policy</span>
+                    <span className="text-xs font-bold text-text-primary mt-0.5 block">Zero-Trust MCA</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-app-bg/50 border border-border-color">
+                    <span className="text-[10px] text-text-secondary font-medium block">Supported Inputs</span>
+                    <span className="text-xs font-bold text-text-primary mt-0.5 block">File, Photo, Text, URL</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-app-bg/50 border border-border-color">
+                    <span className="text-[10px] text-text-secondary font-medium block">Language Support</span>
+                    <span className="text-xs font-bold text-text-primary mt-0.5 block">EN, HI, PA</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Comprehensive Results Dashboard Section */}
-              {latestScanResult && (
-                <motion.div
-                  ref={resultsRef}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="rounded-2xl border border-border-color bg-card-bg shadow-sm p-6 space-y-5 card-premium text-left"
-                >
-                  <div className="flex items-center justify-between border-b border-border-color pb-4 flex-wrap gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-3 rounded-2xl ${
-                        latestScanResult.result?.verdict === "Scam" || (latestScanResult.result?.riskScore ?? 0) >= 70
-                          ? "bg-red-500/10 text-red-600 dark:text-red-400"
-                          : latestScanResult.result?.verdict === "Suspicious" || (latestScanResult.result?.riskScore ?? 0) >= 35
-                          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                          : latestScanResult.result?.verdict === "Needs Verification"
-                          ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                          : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                      }`}>
-                        {latestScanResult.result?.verdict === "Scam" || (latestScanResult.result?.riskScore ?? 0) >= 70 ? (
-                          <ShieldAlert className="w-6 h-6 text-red-600 dark:text-red-400" />
-                        ) : latestScanResult.result?.verdict === "Suspicious" || (latestScanResult.result?.riskScore ?? 0) >= 35 ? (
-                          <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-                        ) : latestScanResult.result?.verdict === "Needs Verification" ? (
-                          <AlertTriangle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                        ) : (
-                          <ShieldCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-                        )}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">
-                            RESULTS DASHBOARD
-                          </span>
-                          <span className="text-xs text-text-secondary">&bull;</span>
-                          <span className="text-[11px] font-mono text-text-secondary">
-                            {new Date(latestScanResult.timestamp).toLocaleTimeString()}
-                          </span>
-                        </div>
-                        <h3 className="text-base font-bold text-text-primary">
-                          {latestScanResult.filename || "Scanned Document Analysis"}
-                        </h3>
-                      </div>
-                    </div>
+              {/* Recent Scan Diagnostics Log */}
+              <div className="rounded-2xl border border-border-color bg-card-bg shadow-sm p-6 space-y-4 card-premium">
+                <div className="flex items-center justify-between border-b border-border-color pb-3">
+                  <div>
+                    <h3 className="text-xs font-bold text-text-primary dark:text-accent-color uppercase tracking-wider">
+                      Recent Scan Diagnostics Log
+                    </h3>
+                    <p className="text-[11px] text-text-secondary mt-0.5">
+                      Review recently evaluated forensic scans and verdicts
+                    </p>
+                  </div>
+                  {history.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => navigate("/scan")}
+                      className="text-xs text-accent-color font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>Open Workspace</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
 
+                {history.length === 0 ? (
+                  <div className="p-8 text-center space-y-3 bg-app-bg/30 rounded-xl border border-border-color">
+                    <div className="w-12 h-12 rounded-full bg-accent-color/10 text-accent-color flex items-center justify-center mx-auto">
+                      <ShieldCheck className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-text-primary">No Scan Diagnostic Records Yet</p>
+                      <p className="text-[11px] text-text-secondary mt-1">
+                        Upload an offer letter, screenshot, or suspicious message to begin protecting candidates.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => navigate("/scan")}
+                      className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Start Your First Scan</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-border-color/60">
+                    {history.slice(0, 5).map((scan) => {
+                      const verdict = scan.result?.verdict || "Completed";
+                      const risk = scan.result?.riskScore ?? 0;
+                      return (
+                        <div
+                          key={scan.id}
+                          className="py-3 flex items-center justify-between gap-4 flex-wrap hover:bg-app-bg/40 px-2 rounded-lg transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-xl ${
+                              verdict === "Scam" || risk >= 70
+                                ? "bg-red-500/10 text-red-500"
+                                : verdict === "Suspicious" || risk >= 35
+                                ? "bg-amber-500/10 text-amber-500"
+                                : verdict === "Needs Verification"
+                                ? "bg-blue-500/10 text-blue-400"
+                                : "bg-emerald-500/10 text-emerald-500"
+                            }`}>
+                              {verdict === "Scam" || risk >= 70 ? (
+                                <ShieldAlert className="w-4 h-4 text-red-500" />
+                              ) : verdict === "Suspicious" || risk >= 35 ? (
+                                <AlertTriangle className="w-4 h-4 text-amber-500" />
+                              ) : (
+                                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-text-primary truncate max-w-xs sm:max-w-md">
+                                {scan.filename || "Direct Document Scan"}
+                              </p>
+                              <p className="text-[10px] text-text-secondary font-mono">
+                                {new Date(scan.timestamp).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                              verdict === "Scam" || risk >= 70
+                                ? "bg-red-500/10 text-red-500 border-red-500/20"
+                                : verdict === "Suspicious" || risk >= 35
+                                ? "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                                : verdict === "Needs Verification"
+                                ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                                : "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                            }`}>
+                              {verdict} ({risk}%)
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={() => navigate("/analysis-result", { state: { scan } })}
+                              className="px-3 py-1 rounded-lg border border-border-color text-[11px] font-semibold text-text-primary hover:bg-app-bg transition-colors cursor-pointer"
+                            >
+                              Inspect
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* National Cyber Helpline 1930 Notice */}
+              <div className="p-4.5 rounded-2xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-200 flex items-start gap-3.5 shadow-xs">
+                <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/80 border border-red-300 dark:border-red-800 text-red-600 dark:text-red-300 flex items-center justify-center shrink-0 mt-0.5">
+                  <PhoneCall className="w-4 h-4 text-red-600 dark:text-red-300" />
+                </div>
+                <div className="space-y-1 grow">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
                     <div className="flex items-center gap-2">
-                      <span className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider shadow-xs ${
-                        latestScanResult.result?.verdict === "Scam" || (latestScanResult.result?.riskScore ?? 0) >= 70
-                          ? "bg-red-500 text-white"
-                          : latestScanResult.result?.verdict === "Suspicious" || (latestScanResult.result?.riskScore ?? 0) >= 35
-                          ? "bg-amber-500 text-slate-950"
-                          : latestScanResult.result?.verdict === "Needs Verification"
-                          ? "bg-blue-600 text-white"
-                          : "bg-emerald-500 text-white"
-                      }`}>
-                        {latestScanResult.result?.verdict === "Scam" || (latestScanResult.result?.riskScore ?? 0) >= 70
-                          ? "SCAM DETECTED"
-                          : latestScanResult.result?.verdict === "Suspicious" || (latestScanResult.result?.riskScore ?? 0) >= 35
-                          ? "SUSPICIOUS DOCUMENT"
-                          : latestScanResult.result?.verdict === "Needs Verification"
-                          ? "NEEDS VERIFICATION"
-                          : "SAFE & GENUINE"}
+                      <span className="font-mono font-black text-lg text-red-600 dark:text-red-400">
+                        1930
+                      </span>
+                      <span className="text-xs font-bold text-red-800 dark:text-red-200 uppercase">
+                        National Cyber Fraud Emergency Helpline
                       </span>
                     </div>
-                  </div>
-
-                  {/* Threat vs Safety Score Bar */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="p-3.5 rounded-xl border border-border-color bg-app-bg/50 space-y-1">
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="text-text-secondary font-medium">Threat Risk Score:</span>
-                        <span className={`font-mono font-bold text-sm ${
-                          (latestScanResult.result?.riskScore ?? 0) >= 50
-                            ? "text-red-600 dark:text-red-400"
-                            : (latestScanResult.result?.riskScore ?? 0) >= 20
-                            ? "text-amber-600 dark:text-amber-400"
-                            : "text-emerald-600 dark:text-emerald-400"
-                        }`}>
-                          {latestScanResult.result?.riskScore ?? 0}%
-                        </span>
-                      </div>
-                      <div className="w-full h-2 rounded-full bg-border-color/40 overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-500 ${
-                            (latestScanResult.result?.riskScore ?? 0) >= 50
-                              ? "bg-red-500"
-                              : (latestScanResult.result?.riskScore ?? 0) >= 20
-                              ? "bg-amber-500"
-                              : "bg-emerald-500"
-                          }`}
-                          style={{ width: `${Math.max(4, latestScanResult.result?.riskScore ?? 0)}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl border border-border-color bg-app-bg/50 space-y-1">
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="text-text-secondary font-medium">Trust & Authenticity Score:</span>
-                        <span className="font-mono font-bold text-sm text-emerald-600 dark:text-emerald-400">
-                          {Math.max(0, 100 - (latestScanResult.result?.riskScore ?? 0))}%
-                        </span>
-                      </div>
-                      <div className="w-full h-2 rounded-full bg-border-color/40 overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-                          style={{ width: `${Math.max(4, 100 - (latestScanResult.result?.riskScore ?? 0))}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Primary Reason / Forensic summary */}
-                  {latestScanResult.result?.primaryReason && (
-                    <div className={`p-4 rounded-xl text-xs leading-relaxed border ${
-                      (latestScanResult.result?.riskScore ?? 0) >= 50
-                        ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-300"
-                        : (latestScanResult.result?.riskScore ?? 0) >= 35
-                        ? "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300"
-                        : latestScanResult.result?.verdict === "Needs Verification"
-                        ? "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900/50 text-blue-800 dark:text-blue-300"
-                        : "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-300"
-                    }`}>
-                      <span className="font-bold text-sm block mb-1">
-                        {(latestScanResult.result?.riskScore ?? 0) >= 70
-                          ? "Scam Verdict Explanation"
-                          : (latestScanResult.result?.riskScore ?? 0) >= 35
-                          ? "Cautionary Diagnostic Findings"
-                          : latestScanResult.result?.verdict === "Needs Verification"
-                          ? "Verification Notice"
-                          : "Authenticity Verification Summary"}
-                      </span>
-                      {latestScanResult.result.primaryReason}
-                    </div>
-                  )}
-
-                  {/* Company verification summary if available */}
-                  {latestScanResult.result?.companyVerification?.verifiedCompany && (
-                    <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                        <div>
-                          <span className="font-bold block">MCA Registered Enterprise: {latestScanResult.result.companyVerification.verifiedCompany.name}</span>
-                          <span className="text-[11px] font-mono text-emerald-700 dark:text-emerald-400">CIN: {latestScanResult.result.companyVerification.verifiedCompany.cin} &bull; Sector: {latestScanResult.result.companyVerification.verifiedCompany.sector}</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Red flags snippet */}
-                  {latestScanResult.result?.flags?.length > 0 ? (
-                    <div className="space-y-2">
-                      <span className="text-[11px] font-bold text-text-secondary uppercase tracking-wider block">
-                        Detected Indicators ({latestScanResult.result.flags.length})
-                      </span>
-                      <div className="flex flex-wrap gap-2">
-                        {latestScanResult.result.flags.slice(0, 6).map((f, i) => (
-                          <span
-                            key={i}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card-bg border border-border-color text-text-primary text-xs font-medium shadow-2xs"
-                          >
-                            <span className="w-2 h-2 rounded-full bg-red-500" />
-                            <strong>{f.label}</strong> (+{f.score})
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/30 text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
-                      <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                      <span>Zero fraudulent keywords or payment solicitation patterns detected in this document.</span>
-                    </div>
-                  )}
-
-                  {/* OCR Extracted Text Preview */}
-                  {latestScanResult.text && (
-                    <div className="space-y-1.5">
-                      <span className="text-[11px] font-bold text-text-secondary uppercase tracking-wider block">
-                        Summary of Scanned OCR Content
-                      </span>
-                      <div className="p-3.5 rounded-xl bg-app-bg/60 border border-border-color text-xs font-mono text-text-secondary line-clamp-3 select-text">
-                        {latestScanResult.text}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Action buttons */}
-                  <div className="flex items-center justify-between pt-3 border-t border-border-color flex-wrap gap-3">
                     <button
                       type="button"
-                      onClick={() => navigate("/analysis-result", { state: { scan: latestScanResult } })}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-accent-color hover:bg-accent-hover text-white transition-all shadow-sm cursor-pointer active:scale-98"
+                      onClick={openHelpline}
+                      className="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white font-mono text-xs font-bold transition-colors cursor-pointer"
                     >
-                      <span>View Full Forensic Report</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLatestScanResult(null);
-                        handleClear();
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-text-primary px-3.5 py-2 rounded-xl border border-border-color hover:bg-app-bg transition-colors cursor-pointer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>Scan Another Document</span>
+                      Call Now
                     </button>
                   </div>
-                </motion.div>
-              )}
+                  <p className="text-[11px] text-red-700 dark:text-red-300 leading-relaxed">
+                    If financial loss has occurred or money was transferred via UPI/QR code, lodge a complaint immediately at cybercrime.gov.in or dial 1930 within the golden hour to freeze fraudulent beneficiary accounts.
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="space-y-6">
+
+            {/* Right Column: Registry, Trends & Awareness */}
+            <div className="space-y-6 text-left">
               {/* 1,000 Registered Companies Directory Button */}
               <button
                 type="button"
                 onClick={() => setIsCompanyModalOpen(true)}
-                className="w-full p-3.5 rounded-2xl border border-accent-color/30 bg-accent-color/10 hover:bg-accent-color/15 text-accent-color transition-all flex items-center justify-between gap-3 shadow-xs cursor-pointer group card-premium"
+                className="w-full p-4 rounded-2xl border border-accent-color/30 bg-accent-color/10 hover:bg-accent-color/15 text-accent-color transition-all flex items-center justify-between gap-3 shadow-xs cursor-pointer group card-premium"
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-accent-color/20 text-accent-color flex items-center justify-center shrink-0 group-hover:scale-102 transition-transform">
-                    <Building2 className="w-4.5 h-4.5" />
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-accent-color/20 text-accent-color flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <Building2 className="w-5 h-5" />
                   </div>
                   <div className="text-left">
                     <span className="text-xs font-bold block text-text-primary group-hover:text-accent-color transition-colors">
-                      {t('companyRegistryBtn')}
+                      {t('companyRegistryBtn') || "1,000+ Registered Companies"}
                     </span>
                     <span className="text-[10px] text-text-secondary block">
-                      {t('companyRegistryBtnSub')}
+                      {t('companyRegistryBtnSub') || "Verify active MCA Corporate CINs & domains"}
                     </span>
                   </div>
                 </div>
-                <ArrowRight className="w-4 h-4 text-accent-color shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-4 h-4 text-accent-color shrink-0 group-hover:translate-x-1 transition-transform" />
               </button>
 
-              <div className="rounded-2xl border border-border-color bg-card-bg shadow-xs card-premium p-5 relative overflow-hidden">
-                <h3 className="text-xs font-bold text-text-primary dark:text-accent-color uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-warning-color" />
-                  {t('quickTemplatesTitle')}
-                </h3>
-                <p className="text-[11px] text-text-secondary mb-3">
-                  {t('quickTemplatesDesc')}
-                </p>
-                <div className="flex flex-col gap-2.5">
-                  {MOCK_SCAM_TEMPLATES.map((tmpl, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => loadTemplate(tmpl)}
-                      className="w-full text-left p-3 rounded-xl border border-border-color bg-app-bg hover:border-accent-color/50 text-xs transition-colors flex flex-col gap-1 cursor-pointer shadow-xs text-text-primary"
-                    >
-                      <span className="font-bold text-text-primary">
-                        {t(tmpl.key) || tmpl.name}
-                      </span>
-                      <span className="text-[10px] text-text-secondary line-clamp-1">
-                        {tmpl.text}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {/* Threat Trend Chart */}
               <div
                 id="threat-trend-chart"
                 className="rounded-2xl border border-border-color bg-card-bg shadow-xs card-premium p-5 relative overflow-hidden"
               >
                 <RiskChart />
               </div>
+
+              {/* Zero-Trust Safety Guidelines */}
+              <div className="rounded-2xl border border-border-color bg-card-bg shadow-xs card-premium p-5 space-y-3">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-text-primary">
+                  <Lock className="w-4 h-4 text-accent-color" />
+                  <span>Golden Rules of Scam Defense</span>
+                </div>
+                <ul className="text-xs text-text-secondary space-y-2 list-disc pl-4 leading-relaxed">
+                  <li><strong>Never pay upfront fees:</strong> Legitimate employers never charge candidates for onboarding, gate passes, laptops, or training.</li>
+                  <li><strong>Check official domain:</strong> Verify that emails originate from <code>@company.com</code>, never public free webmails like Gmail or Yahoo.</li>
+                  <li><strong>Verify 21-digit CIN:</strong> Always cross-reference the Corporate Identification Number on the official MCA portal (<code>mca.gov.in</code>).</li>
+                  <li><strong>No Telegram tasks:</strong> Legitimate brands never pay via UPI for liking YouTube videos or submitting online hotel reviews.</li>
+                </ul>
+              </div>
             </div>
           </div>
         </motion.main>
       </div>
-      <AnimatePresence>
-        {cameraOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md">
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-lg rounded-2xl border border-border-color bg-card-bg overflow-hidden shadow-2xl"
-            >
-              <div className="px-4 py-3 border-b border-border-color bg-app-bg flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-text-primary dark:text-accent-color flex items-center gap-2">
-                  <Camera className="w-4 h-4 text-accent-color" />
-                  {t('cameraTitle')}
-                </span>
-                <button
-                  type="button"
-                  onClick={stopCamera}
-                  className="p-1 rounded-md border border-border-color hover:bg-app-bg text-text-secondary cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              <div className="relative bg-black aspect-video flex items-center justify-center overflow-hidden">
-                {cameraError ? (
-                  <div className="p-6 text-center space-y-3">
-                    <ShieldAlert className="w-8 h-8 text-danger-color mx-auto" />
-                    <p className="text-xs text-danger-color font-semibold">
-                      {cameraError}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={startCamera}
-                      className="px-4 py-2 bg-accent-color text-app-bg rounded-xl text-xs font-bold cursor-pointer"
-                    >
-                      Retry Connection
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      className="w-full h-full object-cover camera-view"
-                    />
-
-                    {isCapturing && (
-                      <div className="absolute inset-0 border-y-2 border-accent-color/80 bg-accent-color/5 flex items-center justify-center">
-                        <div className="w-full h-0.5 bg-accent-color absolute" />
-                        <span className="text-xs font-bold text-accent-color uppercase tracking-widest font-mono bg-black/80 px-3 py-1.5 rounded-md">
-                          {isOcrProcessing
-                            ? `${t('ocrProcessing')}... ${ocrProgress}%`
-                            : t('scanningBtn')}
-                        </span>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-              <div className="p-4 border-t border-border-color bg-app-bg flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={stopCamera}
-                  className="px-4 py-2 rounded-xl border border-border-color hover:bg-border-color text-xs font-bold text-text-secondary cursor-pointer"
-                >
-                  {t('cancel')}
-                </button>
-                <button
-                  type="button"
-                  disabled={!!cameraError || isCapturing}
-                  onClick={capturePhoto}
-                  className="px-5 py-2.5 rounded-xl bg-btn-bg text-btn-text hover:opacity-90 font-bold text-xs flex items-center gap-1.5 disabled:opacity-40 cursor-pointer btn-premium"
-                >
-                  <Play className="w-4 h-4" />
-                  {t('takePhoto')}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       <CompanyRegistryModal
         isOpen={isCompanyModalOpen}

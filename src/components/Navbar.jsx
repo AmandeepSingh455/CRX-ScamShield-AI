@@ -116,9 +116,7 @@ export default function Navbar() {
     setActiveScan(null);
     setIsLeftDrawerOpen(false);
     setIsRightDrawerOpen(false);
-    setShouldOpenFilePicker(true);
-    navigate('/dashboard');
-    addToast("Scanner input trigger initialized.", "info");
+    navigate('/scan');
   };
 
   const handleLogout = () => {
@@ -513,6 +511,16 @@ export default function Navbar() {
                   >
                     <LayoutDashboard className="w-3.5 h-3.5" />
                     {t('dashboard')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNavigation('/scan')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shrink-0 ${
+                      isActive('/scan') ? 'bg-accent-color text-slate-950 font-bold' : 'text-slate-300 hover:bg-slate-900'
+                    }`}
+                  >
+                    <Shield className="w-3.5 h-3.5" />
+                    {t('scan') || 'Scan'}
                   </button>
                   <button
                     type="button"
