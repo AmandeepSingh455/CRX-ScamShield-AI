@@ -23,7 +23,7 @@ import {
   AlertCircle,
   Info,
   PhoneCall,
-  Globe,
+  Languages,
   ChevronDown,
   Image as ImageIcon
 } from 'lucide-react';
@@ -300,26 +300,19 @@ export default function Navbar() {
               </button>
             </div>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-3">
               {/* National Cyber Crime Helpline 1930 */}
               <button
                 type="button"
                 onClick={openHelpline}
-                className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl border border-red-800/90 dark:border-red-700/80 bg-red-700 hover:bg-red-800 dark:bg-red-800 dark:hover:bg-red-700 text-white transition-all shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500/40 group active:scale-98"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#eb3b4a] hover:bg-[#d92d3c] active:scale-95 text-white transition-all shadow-xs cursor-pointer select-none"
                 title={t('cyberHelplineTooltip')}
                 aria-label={t('cyberHelplineTooltip')}
               >
-                <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-red-900/70 border border-red-400/40 text-white shrink-0 shadow-xs">
-                  <PhoneCall className="w-3.5 h-3.5 text-white" />
-                </div>
-                <div className="flex flex-col text-left leading-tight">
-                  <span className="font-mono font-black tracking-wide text-sm sm:text-base text-white drop-shadow-xs">
-                    1930
-                  </span>
-                  <span className="text-[9px] font-bold tracking-wider text-red-100 uppercase hidden xl:inline">
-                    {t('cyberHelplineBadge')}
-                  </span>
-                </div>
+                <PhoneCall className="w-4 h-4 text-white shrink-0" />
+                <span className="font-bold text-sm text-white tracking-normal font-sans">
+                  1930
+                </span>
               </button>
 
               {/* Language Selector Dropdown */}
@@ -327,12 +320,13 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border-color bg-card-bg hover:bg-app-bg text-text-primary text-xs font-semibold transition-colors cursor-pointer shadow-xs"
+                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-text-primary hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
                   aria-label={t('language')}
+                  title={t('language')}
                 >
-                  <Globe className="w-4 h-4 text-accent-color shrink-0" />
-                  <span className="font-medium text-xs">
-                    {language === 'pa' ? 'ਪੰਜਾਬੀ' : language === 'hi' ? 'हिन्दी' : 'English'}
+                  <Languages className="w-4 h-4 text-text-secondary shrink-0" />
+                  <span className="text-xs sm:text-sm font-semibold tracking-wide text-text-primary uppercase font-sans">
+                    {language.toUpperCase()}
                   </span>
                   <ChevronDown className={`w-3.5 h-3.5 text-text-secondary transition-transform duration-200 ${langDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
@@ -710,16 +704,14 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={openHelpline}
-                  className="w-full flex items-center justify-between p-3 rounded-xl border border-red-800 bg-red-700 hover:bg-red-800 text-white font-bold text-xs transition-colors shadow-sm cursor-pointer active:scale-98"
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-[#eb3b4a] hover:bg-[#d92d3c] text-white font-bold text-xs transition-colors shadow-xs cursor-pointer active:scale-98"
                   title={t('cyberHelplineTooltip')}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg bg-red-900/70 border border-red-400/40 text-white flex items-center justify-center shrink-0">
-                      <PhoneCall className="w-4 h-4 text-white" />
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <PhoneCall className="w-4 h-4 text-white" />
                     <span className="text-white text-xs font-semibold">{t('cyberHelpline')}</span>
                   </div>
-                  <span className="font-mono bg-red-950/80 text-white font-black text-sm px-2.5 py-1 rounded-md border border-red-400/30 tracking-wider">
+                  <span className="font-bold text-sm text-white px-2 py-0.5 bg-black/20 rounded-md font-sans">
                     1930
                   </span>
                 </button>
