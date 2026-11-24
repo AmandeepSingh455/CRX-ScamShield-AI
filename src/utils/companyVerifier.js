@@ -1,4 +1,4 @@
-import { COMPANIES_DATABASE } from "../data/companiesData";
+import { COMPANIES_DATABASE } from "../data/companiesData.js";
 
 /**
  * Official MCA CIN Regular Expression:

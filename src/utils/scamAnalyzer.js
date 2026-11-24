@@ -1,11 +1,87 @@
 /**
- * Advanced Scam Detection & MCA Corporate Intelligence Engine for Corex ScamShield AI
+ * Advanced Multi-Stage Scam Detection & Corporate Forensics Engine
+ * CRX ScamShield AI
  */
-import { verifyDocumentCompanyAndCIN } from "./companyVerifier";
+import { verifyDocumentCompanyAndCIN } from "./companyVerifier.js";
+import { analyzeWithAi } from "../services/aiScannerService.js";
 
-export const SCAM_KEYWORDS = [
+export const FREE_MAIL_DOMAINS = [
+  "@gmail.com",
+  "@yahoo.com",
+  "@outlook.com",
+  "@hotmail.com",
+  "@proton.me",
+  "@protonmail.com",
+  "@live.com",
+  "@icloud.com",
+  "@rediffmail.com",
+  "@yopmail.com",
+];
+
+export const TRUSTED_PLATFORMS = [
+  "linkedin.com",
+  "naukri.com",
+  "internshala.com",
+  "indeed.com",
+  "glassdoor.com",
+  "wellfound.com",
+  "unstop.com",
+  "hirist.com",
+  "instahyre.com",
+];
+
+/**
+ * Checks whether a matched fee phrase appears inside a legitimate anti-scam warning
+ * (e.g., "TCS does not charge any registration fee" or "We never ask candidates for security deposits").
+ */
+function isDisclaimerContext(text = "", phrase = "") {
+  if (!text || !phrase) return false;
+  const lowerText = text.toLowerCase();
+  const lowerPhrase = phrase.toLowerCase();
+  let index = lowerText.indexOf(lowerPhrase);
+
+  const disclaimerPatterns = [
+    /does\s+not\s+(?:charge|ask|require|demand|solicit)/i,
+    /never\s+(?:charge|solicit|ask|demand|require|collect)/i,
+    /do\s+not\s+(?:pay|transfer|send|deposit)/i,
+    /beware\s+of\s+(?:fraud|fake|scam|unauthorized)/i,
+    /caution\s*:/i,
+    /warning\s*:/i,
+    /fraud\s+alert/i,
+    /anti-fraud/i,
+    /disclaimer\s*:/i,
+    /free\s+of\s+(?:cost|charge)/i,
+    /at\s+no\s+(?:stage|cost)/i,
+    /neither\s+(?:charge|ask)/i,
+  ];
+
+  while (index !== -1) {
+    const windowStart = Math.max(0, index - 120);
+    const windowEnd = Math.min(lowerText.length, index + lowerPhrase.length + 100);
+    const snippet = lowerText.slice(windowStart, windowEnd);
+
+    const isDisclaimer = disclaimerPatterns.some((pattern) => pattern.test(snippet));
+    if (isDisclaimer) {
+      return true;
+    }
+    index = lowerText.indexOf(lowerPhrase, index + 1);
+  }
+
+  return false;
+}
+const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+const UPI_REGEX = /[a-zA-Z0-9._-]+@(okhdfcbank|okaxis|oksbi|okicici|paytm|ybl|ibl|axl|upi|apl|gpay)/gi;
+const URL_REGEX = /(?:https?:\/\/|www\.)[^\s/$.?#].[^\s]*/gi;
+const PHONE_REGEX = /(?:\+91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}\b/g;
+
+/**
+ * 1. CRITICAL HARD-SCAM TRIGGERS (Zero-Tolerance)
+ * If any of these are present, the document is automatically flagged as SCAM (Score >= 85).
+ * All trust bonuses are strictly revoked.
+ */
+export const CRITICAL_SCAM_PATTERNS = [
   {
-    id: "registration_fee",
+    id: "recruitment_payment_demand",
     phrases: [
       "registration fee",
       "entry fee",
@@ -15,321 +91,145 @@ export const SCAM_KEYWORDS = [
       "interview fee",
       "seat booking charge",
       "placement fee",
+      "laptop security",
+      "device deposit",
+      "laptop fee",
+      "hardware security fee",
+      "tools fee",
+      "software licensing fee",
+      "gate pass fee",
+      "courier delivery fee",
+      "courier fee",
+      "uniform fee",
+      "document verification fee",
+      "background check fee",
+      "refundable security deposit",
+      "security deposit to activate",
+      "refundable deposit of",
+      "pay deposit",
+      "deposit fee",
     ],
-    score: 30,
-    label: "Registration / Training Fee Request",
-    description:
-      "Real companies will never ask you to pay money for training, interviews, or to start a job. This is a classic recruitment scam indicator.",
+    score: 85,
+    label: "Upfront Recruitment Fee / Security Deposit Demand",
+    description: "CRITICAL: Legitimate employers never charge candidates for interviews, onboarding, laptops, or training. Demanding upfront fees is a primary marker of recruitment fraud.",
   },
   {
-    id: "pay_now",
-    combination: {
-      groupA: [
-        "pay now",
-        "pay upfront",
-        "make payment",
-        "send money",
-        "wire transfer",
-        "transfer funds",
-        "gpay",
-        "google pay",
-        "phonepe",
-        "paytm",
-        "venmo",
-        "crypto deposit",
-        "usdt deposit",
-        "upi transfer",
-        "qr code payment",
-      ],
-      groupB: [
-        "job",
-        "interview",
-        "selection",
-        "offer",
-        "joining",
-        "training",
-        "recruitment",
-        "hiring",
-        "vacancy",
-        "employment",
-      ],
-    },
-    score: 25,
-    label: "Upfront Payment Demanded in Recruitment Context",
-    description:
-      "The sender asks you to transfer funds via UPI, QR code, or crypto for an employment opportunity. Legitimate employers never charge candidates.",
-  },
-  {
-    id: "urgent",
+    id: "digital_arrest_extortion",
     phrases: [
-      "urgent",
-      "immediately",
-      "immediate joiner",
-      "hiring today",
-      "act fast",
-      "quick reply",
-      "apply now immediately",
-      "limited time only",
-      "offer expires in 2 hours",
-      "immediate response required",
+      "digital arrest",
+      "customs seized",
+      "narcotics control bureau",
+      "parcel contains illegal drugs",
+      "parcel contains 5 passports",
+      "under digital arrest",
+      "skype video call for clearance",
+      "government clearance account",
+      "clearance verification bond",
+      "avoid immediate physical arrest",
+      "mumbai police crime branch notice",
+      "delhi police crime branch notice",
     ],
-    score: 10,
-    label: "Urgency Pressure Tactics",
-    description:
-      "Scammers rush candidates into quick decisions to prevent them from conducting background checks or consulting authorities.",
+    score: 95,
+    label: "Digital Arrest / Law Enforcement Extortion Fraud",
+    description: "EMERGENCY: Law enforcement never places citizens under 'digital arrest' nor do they demand money transfers to clearance accounts over Skype or WhatsApp. Call 1930 immediately.",
   },
   {
-    id: "limited_seats",
-    phrases: [
-      "limited seats",
-      "limited slots",
-      "few vacancies left",
-      "only few open",
-      "last chance",
-      "slots closing",
-      "only 2 slots remaining",
-    ],
-    score: 10,
-    label: "Artificial Scarcity Trap",
-    description:
-      "Saying 'few seats left' or 'slots closing' creates panic and forces immediate unverified compliance.",
-  },
-  {
-    id: "task_scam",
+    id: "task_investment_fraud",
     phrases: [
       "like youtube videos",
       "subscribe youtube channel",
-      "subscribe channel",
-      "like and subscribe",
+      "subscribe to telegram channels",
       "hotel rating task",
       "google review task",
       "earn 3000 daily",
       "earn 5000 daily",
-      "part time task",
-      "telegram task group",
-      "task earnings",
-      "merchant order task",
+      "earn 3000 to 5000",
       "prepaid task",
-      "commission task",
+      "merchant order task",
+      "vip high yield task",
+      "merchant task account",
+      "deposit 500 security deposit",
+      "deposit 3000 security",
+      "daily payout to upi or gpay",
     ],
-    score: 30,
-    label: "Part-time Review / YouTube / Telegram Task Scam",
-    description:
-      "Promises of high daily payouts for simple social media likes or hotel reviews are a known trap leading to prepaid task extortion.",
+    score: 85,
+    label: "Part-Time Task & Review Scam (Prepaid Task Trap)",
+    description: "High daily earnings for liking videos or writing reviews are used to lure victims into paying large prepaid 'task activation deposits' that cannot be recovered.",
   },
-  {
-    id: "digital_arrest_fraud",
-    phrases: [
-      "digital arrest",
-      "mumbai police",
-      "cyber cell delhi",
-      "narcotics control bureau",
-      "customs department",
-      "parcel seized with drugs",
-      "illegal contraband found",
-      "passport cancellation",
-      "skype video interrogation",
-      "cbi investigation notice",
-      "arrest warrant issued",
-    ],
-    score: 40,
-    label: "Digital Arrest / Law Enforcement Impersonation",
-    description:
-      "CRITICAL: Law enforcement agencies never arrest citizens over Skype or WhatsApp video calls, nor do they ask to transfer funds to 'clearance accounts'. Call 1930 immediately.",
-  },
-  {
-    id: "utility_electricity_scam",
-    phrases: [
-      "electricity power will be disconnected",
-      "power cut at 9:30 pm",
-      "update your electricity bill",
-      "call electricity officer",
-      "bill update pending",
-      "bijli bill update",
-    ],
-    score: 35,
-    label: "Electricity / Utility Disconnection Threat",
-    description:
-      "Threats of immediate power disconnection sent via SMS or WhatsApp from private numbers are phishing attempts to steal banking credentials.",
-  },
-  {
-    id: "kyc_apk_fraud",
-    phrases: [
-      "pan card update required",
-      "kyc expired",
-      "sim card block warning",
-      "download apk",
-      "install anydesk",
-      "install teamviewer",
-      "install rustdesk",
-      "download quicksupport",
-      "screen share app",
-      "click link to update kyc",
-      "bank account suspended",
-    ],
-    score: 35,
-    label: "KYC Suspension / Remote Access APK Scam",
-    description:
-      "Never install APK files or remote screen-sharing tools (AnyDesk, TeamViewer) sent by unknown callers. This grants full access to your bank accounts.",
-  },
-  {
-    id: "lottery_kbc_scam",
-    phrases: [
-      "kbc lottery",
-      "kaun banega crorepati lottery",
-      "lucky winner",
-      "won 25 lakh",
-      "won 25,00,000",
-      "claim your prize money",
-      "customs clearance fee for prize",
-      "gift parcel at airport",
-    ],
-    score: 35,
-    label: "Lottery / KBC / Prize Fee Fraud",
-    description:
-      "Unsolicited lottery winnings or prize notifications asking for tax or processing fees upfront are 100% fraudulent.",
-  },
-  {
-    id: "work_from_home_high_salary",
-    combination: {
-      groupA: [
-        "work from home",
-        "wfh",
-        "remote job",
-        "work online",
-        "flexible hours",
-        "part time job",
-        "data entry job",
-      ],
-      groupB: [
-        "high salary",
-        "high pay",
-        "earn daily",
-        "big money",
-        "huge income",
-        "earn $",
-        "earn ₹",
-        "easy money",
-        "daily payout",
-        "per day earning",
-      ],
-    },
-    score: 20,
-    label: "Unrealistic Remote Pay Promise",
-    description:
-      "Offers promising exorbitant daily income for simple entry-level or remote work are typical bait used in advance-fee scams.",
-  },
-  {
-    id: "generic_company_email",
-    phrases: [
-      "@gmail.com",
-      "@yahoo.com",
-      "@outlook.com",
-      "@hotmail.com",
-      "@proton.me",
-      "@protonmail.com",
-      "@live.com",
-    ],
-    score: 20,
-    label: "Generic Public Email Domain",
-    description:
-      "Official corporate job offers originate from verified enterprise domains (e.g. @tcs.com), not free webmail services.",
-  },
-  {
-    id: "guaranteed_job",
-    phrases: [
-      "100% guaranteed job",
-      "guaranteed placement",
-      "no interview needed",
-      "direct selection",
-      "100% selection",
-      "confirmed job",
-      "direct offer letter",
-      "spot offer without interview",
-    ],
-    score: 25,
-    label: "Guaranteed Placement without Evaluation",
-    description:
-      "Legitimate employers never extend guaranteed offers or offer letters without rigorous technical or HR evaluation.",
-  },
-  {
-    id: "security_deposit",
-    phrases: [
-      "security deposit",
-      "refundable deposit",
-      "laptop security",
-      "device deposit",
-      "software fee",
-      "tools insurance",
-      "gate pass fee",
-      "courier delivery charge",
-    ],
-    score: 25,
-    label: "Hardware / Security Deposit Demand",
-    description:
-      "Real enterprises supply necessary work equipment and software licenses free of charge. Asking candidates for deposits is fraudulent.",
-  },
-  {
-    id: "crypto_investment_trap",
-    phrases: [
-      "guaranteed 200% return",
-      "usdt mining",
-      "vip trading signal",
-      "crypto investment pool",
-      "forex trading profit",
-      "double your investment",
-      "daily trading profit",
-    ],
-    score: 30,
-    label: "High-Yield Crypto / Trading Trap",
-    description:
-      "Guaranteed returns in cryptocurrency or unauthorized forex groups are notorious Ponzi schemes.",
-  },
-  {
-    id: "identity_harvesting",
-    phrases: [
-      "send passport copy",
-      "aadhaar card upfront",
-      "pan card front and back",
-      "ssn photo",
-      "id card copy before interview",
-      "bank passbook photo",
-      "blank cheque photo",
-    ],
-    score: 20,
-    label: "Premature Sensitive Identity Harvesting",
-    description:
-      "Demanding full identity proof, PAN, Aadhaar, or bank details prior to formal interviews is often used for identity theft.",
-  },
-];
-
-// Mitigating signals: known legitimate recruitment platforms
-const TRUSTED_PLATFORMS = [
-  "internshala",
-  "linkedin",
-  "naukri",
-  "indeed",
-  "glassdoor",
-  "wellfound",
-  "unstop",
-  "hirist",
-  "instahyre",
-];
-
-const FREE_MAIL_DOMAINS = [
-  "@gmail.com",
-  "@yahoo.com",
-  "@outlook.com",
-  "@hotmail.com",
-  "@proton.me",
-  "@protonmail.com",
-  "@live.com",
 ];
 
 /**
- * Analyzes text content and validates against 1000 MCA companies and scam patterns.
- * @param {string} text - Raw content strings.
- * @param {string} filename - Document title metadata.
+ * 2. SECONDARY SUSPICIOUS PATTERNS
+ */
+export const SECONDARY_SCAM_PATTERNS = [
+  {
+    id: "direct_selection_no_interview",
+    phrases: [
+      "direct selection without interview",
+      "direct offer letter without interview",
+      "selection was made based on your resume",
+      "no interview needed",
+      "100% guaranteed job",
+      "spot offer letter",
+      "confirmed placement without test",
+      "direct selection",
+    ],
+    score: 35,
+    label: "Guaranteed Offer Issued Without Interview Round",
+    description: "Genuine corporations require rigorous technical, HR, and background evaluation before extending an employment contract.",
+  },
+  {
+    id: "payment_method_mention",
+    phrases: [
+      "pay via phonepe",
+      "pay via gpay",
+      "pay via paytm",
+      "transfer to upi",
+      "scan qr code to pay",
+      "transfer to our account via",
+      "send money immediately",
+      "wire transfer required",
+      "usdt deposit",
+      "crypto deposit",
+    ],
+    score: 40,
+    label: "Informal Payment Rails (UPI / QR / Crypto) in Corporate Context",
+    description: "Corporate recruitment teams do not collect candidate payments over PhonePe, Google Pay, or QR codes.",
+  },
+  {
+    id: "urgency_pressure",
+    phrases: [
+      "pay now immediately",
+      "limited slots remain",
+      "limited seats available",
+      "pay today to confirm placement",
+      "offer expires in 2 hours",
+      "urgent response required",
+      "immediate clearance required",
+      "last chance to claim",
+    ],
+    score: 20,
+    label: "Artificial Scarcity & High-Pressure Coercion",
+    description: "Scammers create artificial deadlines and urgency to panic candidates into paying before conducting due diligence.",
+  },
+  {
+    id: "unrealistic_compensation",
+    phrases: [
+      "$45 per hour",
+      "$50 per hour",
+      "earn $40 to $60",
+      "₹12,00,000 per annum without interview",
+      "daily salary package",
+      "100% placement and limited seats",
+    ],
+    score: 25,
+    label: "Unrealistic Compensation for Entry-Level or Unscreened Work",
+    description: "Offering unusually high hourly or annual packages for basic copy-paste or unverified roles is standard advance-fee bait.",
+  },
+];
+
+/**
+ * Primary multi-stage forensic analysis
  */
 export function analyzeScam(text = "", filename = "") {
   const cleanText = text || "";
@@ -339,19 +239,29 @@ export function analyzeScam(text = "", filename = "") {
     return {
       riskScore: 0,
       confidenceScore: 0,
-      verdict: "Likely Safe",
+      verdict: "Genuine",
       status: "safe",
+      primaryReason: "No content provided to analyze.",
       flags: [],
       matchedPhrases: [],
       highlightedText: "No text content scanned.",
       companyVerification: null,
+      extractedEntities: { emails: [], upiIds: [], urls: [], phones: [] },
+      recommendedActions: ["Upload an employment offer letter, chat screenshot, or message text."],
     };
   }
+
+  // --- Stage 1: Entity Extraction ---
+  const extractedEmails = [...new Set(cleanText.match(EMAIL_REGEX) || [])];
+  const extractedUpiIds = [...new Set(cleanText.match(UPI_REGEX) || [])];
+  const extractedUrls = [...new Set(cleanText.match(URL_REGEX) || [])];
+  const extractedPhones = [...new Set(cleanText.match(PHONE_REGEX) || [])];
 
   let totalScore = 0;
   const flags = [];
   const matchedPhrases = [];
   const highlightMap = new Map();
+  let hasCriticalScam = false;
 
   const addHighlight = (phrase, type) => {
     if (!phrase) return;
@@ -360,66 +270,90 @@ export function analyzeScam(text = "", filename = "") {
     }
   };
 
-  // --- 1. Risk keyword / combination rules ---
-  SCAM_KEYWORDS.forEach((keywordRule) => {
-    let matched = false;
-    let detectedPhrase = "";
-
-    if (keywordRule.combination) {
-      const matchA = keywordRule.combination.groupA.find((phrase) =>
-        normalizedText.includes(phrase),
-      );
-      const matchB = keywordRule.combination.groupB.find((phrase) =>
-        normalizedText.includes(phrase),
-      );
-
-      if (matchA && matchB) {
-        matched = true;
-        detectedPhrase = `"${matchA}" + "${matchB}"`;
-        keywordRule.combination.groupA.forEach((p) => addHighlight(p, "risk"));
-        keywordRule.combination.groupB.forEach((p) => addHighlight(p, "risk"));
+  // --- Stage 2: Critical Zero-Tolerance Scams ---
+  CRITICAL_SCAM_PATTERNS.forEach((pattern) => {
+    const found = pattern.phrases.find((phrase) => {
+      if (!normalizedText.includes(phrase)) return false;
+      // If it's a payment demand phrase, ensure it is NOT a corporate anti-scam disclaimer
+      if (pattern.id === "recruitment_payment_demand") {
+        if (isDisclaimerContext(cleanText, phrase)) {
+          return false;
+        }
       }
-    } else {
-      const found = keywordRule.phrases.find((phrase) =>
-        normalizedText.includes(phrase),
-      );
-      if (found) {
-        matched = true;
-        detectedPhrase = found;
-        keywordRule.phrases.forEach((phrase) => addHighlight(phrase, "risk"));
-      }
-    }
+      return true;
+    });
 
-    if (matched) {
-      totalScore += keywordRule.score;
+    if (found) {
+      hasCriticalScam = true;
+      totalScore += pattern.score;
       flags.push({
-        id: keywordRule.id,
+        id: pattern.id,
         type: "risk",
-        label: keywordRule.label,
-        score: keywordRule.score,
-        description: keywordRule.description,
-        matchedPhrase: detectedPhrase,
+        severity: "CRITICAL",
+        label: pattern.label,
+        score: pattern.score,
+        description: pattern.description,
+        matchedPhrase: found,
       });
-      matchedPhrases.push(detectedPhrase);
+      matchedPhrases.push(found);
+      addHighlight(found, "risk");
     }
   });
 
-  // --- 2. MCA Company & Corporate Identification Number (CIN) Verification ---
+  // --- Stage 3: Secondary Forensic Rules ---
+  SECONDARY_SCAM_PATTERNS.forEach((pattern) => {
+    const found = pattern.phrases.find((phrase) => normalizedText.includes(phrase));
+    if (found) {
+      totalScore += pattern.score;
+      flags.push({
+        id: pattern.id,
+        type: "risk",
+        severity: "HIGH",
+        label: pattern.label,
+        score: pattern.score,
+        description: pattern.description,
+        matchedPhrase: found,
+      });
+      matchedPhrases.push(found);
+      addHighlight(found, "risk");
+    }
+  });
+
+  // --- Stage 4: Extracted Entity Analysis (Free Webmails & UPI) ---
+  const hasFreeEmail = extractedEmails.some((email) =>
+    FREE_MAIL_DOMAINS.some((domain) => email.toLowerCase().endsWith(domain))
+  );
+
+  if (extractedUpiIds.length > 0) {
+    totalScore += 35;
+    flags.push({
+      id: "upi_id_detected",
+      type: "risk",
+      severity: "CRITICAL",
+      label: `Suspicious Personal / Merchant UPI ID: ${extractedUpiIds.join(", ")}`,
+      score: 35,
+      description: "Document directs payments directly to a UPI Virtual Payment Address instead of official corporate banking accounts.",
+      matchedPhrase: extractedUpiIds.join(", "),
+    });
+    extractedUpiIds.forEach((u) => addHighlight(u, "risk"));
+  }
+
+  // --- Stage 5: MCA Corporate & CIN Registry Verification ---
   const companyVerification = verifyDocumentCompanyAndCIN(cleanText);
+  let isImpersonation = false;
 
   if (companyVerification) {
-    const { detectedCINs, fakeCinMatch, matchedCompanies, verifiedCompany, cinMismatch } =
-      companyVerification;
+    const { detectedCINs, fakeCinMatch, matchedCompanies, cinMismatch } = companyVerification;
 
-    // Check fake CIN string
+    // 5A. Forged / Invalid CIN
     if (fakeCinMatch) {
-      const fakeCinScore = 35;
-      totalScore += fakeCinScore;
+      totalScore += 45;
       flags.push({
-        id: "fake_mca_cin",
+        id: "forged_mca_cin",
         type: "risk",
-        label: "Invalid / Forged Corporate CIN Detected",
-        score: fakeCinScore,
+        severity: "CRITICAL",
+        label: `Forged / Invalid Corporate CIN Cited: "${fakeCinMatch}"`,
+        score: 45,
         description: `The document cites an invalid Corporate Identification Number (${fakeCinMatch}) that fails Ministry of Corporate Affairs (MCA) 21-digit verification standards.`,
         matchedPhrase: fakeCinMatch,
       });
@@ -427,131 +361,145 @@ export function analyzeScam(text = "", filename = "") {
       addHighlight(fakeCinMatch, "risk");
     }
 
-    // Check CIN Mismatch
+    // 5B. CIN - Company Mismatch
     if (cinMismatch) {
-      const mismatchScore = 30;
-      totalScore += mismatchScore;
+      totalScore += 40;
       flags.push({
         id: "cin_company_mismatch",
         type: "risk",
+        severity: "HIGH",
         label: "Mismatched Corporate CIN & Company Identity",
-        score: mismatchScore,
-        description: `The CIN specified belongs to a different registered corporate entity than the company name claimed in the document.`,
+        score: 40,
+        description: "The cited CIN belongs to a completely different registered corporate entity than the organization claiming to issue this offer.",
         matchedPhrase: detectedCINs.join(", "),
       });
     }
 
-    // Check Corporate Impersonation (e.g. claims to be TCS/Google/Amazon but uses gmail or asks money)
+    // 5C. Corporate Impersonation (Major Company + Free Webmail OR Payment Demand)
     if (matchedCompanies.length > 0) {
-      const hasFreeEmail = FREE_MAIL_DOMAINS.some((domain) =>
-        normalizedText.includes(domain),
-      );
-      const asksMoney = flags.some((f) =>
-        ["registration_fee", "pay_now", "security_deposit"].includes(f.id),
-      );
+      const targetComp = matchedCompanies[0];
+      const hasPaymentDemand = hasCriticalScam || flags.some((f) => f.id.includes("payment") || f.id.includes("fee"));
 
-      if (hasFreeEmail || asksMoney) {
-        const impersonationScore = 25;
-        totalScore += impersonationScore;
-        const targetComp = matchedCompanies[0];
+      if (hasFreeEmail || hasPaymentDemand) {
+        isImpersonation = true;
+        totalScore += 45;
         flags.push({
           id: "corporate_impersonation",
           type: "risk",
+          severity: "CRITICAL",
           label: `Suspected Impersonation of ${targetComp.name}`,
-          score: impersonationScore,
-          description: `The document references a major registered company (${targetComp.name}), but pairs it with red-flag communication channels (free email domain or upfront payment demands). Legitimate enterprises never recruit through free public webmails.`,
+          score: 45,
+          description: `The document falsely references registered enterprise ${targetComp.name}, but routes communication through public webmail (${extractedEmails.join(", ") || "free inbox"}) or demands upfront candidate payments. Legitimate enterprises never charge fees.`,
           matchedPhrase: targetComp.name,
         });
         addHighlight(targetComp.name, "risk");
-      } else if (verifiedCompany && detectedCINs.length > 0 && !cinMismatch) {
-        // Genuine corporate entity verified through MCA database!
-        const trustBonus = -20;
-        totalScore += trustBonus;
-        flags.push({
-          id: "mca_verified_entity",
-          type: "mitigating",
-          label: `Verified MCA Corporate Identity: ${verifiedCompany.name}`,
-          score: trustBonus,
-          description: `Corporate Identification Number (${verifiedCompany.cin}) matches the Ministry of Corporate Affairs registered record for ${verifiedCompany.name} (${verifiedCompany.city}, ${verifiedCompany.state}).`,
-          matchedPhrase: verifiedCompany.cin,
-        });
-        addHighlight(verifiedCompany.cin, "mitigating");
       }
     }
   }
 
-  // --- 3. Mitigating signal: recognized hiring platform ---
-  const matchedPlatform = TRUSTED_PLATFORMS.find((p) =>
-    normalizedText.includes(p),
-  );
-  if (matchedPlatform) {
-    const adjustment = -15;
-    totalScore += adjustment;
+  // Generic Free Email penalty (when not already covered under impersonation)
+  if (hasFreeEmail && !isImpersonation) {
+    totalScore += 25;
     flags.push({
-      id: "trusted_platform",
-      type: "mitigating",
-      label: "Recognized Hiring Platform Reference",
-      score: adjustment,
-      description:
-        "Document references a recognized recruitment portal, slightly reducing baseline fraud likelihood.",
-      matchedPhrase: matchedPlatform,
+      id: "generic_webmail_recruiter",
+      type: "risk",
+      severity: "HIGH",
+      label: "Official Offer Sent from Public Webmail Inbox",
+      score: 25,
+      description: `Official corporate employment letters originate from verified enterprise domains, not free webmail services (${extractedEmails.join(", ")}).`,
+      matchedPhrase: extractedEmails.join(", "),
     });
-    matchedPhrases.push(matchedPlatform);
-    addHighlight(matchedPlatform, "mitigating");
   }
 
-  // --- 4. Mitigating signal: official corporate domain ---
-  const officialDomainRegex = /@[a-z0-9-]+\.(com|in|org|net|co\.in)/gi;
-  const domainsFound = cleanText.match(officialDomainRegex) || [];
-  const officialDomain = domainsFound.find(
-    (d) => !FREE_MAIL_DOMAINS.includes(d.toLowerCase()),
-  );
-  if (officialDomain) {
-    const adjustment = -10;
-    totalScore += adjustment;
-    flags.push({
-      id: "official_domain",
-      type: "mitigating",
-      label: "Verified Corporate Mailbox Domain",
-      score: adjustment,
-      description:
-        "Communication uses an enterprise domain rather than a free public inbox provider.",
-      matchedPhrase: officialDomain,
-    });
-    matchedPhrases.push(officialDomain);
-    addHighlight(officialDomain, "mitigating");
+  // --- Stage 6: Mitigating Adjustments (ONLY ALLOWED IF ZERO CRITICAL SCAMS DETECTED) ---
+  if (!hasCriticalScam && !isImpersonation && !flags.some((f) => f.severity === "CRITICAL")) {
+    // Official Corporate Domain matching claimed company
+    if (companyVerification?.verifiedCompany && extractedEmails.length > 0) {
+      const matchingEmail = extractedEmails.find((e) =>
+        e.toLowerCase().includes(companyVerification.verifiedCompany.domain.toLowerCase())
+      );
+      if (matchingEmail) {
+        totalScore -= 25;
+        flags.push({
+          id: "verified_enterprise_email",
+          type: "mitigating",
+          label: `Authentic Enterprise Mailbox: ${matchingEmail}`,
+          score: -25,
+          description: `Sender mailbox matches the registered domain (${companyVerification.verifiedCompany.domain}) for ${companyVerification.verifiedCompany.name}.`,
+          matchedPhrase: matchingEmail,
+        });
+        addHighlight(matchingEmail, "mitigating");
+      }
+    }
+
+    // Genuine MCA record with valid CIN and no red flags
+    if (companyVerification?.verifiedCompany && !companyVerification.cinMismatch && totalScore === 0) {
+      totalScore -= 20;
+      flags.push({
+        id: "mca_verified_active_entity",
+        type: "mitigating",
+        label: `Active MCA Corporate Registry Match: ${companyVerification.verifiedCompany.name}`,
+        score: -20,
+        description: `Corporate Identification Number matches Ministry of Corporate Affairs registered records for ${companyVerification.verifiedCompany.name}.`,
+        matchedPhrase: companyVerification.verifiedCompany.cin,
+      });
+      addHighlight(companyVerification.verifiedCompany.cin, "mitigating");
+    }
   }
 
-  // Clamp score 0 - 100
-  const riskScore = Math.max(0, Math.min(totalScore, 100));
+  // --- Stage 7: Final Verdict & Score Calculation ---
+  let finalRiskScore = Math.max(0, Math.min(100, totalScore));
 
-  let verdict = "Likely Safe";
+  // If any critical scam was detected, enforce a floor of 85
+  if (hasCriticalScam || isImpersonation || flags.some((f) => f.severity === "CRITICAL")) {
+    finalRiskScore = Math.max(85, finalRiskScore);
+  }
+
+  let verdict = "Genuine";
   let status = "safe";
-  if (riskScore >= 70) {
-    verdict = "Potential Scam";
+
+  if (finalRiskScore >= 70) {
+    verdict = "Scam";
     status = "scam";
-  } else if (riskScore >= 35) {
-    verdict = "Suspicious Anomaly";
+  } else if (finalRiskScore >= 35) {
+    verdict = "Suspicious";
     status = "suspicious";
+  } else {
+    verdict = "Genuine";
+    status = "safe";
   }
 
-  // Confidence Engine
-  const wordCount = cleanText.split(/\s+/).filter(Boolean).length;
-  let confidenceScore = 75;
+  // Formulate clear, authoritative Primary Reason
+  let primaryReason = "Document shows valid corporate credentials and no upfront fee or phishing anomalies.";
+  if (verdict === "Scam") {
+    const criticalFlag = flags.find((f) => f.severity === "CRITICAL") || flags[0];
+    primaryReason = criticalFlag
+      ? `High-risk fraud detected: ${criticalFlag.label}.`
+      : "High probability scam pattern detected with coercive payment demands.";
+  } else if (verdict === "Suspicious") {
+    primaryReason = "Several red flags identified (such as direct selection without interview or public email domain). Verify credentials before responding.";
+  }
 
-  if (wordCount < 15) confidenceScore -= 35;
-  else if (wordCount < 40) confidenceScore -= 15;
-  else if (wordCount > 200) confidenceScore += 15;
+  // Generate actionable recommended actions
+  const recommendedActions = [];
+  if (verdict === "Scam") {
+    recommendedActions.push("DO NOT TRANSFER ANY MONEY via UPI, QR code, or bank transfer.");
+    recommendedActions.push("Do not provide copies of PAN, Aadhaar, bank passbook, or OTP.");
+    recommendedActions.push("Immediately report this incident to India's 1930 Cyber Helpline or cybercrime.gov.in.");
+    recommendedActions.push("Block and report the sender on Telegram / WhatsApp.");
+  } else if (verdict === "Suspicious") {
+    recommendedActions.push("Verify the recruitment independently via the official company career portal.");
+    recommendedActions.push("Never agree to pay for laptops, gate passes, or security deposits.");
+    recommendedActions.push("Request an official interview via the company's verified email domain.");
+  } else {
+    recommendedActions.push("Document appears genuine based on verified MCA records and lack of payment demands.");
+    recommendedActions.push("Always cross-check final employment contracts via official company career portal.");
+  }
 
-  if (riskScore >= 60) confidenceScore += 10;
-  confidenceScore = Math.max(15, Math.min(confidenceScore, 99));
-
-  // Highlighting
+  // Highlight markup generation
   let highlightedText = cleanText;
   if (cleanText && highlightMap.size > 0) {
-    const sortedPhrases = [...highlightMap.keys()].sort(
-      (a, b) => b.length - a.length,
-    );
+    const sortedPhrases = [...highlightMap.keys()].sort((a, b) => b.length - a.length);
     const replacementMap = new Map();
 
     sortedPhrases.forEach((phrase, index) => {
@@ -561,8 +509,8 @@ export function analyzeScam(text = "", filename = "") {
       const type = highlightMap.get(phrase);
       const css =
         type === "mitigating"
-          ? "bg-green-500/10 text-green-600 font-semibold px-1 rounded border border-green-500/20"
-          : "bg-red-500/10 text-red-500 font-semibold px-1 rounded border border-red-500/20";
+          ? "bg-emerald-500/10 text-emerald-600 font-semibold px-1 rounded border border-emerald-500/20"
+          : "bg-red-500/10 text-red-600 font-bold px-1 rounded border border-red-500/20";
 
       highlightedText = highlightedText.replace(regex, (match) => {
         replacementMap.set(token, `<span class="${css}">${match}</span>`);
@@ -576,13 +524,91 @@ export function analyzeScam(text = "", filename = "") {
   }
 
   return {
-    riskScore,
-    confidenceScore,
+    riskScore: finalRiskScore,
+    confidenceScore: Math.min(99, Math.max(70, 75 + flags.length * 5)),
     verdict,
     status,
+    primaryReason,
     flags,
     matchedPhrases: [...new Set(matchedPhrases)],
     highlightedText: highlightedText || "No text content scanned.",
     companyVerification,
+    extractedEntities: {
+      emails: extractedEmails,
+      upiIds: extractedUpiIds,
+      urls: extractedUrls,
+      phones: extractedPhones,
+    },
+    recommendedActions,
   };
+}
+
+/**
+ * High-performance Async Scanner that fuses deterministic MCA/regex analysis with deep AI intelligence.
+ */
+export async function analyzeScamAsync(text = "", filename = "") {
+  // 1. Run local multi-stage analyzer immediately
+  const localAnalysis = analyzeScam(text, filename);
+
+  // 2. Concurrently run AI analysis
+  try {
+    const aiResult = await analyzeWithAi(text, filename);
+
+    if (!aiResult) {
+      return localAnalysis;
+    }
+
+    // 3. Intelligent Synthesis: Fuse Local + AI Results
+    // If either detects a Scam, the overall verdict is Scam
+    const isLocalScam = localAnalysis.verdict === "Scam";
+    const isAiScam = aiResult.verdict === "Scam";
+    const isEitherScam = isLocalScam || isAiScam;
+
+    const finalRisk = isEitherScam
+      ? Math.max(85, Math.max(localAnalysis.riskScore, aiResult.riskScore))
+      : Math.round((localAnalysis.riskScore + aiResult.riskScore) / 2);
+
+    let finalVerdict = "Genuine";
+    if (finalRisk >= 70 || isEitherScam) {
+      finalVerdict = "Scam";
+    } else if (finalRisk >= 35 || localAnalysis.verdict === "Suspicious" || aiResult.verdict === "Suspicious") {
+      finalVerdict = "Suspicious";
+    }
+
+    // Combine anomalies and recommendations
+    const mergedFlags = [...localAnalysis.flags];
+    if (aiResult.detectedAnomalies?.length > 0) {
+      aiResult.detectedAnomalies.forEach((anomaly, i) => {
+        if (!mergedFlags.some((f) => f.label.toLowerCase().includes(anomaly.toLowerCase()))) {
+          mergedFlags.push({
+            id: `ai_anomaly_${i}`,
+            type: "risk",
+            severity: "HIGH",
+            label: anomaly,
+            score: 25,
+            description: "Contextual anomaly identified by AI forensics model.",
+            matchedPhrase: anomaly,
+          });
+        }
+      });
+    }
+
+    return {
+      ...localAnalysis,
+      riskScore: finalRisk,
+      confidenceScore: Math.max(localAnalysis.confidenceScore, aiResult.confidenceScore),
+      verdict: finalVerdict,
+      status: finalVerdict === "Scam" ? "scam" : finalVerdict === "Suspicious" ? "suspicious" : "safe",
+      primaryReason: aiResult.primaryReason || localAnalysis.primaryReason,
+      detailedExplanation: aiResult.detailedExplanation || "",
+      aiAssisted: true,
+      flags: mergedFlags,
+      recommendedActions: aiResult.recommendedActions?.length > 0
+        ? aiResult.recommendedActions
+        : localAnalysis.recommendedActions,
+    };
+  } catch (err) {
+    console.warn("AI synthesis fallback to local analysis:", err);
+    return localAnalysis;
+  }
 }

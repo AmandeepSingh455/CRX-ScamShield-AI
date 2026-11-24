@@ -85,7 +85,7 @@ export default function ScreenViewport({
             <div className="absolute top-3 left-3 flex items-center gap-2">
               <span className="px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-md border border-white/10 text-white text-[10px] font-mono font-medium flex items-center gap-1.5 shadow-sm">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                Live 4.5s Sentinel
+                Live 3.0s Sentinel
               </span>
               {isScanningFrame && (
                 <span className="px-2 py-0.5 rounded-md bg-blue-600/90 text-white text-[10px] font-medium flex items-center gap-1 shadow-sm animate-pulse">

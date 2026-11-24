@@ -8,21 +8,13 @@ import {
   BellRing,
   Bot,
   Laptop,
-  CheckCircle2,
-  AlertTriangle,
-  ShieldAlert,
-  Sparkles,
-  RefreshCw,
-  PhoneCall,
-  Volume2,
-  VolumeX,
 } from 'lucide-react';
 import ScreenViewport from '../components/liveMonitor/ScreenViewport';
 import LiveAnalysisPanel from '../components/liveMonitor/LiveAnalysisPanel';
 import TelegramSimulator from '../components/liveMonitor/TelegramSimulator';
 import CyberHelplineModal from '../components/CyberHelplineModal';
 import { useApp } from '../context/AppContext';
-import { analyzeScam } from '../utils/scamAnalyzer';
+import { analyzeScam, analyzeScamAsync } from '../utils/scamAnalyzer';
 import { playScamAlertSound, playSafePingSound } from '../utils/audioAlert';
 import { createWorker } from 'tesseract.js';
 
@@ -57,6 +49,8 @@ export default function LiveMonitor() {
   const fileInputRef = useRef(null);
   const tesseractWorkerRef = useRef(null);
   const isWorkerInitializing = useRef(false);
+  const lastFrameTextRef = useRef('');
+  const lastAnalysisCacheRef = useRef(null);
 
   // Lazy-initialize reusable Tesseract worker
   const getOcrWorker = async () => {
@@ -192,14 +186,25 @@ export default function LiveMonitor() {
         extractedText = data.text ? data.text.trim() : '';
       }
 
-      // Analyze extracted frame text
       const currentCycle = scanCount + 1;
       setScanCount(currentCycle);
 
-      const analysis = analyzeScam(
-        extractedText || 'Visible clean interface window. No threat vectors found.',
-        `Live Stream Frame #${currentCycle}`
-      );
+      let analysis;
+      // Fast incremental caching: if frame text is unchanged, return cached analysis instantly
+      if (
+        extractedText &&
+        extractedText === lastFrameTextRef.current &&
+        lastAnalysisCacheRef.current
+      ) {
+        analysis = lastAnalysisCacheRef.current;
+      } else {
+        lastFrameTextRef.current = extractedText;
+        analysis = analyzeScam(
+          extractedText || 'Visible clean interface window. No threat vectors found.',
+          `Live Stream Frame #${currentCycle}`
+        );
+        lastAnalysisCacheRef.current = analysis;
+      }
 
       const framePayload = {
         ...analysis,
@@ -222,7 +227,7 @@ export default function LiveMonitor() {
       ]);
 
       // Sound & notification alerts trigger
-      if (analysis.riskScore >= 60 && alertsEnabled) {
+      if (analysis.riskScore >= 70 && alertsEnabled) {
         playScamAlertSound();
         if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
           new Notification('CRX ScamShield Alert: Potential Threat Detected!', {
@@ -238,7 +243,7 @@ export default function LiveMonitor() {
     }
   }, [scanCount, alertsEnabled]);
 
-  // Automatic periodic scan interval (every 4.5 seconds)
+  // Automatic periodic scan interval (optimized to 3.0 seconds)
   useEffect(() => {
     if (!isStreaming) {
       if (intervalRef.current) {
@@ -248,15 +253,15 @@ export default function LiveMonitor() {
       return;
     }
 
-    // Run first capture after 1.5s
+    // Run first capture after 1.0s
     const firstTimeout = setTimeout(() => {
       captureAndAnalyzeFrame();
-    }, 1500);
+    }, 1000);
 
-    // Continuous 4.5s loop
+    // Continuous 3-second loop
     intervalRef.current = setInterval(() => {
       captureAndAnalyzeFrame();
-    }, 4500);
+    }, 3000);
 
     return () => {
       clearTimeout(firstTimeout);
@@ -295,7 +300,8 @@ export default function LiveMonitor() {
         const currentCycle = scanCount + 1;
         setScanCount(currentCycle);
 
-        const analysis = analyzeScam(
+        // Run deep asynchronous AI + local forensic scan
+        const analysis = await analyzeScamAsync(
           text || 'Uploaded screenshot. No visible high-risk indicators detected.',
           file.name || 'Screenshot Upload'
         );
@@ -318,13 +324,19 @@ export default function LiveMonitor() {
           ...prev.slice(0, 15),
         ]);
 
-        if (analysis.riskScore >= 60 && alertsEnabled) {
+        if (analysis.riskScore >= 70 && alertsEnabled) {
           playScamAlertSound();
         } else if (analysis.riskScore < 30) {
           playSafePingSound();
         }
 
-        addToast('Screenshot processed and evaluated.', 'success');
+        if (analysis.verdict === 'Scam') {
+          addToast('Alert: High-threat scam document detected!', 'error');
+        } else if (analysis.verdict === 'Suspicious') {
+          addToast('Warning: Suspicious document anomalies identified.', 'warning');
+        } else {
+          addToast('Success: Document evaluated authentic & genuine.', 'success');
+        }
       } catch (err) {
         console.error('Screenshot OCR error:', err);
         addToast('Failed to read text from screenshot.', 'error');

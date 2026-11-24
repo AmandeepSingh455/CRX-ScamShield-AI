@@ -3,7 +3,7 @@ import { useApp } from "../context/AppContext";
 import Navbar from "../components/Navbar";
 import RiskChart from "../components/RiskChart";
 import CompanyRegistryModal from "../components/CompanyRegistryModal";
-import { analyzeScam } from "../utils/scamAnalyzer";
+import { analyzeScam, analyzeScamAsync } from "../utils/scamAnalyzer";
 import { createWorker } from "tesseract.js";
 import {
   Upload,
@@ -413,34 +413,46 @@ export default function Dashboard() {
     addToast("Camera capture processed.", "success");
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!text.trim()) return;
 
     setIsAnalyzing(true);
-    setTimeout(() => {
-      const result = analyzeScam(text, filename);
+    try {
+      const result = await analyzeScamAsync(text, filename);
       const newScan = addScan(
         filename || "Direct Text Input",
         text,
         result,
         currentPreviewUrl,
       );
-      setIsAnalyzing(false);
       setActiveScan(newScan);
       setCurrentPreviewUrl(null);
       unsavedPreviewRef.current = null;
 
       // Trigger notifications depending on diagnostic danger score
-      if (result.riskScore >= 50) {
-        addToast("Warning: Suspicious document detected!", "warning");
-      } else if (result.riskScore >= 20) {
-        addToast("Info: Minor threat anomalies identified.", "warning");
+      if (result.verdict === "Scam" || result.riskScore >= 70) {
+        addToast("Alert: High-threat scam document detected!", "error");
+      } else if (result.verdict === "Suspicious" || result.riskScore >= 35) {
+        addToast("Warning: Suspicious document anomalies identified.", "warning");
       } else {
-        addToast("Success: Document evaluated secure.", "success");
+        addToast("Success: Document evaluated authentic & genuine.", "success");
       }
 
       navigate("/analysis-result");
-    }, 1200);
+    } catch (err) {
+      console.error("Analysis execution error:", err);
+      const fallbackResult = analyzeScam(text, filename);
+      const newScan = addScan(
+        filename || "Direct Text Input",
+        text,
+        fallbackResult,
+        currentPreviewUrl,
+      );
+      setActiveScan(newScan);
+      navigate("/analysis-result");
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const handleClear = () => {

@@ -256,15 +256,15 @@ ${text.slice(0, 300)}...
   };
 
   const getSeverityColors = () => {
-    if (riskScore >= 50) {
+    if (riskScore >= 70 || verdict === "Scam") {
       return {
         bg: "bg-red-500/10 dark:bg-red-500/15",
         border: "border-red-200 dark:border-red-900/60",
         text: "text-red-600 dark:text-red-400",
-        badge: "bg-red-500 text-white",
+        badge: "bg-red-500 text-white font-bold",
         icon: <ShieldAlert className="w-8 h-8 text-red-500" />,
       };
-    } else if (riskScore >= 20) {
+    } else if (riskScore >= 35 || verdict === "Suspicious") {
       return {
         bg: "bg-amber-500/10 dark:bg-amber-500/15",
         border: "border-amber-200 dark:border-amber-900/60",
@@ -277,7 +277,7 @@ ${text.slice(0, 300)}...
         bg: "bg-emerald-500/10 dark:bg-emerald-500/15",
         border: "border-emerald-200 dark:border-emerald-900/60",
         text: "text-emerald-600 dark:text-emerald-400",
-        badge: "bg-emerald-500 text-slate-950 font-bold",
+        badge: "bg-emerald-500 text-white font-bold",
         icon: <ShieldCheck className="w-8 h-8 text-emerald-500" />,
       };
     }
@@ -426,6 +426,29 @@ ${text.slice(0, 300)}...
               </div>
             </div>
             <div className="xl:col-span-3 space-y-6">
+              {/* Executive Forensic Assessment & Reasons */}
+              <div className="rounded-2xl border border-border-color bg-card-bg p-5 shadow-sm space-y-3 card-premium text-left">
+                <div className="flex items-center justify-between border-b border-border-color pb-2.5">
+                  <h3 className="text-xs font-bold text-text-primary dark:text-accent-color uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-accent-color" />
+                    Forensic Verdict & Rationale
+                  </h3>
+                  {result.aiAssisted && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                      AI Enhanced Analysis
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm font-semibold text-text-primary leading-snug">
+                  {result.primaryReason || (riskScore >= 70 ? "High-threat scam indicators identified." : "Document verified with standard corporate parameters.")}
+                </p>
+                {result.detailedExplanation && (
+                  <p className="text-xs text-text-secondary leading-relaxed">
+                    {result.detailedExplanation}
+                  </p>
+                )}
+              </div>
+
               <div className="rounded-2xl border border-border-color bg-card-bg p-6 shadow-sm space-y-4 card-premium">
                 <div className="flex justify-between items-center border-b border-border-color pb-3">
                   <h3 className="text-xs font-bold text-text-primary dark:text-accent-color uppercase tracking-wider flex items-center gap-1.5">
@@ -598,6 +621,76 @@ ${text.slice(0, 300)}...
                   )}
                 </div>
               </div>
+
+              {/* Recommended Action Checklist */}
+              {result.recommendedActions && result.recommendedActions.length > 0 && (
+                <div className="rounded-2xl border border-border-color bg-card-bg p-5 shadow-sm space-y-3 card-premium text-left">
+                  <h3 className="text-xs font-bold text-text-primary dark:text-accent-color uppercase tracking-wider flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-accent-color" />
+                    Recommended Actions
+                  </h3>
+                  <div className="space-y-2">
+                    {result.recommendedActions.map((action, i) => (
+                      <div key={i} className="flex items-start gap-2.5 text-xs text-text-primary">
+                        <span className="w-1.5 h-1.5 rounded-full bg-accent-color mt-1.5 shrink-0" />
+                        <span className="leading-relaxed">{action}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Extracted Contacts, UPI IDs & Links */}
+              {result.extractedEntities && (result.extractedEntities.emails?.length > 0 || result.extractedEntities.upiIds?.length > 0 || result.extractedEntities.urls?.length > 0 || result.extractedEntities.phones?.length > 0) && (
+                <div className="rounded-2xl border border-border-color bg-card-bg p-5 shadow-sm space-y-3 card-premium text-left">
+                  <h3 className="text-xs font-bold text-text-primary dark:text-accent-color uppercase tracking-wider">
+                    Extracted Identifiers & Contact Channels
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    {result.extractedEntities.emails?.length > 0 && (
+                      <div className="p-3 rounded-xl bg-app-bg/50 border border-border-color">
+                        <span className="text-[10px] font-bold text-text-secondary uppercase block mb-1">Emails Found</span>
+                        <div className="space-y-1 font-mono text-text-primary">
+                          {result.extractedEntities.emails.map((e, idx) => (
+                            <div key={idx} className="truncate">{e}</div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {result.extractedEntities.upiIds?.length > 0 && (
+                      <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20">
+                        <span className="text-[10px] font-bold text-red-500 uppercase block mb-1">Flagged UPI IDs</span>
+                        <div className="space-y-1 font-mono text-red-600 dark:text-red-400 font-bold">
+                          {result.extractedEntities.upiIds.map((u, idx) => (
+                            <div key={idx} className="truncate">{u}</div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {result.extractedEntities.urls?.length > 0 && (
+                      <div className="p-3 rounded-xl bg-app-bg/50 border border-border-color">
+                        <span className="text-[10px] font-bold text-text-secondary uppercase block mb-1">Web Links</span>
+                        <div className="space-y-1 font-mono text-text-primary">
+                          {result.extractedEntities.urls.slice(0, 3).map((u, idx) => (
+                            <div key={idx} className="truncate">{u}</div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {result.extractedEntities.phones?.length > 0 && (
+                      <div className="p-3 rounded-xl bg-app-bg/50 border border-border-color">
+                        <span className="text-[10px] font-bold text-text-secondary uppercase block mb-1">Phone Numbers</span>
+                        <div className="space-y-1 font-mono text-text-primary">
+                          {result.extractedEntities.phones.map((p, idx) => (
+                            <div key={idx} className="truncate">{p}</div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="p-4 rounded-2xl border border-border-color bg-card-bg flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm card-premium">
                 <div className="space-y-1 text-left">
                   <h4 className="text-xs font-bold text-text-primary dark:text-accent-color flex items-center gap-1.5">
