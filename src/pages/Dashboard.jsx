@@ -11,6 +11,7 @@ import {
   Trash2,
   ArrowRight,
   ShieldAlert,
+  ShieldCheck,
   CheckCircle2,
   AlertTriangle,
   Play,
@@ -69,6 +70,7 @@ export default function Dashboard() {
     user,
     history,
     addScan,
+    activeScan,
     setActiveScan,
     shouldOpenFilePicker,
     setShouldOpenFilePicker,
@@ -85,7 +87,14 @@ export default function Dashboard() {
   const [fileSize, setFileSize] = useState("");
   const [isDragActive, setIsDragActive] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [latestScanResult, setLatestScanResult] = useState(() => activeScan || null);
   const [currentPreviewUrl, setCurrentPreviewUrl] = useState(null);
+
+  useEffect(() => {
+    if (activeScan) {
+      setLatestScanResult(activeScan);
+    }
+  }, [activeScan]);
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const unsavedPreviewRef = useRef(null);
 
@@ -426,6 +435,7 @@ export default function Dashboard() {
         currentPreviewUrl,
       );
       setActiveScan(newScan);
+      setLatestScanResult(newScan);
       setCurrentPreviewUrl(null);
       unsavedPreviewRef.current = null;
 
@@ -438,7 +448,7 @@ export default function Dashboard() {
         addToast("Success: Document evaluated authentic & genuine.", "success");
       }
 
-      navigate("/analysis-result");
+      navigate("/analysis-result", { state: { scan: newScan } });
     } catch (err) {
       console.error("Analysis execution error:", err);
       const fallbackResult = analyzeScam(text, filename);
@@ -449,7 +459,8 @@ export default function Dashboard() {
         currentPreviewUrl,
       );
       setActiveScan(newScan);
-      navigate("/analysis-result");
+      setLatestScanResult(newScan);
+      navigate("/analysis-result", { state: { scan: newScan } });
     } finally {
       setIsAnalyzing(false);
     }
@@ -828,6 +839,121 @@ export default function Dashboard() {
                   </button>
                 </div>
               </div>
+
+              {/* Inline Scan Diagnostic Result Card */}
+              {latestScanResult && (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-2xl border border-border-color bg-card-bg shadow-sm p-6 space-y-4 card-premium text-left"
+                >
+                  <div className="flex items-center justify-between border-b border-border-color pb-3 flex-wrap gap-2">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2.5 rounded-xl ${
+                        latestScanResult.result?.verdict === "Scam" || (latestScanResult.result?.riskScore ?? 0) >= 70
+                          ? "bg-red-500/10 text-red-600 dark:text-red-400"
+                          : latestScanResult.result?.verdict === "Suspicious" || (latestScanResult.result?.riskScore ?? 0) >= 35
+                          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                          : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                      }`}>
+                        {latestScanResult.result?.verdict === "Scam" || (latestScanResult.result?.riskScore ?? 0) >= 70 ? (
+                          <ShieldAlert className="w-5 h-5 text-red-600 dark:text-red-400" />
+                        ) : latestScanResult.result?.verdict === "Suspicious" || (latestScanResult.result?.riskScore ?? 0) >= 35 ? (
+                          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                        ) : (
+                          <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-text-primary">
+                          Scan Diagnosis: {latestScanResult.filename || "Document Analysis"}
+                        </h3>
+                        <p className="text-[11px] text-text-secondary">
+                          Scanned {new Date(latestScanResult.timestamp).toLocaleTimeString()} • Threat Score: {latestScanResult.result?.riskScore ?? 0}%
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                        latestScanResult.result?.verdict === "Scam" || (latestScanResult.result?.riskScore ?? 0) >= 70
+                          ? "bg-red-500 text-white"
+                          : latestScanResult.result?.verdict === "Suspicious" || (latestScanResult.result?.riskScore ?? 0) >= 35
+                          ? "bg-amber-500 text-slate-950 font-bold"
+                          : "bg-emerald-500 text-white"
+                      }`}>
+                        {latestScanResult.result?.verdict || "Evaluated"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Primary Reason / Forensic summary */}
+                  {latestScanResult.result?.primaryReason && (
+                    <div className={`p-3.5 rounded-xl text-xs leading-relaxed border ${
+                      (latestScanResult.result?.riskScore ?? 0) >= 50
+                        ? "bg-red-500/5 border-red-500/20 text-red-700 dark:text-red-300"
+                        : (latestScanResult.result?.riskScore ?? 0) >= 20
+                        ? "bg-amber-500/5 border-amber-500/20 text-amber-700 dark:text-amber-300"
+                        : "bg-emerald-500/5 border-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+                    }`}>
+                      <span className="font-bold">Forensic Rationale: </span>
+                      {latestScanResult.result.primaryReason}
+                    </div>
+                  )}
+
+                  {/* Company verification summary if available */}
+                  {latestScanResult.result?.companyVerification?.verifiedCompany && (
+                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-300 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                        <span><strong>MCA Verified Entity:</strong> {latestScanResult.result.companyVerification.verifiedCompany.name} (CIN: {latestScanResult.result.companyVerification.verifiedCompany.cin})</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Red flags snippet */}
+                  {latestScanResult.result?.flags?.length > 0 && (
+                    <div className="space-y-2">
+                      <span className="text-[11px] font-bold text-text-secondary uppercase tracking-wider block">
+                        Detected Red Flags ({latestScanResult.result.flags.length})
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {latestScanResult.result.flags.slice(0, 5).map((f, i) => (
+                          <span
+                            key={i}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-border-color/30 text-text-primary text-[11px] font-medium"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                            {f.label} (+{f.score})
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action buttons */}
+                  <div className="flex items-center justify-between pt-2 flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/analysis-result", { state: { scan: latestScanResult } })}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-accent-color hover:bg-accent-hover text-white transition-all shadow-xs cursor-pointer active:scale-98"
+                    >
+                      <span>View Full Forensic Report</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLatestScanResult(null);
+                        handleClear();
+                      }}
+                      className="text-xs text-text-secondary hover:text-text-primary px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                    >
+                      Dismiss Result
+                    </button>
+                  </div>
+                </motion.div>
+              )}
             </div>
             <div className="space-y-6">
               {/* 1,000 Registered Companies Directory Button */}

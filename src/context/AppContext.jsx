@@ -89,7 +89,26 @@ export function AppProvider({ children }) {
     return [];
   });
 
-  const [activeScan, setActiveScan] = useState(null);
+  const [activeScan, _setActiveScan] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem("scamshield_active_scan");
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return null;
+  });
+
+  const setActiveScan = (scan) => {
+    _setActiveScan(scan);
+    try {
+      if (scan) {
+        sessionStorage.setItem("scamshield_active_scan", JSON.stringify(scan));
+      } else {
+        sessionStorage.removeItem("scamshield_active_scan");
+      }
+    } catch (e) {
+      console.warn("sessionStorage active scan sync error:", e);
+    }
+  };
 
   useEffect(() => {
     if (user) {

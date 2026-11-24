@@ -5,7 +5,6 @@ import {
   Sun,
   Moon,
   LogOut,
-  Plus,
   LayoutDashboard,
   History,
   Menu,
@@ -27,7 +26,8 @@ import {
   ChevronDown,
   Activity,
   Globe,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Bell
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -268,70 +268,69 @@ export default function Navbar() {
               </div>
             </div>
 
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-1 lg:gap-3">
               <button
                 onClick={() => handleNavigation('/dashboard')}
-                className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                className={`relative px-3 py-2 text-sm transition-colors cursor-pointer select-none ${
                   isActive('/dashboard') && !isRightDrawerOpen
-                    ? 'bg-btn-bg text-btn-text'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-app-bg'
+                    ? 'text-slate-900 dark:text-white font-semibold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-blue-600 after:rounded-full'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
                 }`}
               >
-                <LayoutDashboard className="w-4 h-4" />
-                {t('dashboard')}
+                {t('dashboard') || 'Dashboard'}
               </button>
               
               <button
-                onClick={() => setIsRightDrawerOpen(!isRightDrawerOpen)}
-                className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
-                  isRightDrawerOpen
-                    ? 'bg-btn-bg text-btn-text'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-app-bg'
+                onClick={handleNewScan}
+                className={`relative px-3 py-2 text-sm transition-colors cursor-pointer select-none ${
+                  isActive('/scan')
+                    ? 'text-slate-900 dark:text-white font-semibold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-blue-600 after:rounded-full'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
                 }`}
               >
-                <History className="w-4 h-4" />
-                {t('history')}
-              </button>
-
-              <button
-                onClick={handleNewScan}
-                className="flex items-center gap-1.5 px-3.5 py-2 mx-1 text-xs font-bold rounded-xl bg-accent-color hover:bg-accent-hover text-white dark:text-app-bg transition-all duration-200 shadow-sm cursor-pointer active:scale-98"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                {t('newScan')}
+                {t('scan') || 'Scan'}
               </button>
 
               <button
                 onClick={() => handleNavigation('/live-monitor')}
-                className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                className={`relative px-3 py-2 text-sm transition-colors cursor-pointer select-none ${
                   isActive('/live-monitor')
-                    ? 'bg-btn-bg text-btn-text'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-app-bg'
+                    ? 'text-slate-900 dark:text-white font-semibold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-blue-600 after:rounded-full'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
                 }`}
               >
-                <Activity className="w-4 h-4" />
-                {t('liveMonitor') || 'Live Monitor'}
+                {t('liveMonitor') || 'Live monitor'}
+              </button>
+
+              <button
+                onClick={() => setIsRightDrawerOpen(!isRightDrawerOpen)}
+                className={`relative px-3 py-2 text-sm transition-colors cursor-pointer select-none ${
+                  isRightDrawerOpen
+                    ? 'text-slate-900 dark:text-white font-semibold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-blue-600 after:rounded-full'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
+                }`}
+              >
+                {t('history') || 'History'}
               </button>
 
               <button
                 onClick={() => handleNavigation('/threat-map')}
-                className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                className={`relative px-3 py-2 text-sm transition-colors cursor-pointer select-none ${
                   isActive('/threat-map')
-                    ? 'bg-btn-bg text-btn-text'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-app-bg'
+                    ? 'text-slate-900 dark:text-white font-semibold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-blue-600 after:rounded-full'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
                 }`}
               >
-                <Globe className="w-4 h-4" />
-                {t('threatMap') || 'Threat Map'}
+                {t('threatMap') || 'Threat map'}
               </button>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {/* National Cyber Crime Helpline 1930 */}
               <button
                 type="button"
                 onClick={openHelpline}
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-[12px] bg-[#ef4444] hover:bg-[#dc2626] active:scale-95 text-white transition-all shadow-xs cursor-pointer select-none"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#ef4444] hover:bg-[#dc2626] active:scale-95 text-white transition-all shadow-xs cursor-pointer select-none"
                 title={t('cyberHelplineTooltip')}
                 aria-label={t('cyberHelplineTooltip')}
               >
@@ -399,29 +398,50 @@ export default function Navbar() {
                 )}
               </div>
 
+              {/* Dark/Light mode toggle */}
               <button
                 onClick={toggleTheme}
-                className="p-2.5 rounded-xl border border-border-color hover:bg-app-bg text-text-secondary transition-colors duration-200 cursor-pointer"
+                className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
                 aria-label="Toggle Theme"
               >
                 {theme === 'dark' ? (
                   <Sun className="w-4.5 h-4.5 text-warning-color" />
                 ) : (
-                  <Moon className="w-4.5 h-4.5 text-text-secondary" />
+                  <Moon className="w-4.5 h-4.5" />
                 )}
               </button>
 
+              {/* Notification icon with badge */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsRightDrawerOpen(true)}
+                  className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer relative"
+                  aria-label="Notifications"
+                  title="Notifications"
+                >
+                  <Bell className="w-4.5 h-4.5" />
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-[#ef4444] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    1
+                  </span>
+                </button>
+              </div>
+
+              {/* User Avatar with Initials */}
               <div className="relative">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 p-1.5 pr-3 rounded-xl border border-border-color bg-app-bg text-text-primary hover:bg-border-color/50 transition-all duration-200 cursor-pointer"
+                  className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 font-bold text-xs flex items-center justify-center hover:ring-2 hover:ring-blue-400 transition-all cursor-pointer shadow-xs select-none uppercase"
+                  title={user.name || "User Profile"}
                 >
-                  <div className="w-7 h-7 rounded-md bg-btn-bg text-btn-text font-bold text-xs flex items-center justify-center uppercase shadow-sm">
-                    {user.name ? user.name.charAt(0) : 'U'}
-                  </div>
-                  <span className="text-xs font-bold max-w-25 truncate hidden sm:inline">
-                    {user.name.split(' ')[0]}
-                  </span>
+                  {(() => {
+                    if (!user.name) return 'PS';
+                    const parts = user.name.trim().split(' ').filter(Boolean);
+                    if (parts.length >= 2) {
+                      return (parts[0][0] + parts[1][0]).toUpperCase();
+                    }
+                    return parts[0].slice(0, 2).toUpperCase() || 'PS';
+                  })()}
                 </button>
 
                 {dropdownOpen && (

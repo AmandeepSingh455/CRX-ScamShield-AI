@@ -17,12 +17,14 @@ import {
   PhoneCall,
   CheckCircle2,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 
 export default function AnalysisResult() {
   const {
     activeScan,
+    setActiveScan,
+    history,
     user,
     isLeftDrawerOpen,
     setIsLeftDrawerOpen,
@@ -31,7 +33,17 @@ export default function AnalysisResult() {
     t,
   } = useApp();
   const navigate = useNavigate();
+  const location = useLocation();
   const [copied, setCopied] = useState(false);
+
+  // Resolve scan data with multi-layer fallback so results are NEVER lost
+  const currentScan = location.state?.scan || activeScan || (() => {
+    try {
+      const saved = sessionStorage.getItem("scamshield_active_scan");
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return (history && history.length > 0) ? history[0] : null;
+  })();
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -62,16 +74,23 @@ export default function AnalysisResult() {
   useEffect(() => {
     if (!user) {
       navigate("/login", { replace: true });
-    } else if (!activeScan) {
+    } else if (!currentScan) {
       navigate("/dashboard", { replace: true });
+    } else if (currentScan && (!activeScan || activeScan.id !== currentScan.id)) {
+      setActiveScan(currentScan);
     }
-  }, [user, activeScan, navigate]);
+  }, [user, currentScan, activeScan, navigate, setActiveScan]);
 
-  if (!activeScan) return null;
+  if (!currentScan) return null;
 
-  const { filename, text, result, timestamp } = activeScan;
-  const { riskScore, confidenceScore, verdict, flags, highlightedText } =
-    result;
+  const { filename = "Scanned Document", text = "", result = {}, timestamp = new Date().toISOString() } = currentScan;
+  const {
+    riskScore = 0,
+    confidenceScore = 92,
+    verdict = "Suspicious",
+    flags = [],
+    highlightedText = text,
+  } = result || {};
 
   const dateFormatted = new Date(timestamp).toLocaleString();
 
