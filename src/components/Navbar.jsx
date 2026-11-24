@@ -5,6 +5,7 @@ import {
   Sun,
   Moon,
   LogOut,
+  Plus,
   LayoutDashboard,
   History,
   Menu,
@@ -24,10 +25,6 @@ import {
   PhoneCall,
   Languages,
   ChevronDown,
-  Bell,
-  Activity,
-  Globe,
-  ScanLine,
   Image as ImageIcon
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -96,43 +93,6 @@ export default function Navbar() {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(1);
-  const [activeTab, setActiveTab] = useState(() => {
-    return location.pathname === '/dashboard' ? 'live-monitor' : 'dashboard';
-  });
-
-  const notifications = useMemo(() => [
-    {
-      id: 1,
-      title: 'National Cyber Helpline 1930',
-      description: 'Call 1930 immediately within the golden hour to freeze fraudulent bank transfers.',
-      time: 'Just now',
-    },
-    {
-      id: 2,
-      title: 'ScamShield Security Engine Active',
-      description: '1,000+ verified corporate entities and CIN database loaded.',
-      time: '1h ago',
-    }
-  ], []);
-
-  const userInitials = useMemo(() => {
-    if (!user?.name) return 'PS';
-    const parts = user.name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
-    }
-    return parts[0].slice(0, 2).toUpperCase();
-  }, [user?.name]);
-
-  const navItems = useMemo(() => [
-    { id: 'dashboard', label: t('dashboard') || 'Dashboard', icon: LayoutDashboard },
-    { id: 'scan', label: t('scan') || 'Scan', icon: ScanLine },
-    { id: 'live-monitor', label: t('liveMonitor') || 'Live monitor', icon: Activity },
-    { id: 'history', label: t('history') || 'History', icon: History },
-    { id: 'threat-map', label: t('threatMap') || 'Threat map', icon: Globe },
-  ], [t]);
 
   const [searchLeft, setSearchLeft] = useState('');
   const [filterLeft, setFilterLeft] = useState('All'); // All, Scam, Safe, Suspicious
@@ -142,23 +102,12 @@ export default function Navbar() {
   const [searchRight, setSearchRight] = useState('');
   const [filterRight, setFilterRight] = useState('All'); // All, Scam, Safe, Suspicious
 
+  const isActive = (path) => location.pathname === path;
+
   const handleNavigation = (path) => {
     setIsLeftDrawerOpen(false);
     setIsRightDrawerOpen(false);
     navigate(path);
-  };
-
-  const handleTabClick = (item) => {
-    setActiveTab(item.id);
-    if (item.id === 'dashboard') {
-      handleNavigation('/dashboard');
-      setIsRightDrawerOpen(false);
-    } else if (item.id === 'scan') {
-      handleNewScan();
-      setIsRightDrawerOpen(false);
-    } else if (item.id === 'history') {
-      setIsRightDrawerOpen(true);
-    }
   };
 
   const handleNewScan = () => {
@@ -283,76 +232,80 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 h-18 z-50 w-full border-b border-slate-200/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-xs transition-all duration-300 flex items-center">
-        <div className="w-full px-4 sm:px-6 lg:px-8 h-full">
+      <nav className="fixed top-0 left-0 right-0 h-18 z-50 w-full border-b border-border-color bg-card-bg/85 backdrop-blur-xl shadow-md transition-all duration-300 flex items-center">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-full items-center">
-            
-            {/* Left: Brand / Logo */}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsLeftDrawerOpen(!isLeftDrawerOpen)}
-                className={`p-2 rounded-xl border transition-all duration-200 cursor-pointer active:scale-95 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 md:hidden ${
-                  isLeftDrawerOpen ? 'bg-blue-500/10 border-blue-500 text-blue-500' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                className={`p-2.5 rounded-xl border transition-all duration-200 cursor-pointer active:scale-95 border-accent-color/20 bg-card-bg/40 ${
+                  isLeftDrawerOpen ? 'bg-accent-color/10 border-accent-color text-accent-color' : 'text-text-primary hover:bg-app-bg'
                 }`}
-                aria-label="Toggle Navigation Drawer"
+                aria-label="Toggle Left Hamburger Drawer"
               >
-                <Menu className="w-5 h-5 text-slate-700 dark:text-slate-200" />
+                <Menu className="w-5 h-5 text-accent-color" />
               </button>
 
               <div
-                className="flex items-center gap-2.5 cursor-pointer select-none group"
+                className="flex items-center gap-3 cursor-pointer select-none group"
                 onClick={() => handleNavigation('/dashboard')}
               >
-                <div className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 relative flex items-center justify-center w-9 h-9 rounded-xl border shadow-xs transition-transform group-hover:scale-102 duration-150">
-                  <Shield className="w-5 h-5 text-emerald-500" />
+                <div className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 relative flex items-center justify-center w-10 h-10 rounded-xl border shadow-sm transition-transform group-hover:scale-102 duration-150">
+                  <Shield className="w-5 h-5 text-accent-color" />
                 </div>
-                <div>
-                  <span className="font-bold tracking-tight text-slate-900 dark:text-white text-sm sm:text-base block leading-tight">
-                    {t('appTitle')}
-                  </span>
-                  <span className="text-[9px] block text-emerald-500 font-semibold uppercase tracking-wider hidden sm:block">
+                <div className="hidden sm:block">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold tracking-tight text-text-primary text-base">
+                      {t('appTitle')}
+                    </span>
+                  </div>
+                  <span className="text-[10px] block text-accent-color font-semibold uppercase tracking-wider">
                     {t('appSubtitle')}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Center: Horizontal Navigation Links (Dashboard, Scan, Live monitor, History, Threat map) */}
-            <div className="hidden md:flex items-center h-full gap-5 lg:gap-8">
-              {navItems.map((item) => {
-                const isCurrent = activeTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => handleTabClick(item)}
-                    className={`h-full flex items-center px-1 text-sm tracking-tight relative cursor-pointer select-none transition-colors duration-150 ${
-                      isCurrent
-                        ? 'font-semibold text-slate-900 dark:text-white'
-                        : 'font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
-                    }`}
-                  >
-                    <span>{item.label}</span>
-                    {isCurrent && (
-                      <motion.div
-                        layoutId="activeNavIndicator"
-                        className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#3b82f6] rounded-t-sm"
-                        transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                      />
-                    )}
-                  </button>
-                );
-              })}
+            <div className="hidden md:flex items-center gap-2">
+              <button
+                onClick={() => handleNavigation('/dashboard')}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                  isActive('/dashboard') && !isRightDrawerOpen
+                    ? 'bg-btn-bg text-btn-text'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-app-bg'
+                }`}
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                {t('dashboard')}
+              </button>
+              
+              <button
+                onClick={() => setIsRightDrawerOpen(!isRightDrawerOpen)}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                  isRightDrawerOpen
+                    ? 'bg-btn-bg text-btn-text'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-app-bg'
+                }`}
+              >
+                <History className="w-4 h-4" />
+                {t('history')}
+              </button>
+
+              <button
+                onClick={handleNewScan}
+                className="flex items-center gap-1.5 px-3.5 py-2 ml-3 text-xs font-bold rounded-xl bg-accent-color hover:bg-accent-hover text-white dark:text-app-bg transition-all duration-200 shadow-sm cursor-pointer active:scale-98"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                {t('newScan')}
+              </button>
             </div>
 
-            {/* Right: Controls Cluster (1930 Helpline, Language, Theme, Notifications, Profile) */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              
-              {/* 1. 1930 Cyber Helpline button */}
+            <div className="flex items-center gap-3">
+              {/* National Cyber Crime Helpline 1930 */}
               <button
                 type="button"
                 onClick={openHelpline}
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-[12px] bg-[#ef4444] hover:bg-[#dc2626] active:scale-95 text-white transition-all shadow-xs cursor-pointer select-none font-sans"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-[12px] bg-[#ef4444] hover:bg-[#dc2626] active:scale-95 text-white transition-all shadow-xs cursor-pointer select-none"
                 title={t('cyberHelplineTooltip')}
                 aria-label={t('cyberHelplineTooltip')}
               >
@@ -362,15 +315,11 @@ export default function Navbar() {
                 </span>
               </button>
 
-              {/* 2. Language Selector */}
+              {/* Language Selector Dropdown */}
               <div className="relative">
                 <button
                   type="button"
-                  onClick={() => {
-                    setLangDropdownOpen(!langDropdownOpen);
-                    setDropdownOpen(false);
-                    setNotificationsOpen(false);
-                  }}
+                  onClick={() => setLangDropdownOpen(!langDropdownOpen)}
                   className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
                   aria-label={t('language')}
                   title={t('language')}
@@ -388,8 +337,8 @@ export default function Navbar() {
                       className="fixed inset-0 z-20"
                       onClick={() => setLangDropdownOpen(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-44 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1.5 shadow-xl z-30 transition-all">
-                      <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 mb-1">
+                    <div className="absolute right-0 mt-2 w-44 rounded-xl border border-border-color bg-card-bg p-1.5 shadow-xl z-30 transition-all">
+                      <div className="px-2.5 py-1 text-[10px] font-bold text-text-secondary uppercase tracking-wider border-b border-border-color/50 mb-1">
                         {t('language')}
                       </div>
                       {[
@@ -406,17 +355,17 @@ export default function Navbar() {
                           }}
                           className={`w-full flex items-center justify-between px-2.5 py-2 text-left text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
                             language === item.code
-                              ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-bold'
-                              : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
+                              ? 'bg-accent-color/15 text-accent-color font-bold'
+                              : 'hover:bg-app-bg text-text-primary'
                           }`}
                         >
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-border-color/40 text-text-secondary">
                               {item.flag}
                             </span>
                             <span>{item.native}</span>
                           </div>
-                          {language === item.code && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
+                          {language === item.code && <Check className="w-3.5 h-3.5 text-accent-color" />}
                         </button>
                       ))}
                     </div>
@@ -424,141 +373,51 @@ export default function Navbar() {
                 )}
               </div>
 
-              {/* 3. Dark/Light Mode Toggle */}
               <button
-                type="button"
                 onClick={toggleTheme}
-                className="p-1.5 sm:p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+                className="p-2.5 rounded-xl border border-border-color hover:bg-app-bg text-text-secondary transition-colors duration-200 cursor-pointer"
                 aria-label="Toggle Theme"
-                title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               >
                 {theme === 'dark' ? (
-                  <Sun className="w-4.5 h-4.5 text-amber-400" />
+                  <Sun className="w-4.5 h-4.5 text-warning-color" />
                 ) : (
-                  <Moon className="w-4.5 h-4.5 text-slate-600 dark:text-slate-300" />
+                  <Moon className="w-4.5 h-4.5 text-text-secondary" />
                 )}
               </button>
 
-              {/* 4. Notifications Icon with Badge */}
               <div className="relative">
                 <button
-                  type="button"
-                  onClick={() => {
-                    setNotificationsOpen(!notificationsOpen);
-                    setDropdownOpen(false);
-                    setLangDropdownOpen(false);
-                  }}
-                  className="p-1.5 sm:p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer relative"
-                  aria-label="Notifications"
-                  title="Notifications"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-2 p-1.5 pr-3 rounded-xl border border-border-color bg-app-bg text-text-primary hover:bg-border-color/50 transition-all duration-200 cursor-pointer"
                 >
-                  <Bell className="w-4.5 h-4.5" />
-                  {unreadCount > 0 && (
-                    <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#ef4444] text-white text-[10px] font-bold flex items-center justify-center border-2 border-white dark:border-slate-900 leading-none">
-                      {unreadCount}
-                    </span>
-                  )}
-                </button>
-
-                {notificationsOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-20"
-                      onClick={() => setNotificationsOpen(false)}
-                    />
-                    <div className="absolute right-0 mt-2 w-72 sm:w-80 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 shadow-2xl z-30 transition-all">
-                      <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800">
-                        <div className="flex items-center gap-1.5">
-                          <Bell className="w-4 h-4 text-emerald-500" />
-                          <span className="text-xs font-bold text-slate-900 dark:text-white">
-                            {t('notifications') || 'Notifications'}
-                          </span>
-                          {unreadCount > 0 && (
-                            <span className="px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-500 text-[10px] font-bold">
-                              {unreadCount} new
-                            </span>
-                          )}
-                        </div>
-                        {unreadCount > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => setUnreadCount(0)}
-                            className="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold cursor-pointer"
-                          >
-                            Mark all read
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="space-y-2 max-h-60 overflow-y-auto pr-0.5">
-                        {notifications.map((n) => (
-                          <div
-                            key={n.id}
-                            className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-left"
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
-                                {n.title}
-                              </span>
-                              <span className="text-[9px] text-slate-400 font-medium">
-                                {n.time}
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
-                              {n.description}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* 5. User Profile Icon with Initials */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDropdownOpen(!dropdownOpen);
-                    setNotificationsOpen(false);
-                    setLangDropdownOpen(false);
-                  }}
-                  className="w-8 h-8 rounded-full bg-[#e8f1fd] dark:bg-blue-950/70 text-[#2563eb] dark:text-blue-400 font-semibold text-xs flex items-center justify-center cursor-pointer select-none transition-transform hover:scale-105 active:scale-95 border border-blue-200/60 dark:border-blue-800/50 shadow-xs"
-                  aria-label="User Profile"
-                  title={user.name || "User Profile"}
-                >
-                  {userInitials}
+                  <div className="w-7 h-7 rounded-md bg-btn-bg text-btn-text font-bold text-xs flex items-center justify-center uppercase shadow-sm">
+                    {user.name ? user.name.charAt(0) : 'U'}
+                  </div>
+                  <span className="text-xs font-bold max-w-25 truncate hidden sm:inline">
+                    {user.name.split(' ')[0]}
+                  </span>
                 </button>
 
                 {dropdownOpen && (
                   <>
                     <div
-                      className="fixed inset-0 z-20"
+                      className="fixed inset-0 z-10"
                       onClick={() => setDropdownOpen(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2 shadow-2xl z-30 transition-all">
-                      <div className="px-3 py-2.5 border-b border-slate-100 dark:border-slate-800 mb-1">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-[#e8f1fd] dark:bg-blue-950/70 text-[#2563eb] dark:text-blue-400 font-semibold text-xs flex items-center justify-center shrink-0">
-                            {userInitials}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                              {user.name || 'Parneet Singh'}
-                            </p>
-                            <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
-                              {user.email || 'user@scamshield.ai'}
-                            </p>
-                          </div>
-                        </div>
+                    <div className="absolute right-0 mt-2 w-52 rounded-xl border border-border-color bg-card-bg p-1.5 shadow-xl z-20 transition-all">
+                      <div className="px-3 py-2 border-b border-border-color mb-1">
+                        <p className="text-xs font-bold text-text-primary truncate">
+                          {user.name}
+                        </p>
+                        <p className="text-[10px] text-text-secondary truncate mt-0.5">
+                          {user.email}
+                        </p>
                       </div>
                       <button
-                        type="button"
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors cursor-pointer"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-danger-color hover:bg-danger-color/10 rounded-lg transition-colors cursor-pointer"
                       >
-                        <LogOut className="w-4 h-4 text-red-500" />
+                        <LogOut className="w-4 h-4" />
                         {t('logout')}
                       </button>
                     </div>
@@ -566,6 +425,13 @@ export default function Navbar() {
                 )}
               </div>
 
+              <button
+                onClick={() => setIsRightDrawerOpen(!isRightDrawerOpen)}
+                className="p-2.5 rounded-xl border border-border-color bg-card-bg/40 hover:bg-app-bg text-text-primary transition-all duration-200 cursor-pointer md:hidden active:scale-95"
+                aria-label="Open History Log"
+              >
+                <History className="w-5 h-5 text-accent-color" />
+              </button>
             </div>
 
           </div>
@@ -590,37 +456,6 @@ export default function Navbar() {
               className="relative h-full w-80 bg-slate-950/90 dark:bg-slate-950/95 backdrop-blur-2xl border-r border-border-color/20 text-slate-100 p-5 flex flex-col justify-between shadow-2xl z-40 overflow-hidden"
             >
               <div className="flex flex-col gap-4 overflow-hidden h-full">
-                {/* Mobile Navigation Links */}
-                <div className="flex flex-col gap-1 pb-3 border-b border-border-color/10 shrink-0">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1 mb-1">
-                    Navigation
-                  </span>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {navItems.map((item) => {
-                      const Icon = item.icon;
-                      const isCurrent = activeTab === item.id;
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => {
-                            handleTabClick(item);
-                            setIsLeftDrawerOpen(false);
-                          }}
-                          className={`flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer text-left ${
-                            isCurrent
-                              ? 'bg-blue-600/20 text-blue-400 font-bold border border-blue-500/30'
-                              : 'text-slate-300 hover:bg-slate-900 border border-transparent'
-                          }`}
-                        >
-                          <Icon className={`w-3.5 h-3.5 ${isCurrent ? 'text-blue-400' : 'text-slate-400'}`} />
-                          <span className="truncate">{item.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
                 <div className="relative shrink-0">
                   <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Search className="h-4 w-4 text-slate-400" />

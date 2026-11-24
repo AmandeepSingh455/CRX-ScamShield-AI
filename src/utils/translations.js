@@ -8,11 +8,7 @@ export const translations = {
 
     // Navigation & Global Controls
     dashboard: "Dashboard",
-    scan: "Scan",
-    liveMonitor: "Live monitor",
-    history: "History",
-    threatMap: "Threat map",
-    notifications: "Notifications",
+    history: "Scan History",
     newScan: "New Scan",
     gallery: "Evidence Vault",
     language: "Language",
@@ -170,11 +166,7 @@ export const translations = {
 
     // Navigation & Global Controls
     dashboard: "डैशबोर्ड",
-    scan: "स्कैन",
-    liveMonitor: "लाइव मॉनिटर",
-    history: "इतिहास",
-    threatMap: "थ्रेट मैप",
-    notifications: "सूचनाएं",
+    history: "स्कैन इतिहास",
     newScan: "नया स्कैन",
     gallery: "एविडेंस वॉल्ट",
     language: "भाषा",
@@ -332,11 +324,7 @@ export const translations = {
 
     // Navigation & Global Controls
     dashboard: "ਡੈਸ਼ਬੋਰਡ",
-    scan: "ਸਕੈਨ",
-    liveMonitor: "ਲਾਈਵ ਮਾਨੀਟਰ",
-    history: "ਇਤਿਹਾਸ",
-    threatMap: "ਥ੍ਰੈਟ ਮੈਪ",
-    notifications: "ਸੂਚਨਾਵਾਂ",
+    history: "ਸਕੈਨ ਇਤਿਹਾਸ",
     newScan: "ਨਵਾਂ ਸਕੈਨ",
     gallery: "ਸਬੂਤ ਵਾਲਟ",
     language: "ਭਾਸ਼ਾ",
