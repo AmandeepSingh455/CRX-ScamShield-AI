@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import {
   ShieldAlert,
   FileCode,
@@ -275,6 +276,8 @@ export default function ThreatMap() {
           <FlaggedIdentifiersTable identifiers={flaggedIdentifiers} />
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import Scan from './pages/Scan';
 import AnalysisResult from './pages/AnalysisResult';
 import LiveMonitor from './pages/LiveMonitor';
 import ThreatMap from './pages/ThreatMap';
+import ScanHistory from './pages/ScanHistory';
 import AiAssistant from './components/AiAssistant';
 
 // Protected Route Component with BFcache Back-Button Prevention
@@ -123,6 +124,22 @@ function AppContent() {
         element={
           <ProtectedRoute>
             <ThreatMap />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/scan-history"
+        element={
+          <ProtectedRoute>
+            <ScanHistory />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/history"
+        element={
+          <ProtectedRoute>
+            <ScanHistory />
           </ProtectedRoute>
         }
       />

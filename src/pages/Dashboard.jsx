@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import RiskChart from "../components/RiskChart";
 import CompanyRegistryModal from "../components/CompanyRegistryModal";
 import {
@@ -430,6 +431,8 @@ export default function Dashboard() {
           </div>
         </motion.main>
       </div>
+
+      <Footer />
 
       <CompanyRegistryModal
         isOpen={isCompanyModalOpen}

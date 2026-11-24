@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import {
   Monitor,
   Upload,
@@ -642,6 +643,8 @@ export default function LiveMonitor() {
           </div>
         )}
       </main>
+
+      <Footer />
 
       {/* Cyber Helpline Modal */}
       <CyberHelplineModal

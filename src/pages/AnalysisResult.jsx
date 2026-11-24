@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useApp } from "../context/AppContext";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import { jsPDF } from "jspdf";
 import {
   ShieldCheck,
@@ -100,6 +101,7 @@ export default function AnalysisResult() {
             </button>
           </div>
         </main>
+        <Footer />
       </div>
     );
   }
@@ -815,6 +817,8 @@ ${text.slice(0, 300)}...
           </div>
         </motion.main>
       </div>
+
+      <Footer />
     </div>
   );
 }

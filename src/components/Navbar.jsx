@@ -232,35 +232,37 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 h-18 z-50 w-full border-b border-border-color bg-card-bg/85 backdrop-blur-xl shadow-md transition-all duration-300 flex items-center">
+      <nav className="fixed top-0 left-0 right-0 h-18 z-50 w-full border-b border-[#e2e8f0] dark:border-slate-800 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xl shadow-xs transition-all duration-300 flex items-center">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-full items-center">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsLeftDrawerOpen(!isLeftDrawerOpen)}
-                className={`p-2.5 rounded-xl border transition-all duration-200 cursor-pointer active:scale-95 border-accent-color/20 bg-card-bg/40 ${
-                  isLeftDrawerOpen ? 'bg-accent-color/10 border-accent-color text-accent-color' : 'text-text-primary hover:bg-app-bg'
+                className={`p-2.5 rounded-xl border transition-all duration-200 cursor-pointer active:scale-95 ${
+                  isLeftDrawerOpen
+                    ? 'bg-[#ecfdf5] dark:bg-emerald-500/15 border-emerald-500 text-[#059669] dark:text-emerald-400'
+                    : 'border-[#e2e8f0] dark:border-slate-800 text-[#0f172a] dark:text-slate-200 hover:bg-[#f8fafc] dark:hover:bg-slate-800/60'
                 }`}
-                aria-label="Toggle Left Hamburger Drawer"
+                aria-label="Toggle Navigation Drawer"
               >
-                <Menu className="w-5 h-5 text-accent-color" />
+                <Menu className="w-5 h-5 text-[#059669] dark:text-emerald-400" />
               </button>
 
               <div
                 className="flex items-center gap-3 cursor-pointer select-none group"
                 onClick={() => handleNavigation('/dashboard')}
               >
-                <div className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 relative flex items-center justify-center w-10 h-10 rounded-xl border shadow-sm transition-transform group-hover:scale-102 duration-150">
-                  <Shield className="w-5 h-5 text-accent-color" />
+                <div className="bg-[#ecfdf5] dark:bg-emerald-500/15 text-[#059669] dark:text-emerald-400 border border-[#a7f3d0] dark:border-emerald-500/30 relative flex items-center justify-center w-10 h-10 rounded-xl shadow-xs transition-transform group-hover:scale-102 duration-150">
+                  <Shield className="w-5 h-5 text-[#059669] dark:text-emerald-400 stroke-[2.2]" />
                 </div>
-                <div className="hidden sm:block">
+                <div className="hidden sm:block text-left">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-bold tracking-tight text-text-primary text-base">
-                      {t('appTitle')}
+                    <span className="font-bold tracking-tight text-[#0f172a] dark:text-white text-base">
+                      CRX ScamShield AI
                     </span>
                   </div>
-                  <span className="text-[10px] block text-accent-color font-semibold uppercase tracking-wider">
-                    {t('appSubtitle')}
+                  <span className="text-[10px] block text-[#059669] dark:text-emerald-400 font-bold uppercase tracking-wider">
+                    FAKE JOB & SCAM DEFENSE
                   </span>
                 </div>
               </div>
@@ -271,55 +273,55 @@ export default function Navbar() {
                 onClick={() => handleNavigation('/dashboard')}
                 className={`relative px-3 py-2 text-sm transition-colors cursor-pointer select-none ${
                   isActive('/dashboard') && !isRightDrawerOpen
-                    ? 'text-slate-900 dark:text-white font-semibold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-blue-600 after:rounded-full'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
+                    ? 'text-[#0f172a] dark:text-white font-semibold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-[#2563eb] after:rounded-full'
+                    : 'text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-white font-medium'
                 }`}
               >
-                {t('dashboard') || 'Dashboard'}
+                Dashboard
               </button>
               
               <button
-                onClick={handleNewScan}
+                onClick={() => handleNavigation('/scan')}
                 className={`relative px-3 py-2 text-sm transition-colors cursor-pointer select-none ${
                   isActive('/scan')
-                    ? 'text-slate-900 dark:text-white font-semibold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-blue-600 after:rounded-full'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
+                    ? 'text-[#0f172a] dark:text-white font-semibold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-[#2563eb] after:rounded-full'
+                    : 'text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-white font-medium'
                 }`}
               >
-                {t('scan') || 'Scan'}
+                Scan
               </button>
 
               <button
                 onClick={() => handleNavigation('/live-monitor')}
                 className={`relative px-3 py-2 text-sm transition-colors cursor-pointer select-none ${
                   isActive('/live-monitor')
-                    ? 'text-slate-900 dark:text-white font-semibold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-blue-600 after:rounded-full'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
+                    ? 'text-[#0f172a] dark:text-white font-semibold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-[#2563eb] after:rounded-full'
+                    : 'text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-white font-medium'
                 }`}
               >
-                {t('liveMonitor') || 'Live monitor'}
+                Live Monitor
               </button>
 
               <button
-                onClick={() => setIsRightDrawerOpen(!isRightDrawerOpen)}
+                onClick={() => handleNavigation('/scan-history')}
                 className={`relative px-3 py-2 text-sm transition-colors cursor-pointer select-none ${
-                  isRightDrawerOpen
-                    ? 'text-slate-900 dark:text-white font-semibold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-blue-600 after:rounded-full'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
+                  (isActive('/scan-history') || isActive('/history') || isRightDrawerOpen)
+                    ? 'text-[#0f172a] dark:text-white font-semibold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-[#2563eb] after:rounded-full'
+                    : 'text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-white font-medium'
                 }`}
               >
-                {t('history') || 'History'}
+                Scan History
               </button>
 
               <button
                 onClick={() => handleNavigation('/threat-map')}
                 className={`relative px-3 py-2 text-sm transition-colors cursor-pointer select-none ${
                   isActive('/threat-map')
-                    ? 'text-slate-900 dark:text-white font-semibold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-blue-600 after:rounded-full'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
+                    ? 'text-[#0f172a] dark:text-white font-semibold after:content-[""] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-[#2563eb] after:rounded-full'
+                    : 'text-[#475569] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-white font-medium'
                 }`}
               >
-                {t('threatMap') || 'Threat map'}
+                Threat Map
               </button>
             </div>
 
@@ -343,15 +345,15 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
+                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[#334155] dark:text-slate-200 hover:text-[#0f172a] dark:hover:text-white hover:bg-[#f1f5f9] dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
                   aria-label={t('language')}
                   title={t('language')}
                 >
-                  <Languages className="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" />
-                  <span className="text-sm font-medium tracking-normal text-slate-700 dark:text-slate-200 uppercase font-sans">
+                  <Languages className="w-4 h-4 text-[#64748b] dark:text-slate-400 shrink-0" />
+                  <span className="text-sm font-medium tracking-normal text-[#334155] dark:text-slate-200 uppercase font-sans">
                     {language.toUpperCase()}
                   </span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-slate-500 dark:text-slate-400 transition-transform duration-200 ${langDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 text-[#64748b] dark:text-slate-400 transition-transform duration-200 ${langDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {langDropdownOpen && (
@@ -360,8 +362,8 @@ export default function Navbar() {
                       className="fixed inset-0 z-20"
                       onClick={() => setLangDropdownOpen(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-44 rounded-xl border border-border-color bg-card-bg p-1.5 shadow-xl z-30 transition-all">
-                      <div className="px-2.5 py-1 text-[10px] font-bold text-text-secondary uppercase tracking-wider border-b border-border-color/50 mb-1">
+                    <div className="absolute right-0 mt-2 w-44 rounded-xl border border-[#e2e8f0] dark:border-slate-800 bg-white dark:bg-[#0d1629] p-1.5 shadow-xl z-30 transition-all">
+                      <div className="px-2.5 py-1 text-[10px] font-bold text-[#64748b] dark:text-slate-400 uppercase tracking-wider border-b border-[#e2e8f0] dark:border-slate-800/50 mb-1">
                         {t('language')}
                       </div>
                       {[
@@ -378,17 +380,17 @@ export default function Navbar() {
                           }}
                           className={`w-full flex items-center justify-between px-2.5 py-2 text-left text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
                             language === item.code
-                              ? 'bg-accent-color/15 text-accent-color font-bold'
-                              : 'hover:bg-app-bg text-text-primary'
+                              ? 'bg-emerald-50 dark:bg-emerald-500/15 text-[#059669] dark:text-emerald-400 font-bold'
+                              : 'hover:bg-[#f1f5f9] dark:hover:bg-slate-800 text-[#0f172a] dark:text-slate-200'
                           }`}
                         >
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-border-color/40 text-text-secondary">
+                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#f1f5f9] dark:bg-slate-800 text-[#64748b] dark:text-slate-400">
                               {item.flag}
                             </span>
                             <span>{item.native}</span>
                           </div>
-                          {language === item.code && <Check className="w-3.5 h-3.5 text-accent-color" />}
+                          {language === item.code && <Check className="w-3.5 h-3.5 text-[#059669] dark:text-emerald-400" />}
                         </button>
                       ))}
                     </div>
@@ -399,13 +401,13 @@ export default function Navbar() {
               {/* Dark/Light mode toggle */}
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+                className="p-2 rounded-lg text-[#475569] dark:text-slate-300 hover:text-[#0f172a] dark:hover:text-white hover:bg-[#f1f5f9] dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
                 aria-label="Toggle Theme"
               >
                 {theme === 'dark' ? (
-                  <Sun className="w-4.5 h-4.5 text-warning-color" />
+                  <Sun className="w-4.5 h-4.5 text-[#f59e0b]" />
                 ) : (
-                  <Moon className="w-4.5 h-4.5" />
+                  <Moon className="w-4.5 h-4.5 text-[#475569]" />
                 )}
               </button>
 
@@ -414,7 +416,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => setIsRightDrawerOpen(true)}
-                  className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer relative"
+                  className="p-2 rounded-lg text-[#475569] dark:text-slate-300 hover:text-[#0f172a] dark:hover:text-white hover:bg-[#f1f5f9] dark:hover:bg-slate-800/60 transition-colors cursor-pointer relative"
                   aria-label="Notifications"
                   title="Notifications"
                 >
@@ -429,7 +431,7 @@ export default function Navbar() {
               <div className="relative">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 font-bold text-xs flex items-center justify-center hover:ring-2 hover:ring-blue-400 transition-all cursor-pointer shadow-xs select-none uppercase"
+                  className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 text-[#2563eb] dark:text-blue-300 font-bold text-xs flex items-center justify-center hover:ring-2 hover:ring-[#2563eb] transition-all cursor-pointer shadow-xs select-none uppercase"
                   title={user.name || "User Profile"}
                 >
                   {(() => {
@@ -448,18 +450,18 @@ export default function Navbar() {
                       className="fixed inset-0 z-10"
                       onClick={() => setDropdownOpen(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-52 rounded-xl border border-border-color bg-card-bg p-1.5 shadow-xl z-20 transition-all">
-                      <div className="px-3 py-2 border-b border-border-color mb-1">
-                        <p className="text-xs font-bold text-text-primary truncate">
+                    <div className="absolute right-0 mt-2 w-52 rounded-xl border border-[#e2e8f0] dark:border-slate-800 bg-white dark:bg-[#0d1629] p-1.5 shadow-xl z-20 transition-all">
+                      <div className="px-3 py-2 border-b border-[#e2e8f0] dark:border-slate-800 mb-1 text-left">
+                        <p className="text-xs font-bold text-[#0f172a] dark:text-white truncate">
                           {user.name}
                         </p>
-                        <p className="text-[10px] text-text-secondary truncate mt-0.5">
+                        <p className="text-[10px] text-[#64748b] dark:text-slate-400 truncate mt-0.5">
                           {user.email}
                         </p>
                       </div>
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-danger-color hover:bg-danger-color/10 rounded-lg transition-colors cursor-pointer"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-[#ef4444] hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
                       >
                         <LogOut className="w-4 h-4" />
                         {t('logout')}
@@ -471,10 +473,10 @@ export default function Navbar() {
 
               <button
                 onClick={() => setIsRightDrawerOpen(!isRightDrawerOpen)}
-                className="p-2.5 rounded-xl border border-border-color bg-card-bg/40 hover:bg-app-bg text-text-primary transition-all duration-200 cursor-pointer md:hidden active:scale-95"
+                className="p-2.5 rounded-xl border border-[#e2e8f0] dark:border-slate-800 bg-white dark:bg-[#0d1629] hover:bg-[#f1f5f9] dark:hover:bg-slate-800 text-[#0f172a] dark:text-white transition-all duration-200 cursor-pointer md:hidden active:scale-95"
                 aria-label="Open History Log"
               >
-                <History className="w-5 h-5 text-accent-color" />
+                <History className="w-5 h-5 text-[#059669] dark:text-emerald-400" />
               </button>
             </div>
 
@@ -497,16 +499,16 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', ease: 'easeInOut', duration: 0.25 }}
-              className="relative h-full w-80 bg-slate-950/90 dark:bg-slate-950/95 backdrop-blur-2xl border-r border-border-color/20 text-slate-100 p-5 flex flex-col justify-between shadow-2xl z-40 overflow-hidden"
+              className="relative h-full w-80 bg-white dark:bg-[#0d1629] backdrop-blur-2xl border-r border-[#e2e8f0] dark:border-slate-800 text-[#0f172a] dark:text-slate-100 p-5 flex flex-col justify-between shadow-2xl z-40 overflow-hidden"
             >
               <div className="flex flex-col gap-4 overflow-hidden h-full">
                 {/* Mobile Quick Navigation */}
-                <div className="flex md:hidden items-center gap-1.5 pb-2 border-b border-border-color/10 shrink-0 overflow-x-auto">
+                <div className="flex md:hidden items-center gap-1.5 pb-2 border-b border-[#e2e8f0] dark:border-slate-800 shrink-0 overflow-x-auto">
                   <button
                     type="button"
                     onClick={() => handleNavigation('/dashboard')}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shrink-0 ${
-                      isActive('/dashboard') ? 'bg-accent-color text-slate-950 font-bold' : 'text-slate-300 hover:bg-slate-900'
+                      isActive('/dashboard') ? 'bg-[#2563eb] text-white font-bold' : 'text-[#475569] dark:text-slate-300 hover:bg-[#f1f5f9] dark:hover:bg-slate-900'
                     }`}
                   >
                     <LayoutDashboard className="w-3.5 h-3.5" />
@@ -516,7 +518,7 @@ export default function Navbar() {
                     type="button"
                     onClick={() => handleNavigation('/scan')}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shrink-0 ${
-                      isActive('/scan') ? 'bg-accent-color text-slate-950 font-bold' : 'text-slate-300 hover:bg-slate-900'
+                      isActive('/scan') ? 'bg-[#2563eb] text-white font-bold' : 'text-[#475569] dark:text-slate-300 hover:bg-[#f1f5f9] dark:hover:bg-slate-900'
                     }`}
                   >
                     <Shield className="w-3.5 h-3.5" />
@@ -526,7 +528,7 @@ export default function Navbar() {
                     type="button"
                     onClick={() => handleNavigation('/live-monitor')}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shrink-0 ${
-                      isActive('/live-monitor') ? 'bg-accent-color text-slate-950 font-bold' : 'text-slate-300 hover:bg-slate-900'
+                      isActive('/live-monitor') ? 'bg-[#2563eb] text-white font-bold' : 'text-[#475569] dark:text-slate-300 hover:bg-[#f1f5f9] dark:hover:bg-slate-900'
                     }`}
                   >
                     <Activity className="w-3.5 h-3.5" />
@@ -536,7 +538,7 @@ export default function Navbar() {
                     type="button"
                     onClick={() => handleNavigation('/threat-map')}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shrink-0 ${
-                      isActive('/threat-map') ? 'bg-accent-color text-slate-950 font-bold' : 'text-slate-300 hover:bg-slate-900'
+                      isActive('/threat-map') ? 'bg-[#2563eb] text-white font-bold' : 'text-[#475569] dark:text-slate-300 hover:bg-[#f1f5f9] dark:hover:bg-slate-900'
                     }`}
                   >
                     <Globe className="w-3.5 h-3.5" />
@@ -546,17 +548,17 @@ export default function Navbar() {
 
                 <div className="relative shrink-0">
                   <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-4 w-4 text-slate-400" />
+                    <Search className="h-4 w-4 text-[#94a3b8] dark:text-slate-400" />
                   </span>
                   <input
                     type="text"
                     value={searchLeft}
                     onChange={(e) => setSearchLeft(e.target.value)}
                     placeholder={t('searchScansPlaceholder')}
-                    className="w-full bg-slate-900/60 border border-border-color/20 text-xs text-white placeholder-slate-400 rounded-xl pl-9 pr-4 py-2 focus:border-accent-color/60 focus:ring-1 focus:ring-accent-color/20 focus:outline-none transition-all"
+                    className="w-full bg-[#f8fafc] dark:bg-[#0b1329] border border-[#cbd5e1] dark:border-slate-700/60 text-xs text-[#0f172a] dark:text-white placeholder-[#94a3b8] dark:placeholder-slate-400 rounded-xl pl-9 pr-4 py-2 focus:border-[#2563eb] focus:outline-none transition-all"
                   />
                 </div>
-                <div className="flex gap-1.5 py-1 border-b border-border-color/10 shrink-0 overflow-x-auto">
+                <div className="flex gap-1.5 py-1 border-b border-[#e2e8f0] dark:border-slate-800 shrink-0 overflow-x-auto">
                   {[
                     { key: 'All', label: t('filterAll') },
                     { key: 'Scam', label: t('filterScam') },
@@ -568,8 +570,8 @@ export default function Navbar() {
                       onClick={() => setFilterLeft(tab.key)}
                       className={`px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase transition-colors shrink-0 cursor-pointer ${
                         filterLeft === tab.key
-                          ? 'bg-accent-color text-slate-950 font-extrabold'
-                          : 'bg-slate-900/50 text-slate-300 hover:bg-slate-900'
+                          ? 'bg-[#2563eb] text-white font-extrabold'
+                          : 'bg-[#f1f5f9] dark:bg-slate-900/50 text-[#475569] dark:text-slate-300 hover:bg-[#e2e8f0] dark:hover:bg-slate-900'
                       }`}
                     >
                       {tab.label}
@@ -870,26 +872,26 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', ease: 'easeInOut', duration: 0.25 }}
-              className="relative h-full w-96 bg-slate-950/90 dark:bg-slate-950/95 backdrop-blur-2xl border-l border-border-color/20 text-slate-100 p-5 flex flex-col justify-between shadow-2xl z-40 overflow-hidden"
+              className="relative h-full w-80 sm:w-96 bg-white dark:bg-[#0d1629] backdrop-blur-2xl border-l border-[#e2e8f0] dark:border-slate-800 text-[#0f172a] dark:text-slate-100 p-5 flex flex-col justify-between shadow-2xl z-40 overflow-hidden"
             >
               <div className="flex flex-col gap-4 overflow-hidden h-full">
-                <div className="flex items-center justify-between border-b border-border-color/20 pb-3 shrink-0">
+                <div className="flex items-center justify-between border-b border-[#e2e8f0] dark:border-slate-800 pb-3 shrink-0">
                   <div className="flex items-center gap-2">
-                    <History className="w-5 h-5 text-accent-color" />
-                    <span className="font-bold text-base text-white">{t('history')}</span>
+                    <History className="w-5 h-5 text-[#059669] dark:text-emerald-400" />
+                    <span className="font-bold text-base text-[#0f172a] dark:text-white">Scan History</span>
                   </div>
                   <div className="flex items-center gap-3">
                     {history.length > 0 && (
                       <button
                         onClick={handleClearHistory}
-                        className="text-[10px] text-danger-color hover:underline font-bold cursor-pointer"
+                        className="text-[10px] text-red-600 dark:text-red-400 hover:underline font-bold cursor-pointer"
                       >
                         {t('clearHistoryBtn')}
                       </button>
                     )}
                     <button
                       onClick={() => setIsRightDrawerOpen(false)}
-                      className="p-1 rounded-lg border border-border-color/20 text-slate-400 hover:text-white cursor-pointer transition-colors"
+                      className="p-1 rounded-lg border border-[#e2e8f0] dark:border-slate-700 text-[#64748b] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-white cursor-pointer transition-colors"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -897,17 +899,17 @@ export default function Navbar() {
                 </div>
                 <div className="relative shrink-0">
                   <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-4 w-4 text-slate-400" />
+                    <Search className="h-4 w-4 text-[#94a3b8] dark:text-slate-400" />
                   </span>
                   <input
                     type="text"
                     value={searchRight}
                     onChange={(e) => setSearchRight(e.target.value)}
                     placeholder={t('searchScansPlaceholder')}
-                    className="w-full bg-slate-900/60 border border-border-color/20 text-xs text-white placeholder-slate-400 rounded-xl pl-9 pr-4 py-2 focus:border-accent-color/60 focus:ring-1 focus:ring-accent-color/20 focus:outline-none transition-all"
+                    className="w-full bg-[#f8fafc] dark:bg-[#0b1329] border border-[#cbd5e1] dark:border-slate-700/60 text-xs text-[#0f172a] dark:text-white placeholder-[#94a3b8] dark:placeholder-slate-400 rounded-xl pl-9 pr-4 py-2 focus:border-[#2563eb] focus:outline-none transition-all"
                   />
                 </div>
-                <div className="flex gap-1.5 py-1 border-b border-border-color/10 shrink-0 overflow-x-auto">
+                <div className="flex gap-1.5 py-1 border-b border-[#e2e8f0] dark:border-slate-800 shrink-0 overflow-x-auto">
                   {[
                     { key: 'All', label: t('filterAll') },
                     { key: 'Scam', label: t('filterScam') },
@@ -919,8 +921,8 @@ export default function Navbar() {
                       onClick={() => setFilterRight(tab.key)}
                       className={`px-3 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase transition-colors shrink-0 cursor-pointer ${
                         filterRight === tab.key
-                          ? 'bg-accent-color text-slate-950 font-extrabold'
-                          : 'bg-slate-900/50 text-slate-300 hover:bg-slate-900'
+                          ? 'bg-[#2563eb] text-white font-extrabold'
+                          : 'bg-[#f1f5f9] dark:bg-slate-900/50 text-[#475569] dark:text-slate-300 hover:bg-[#e2e8f0] dark:hover:bg-slate-900'
                       }`}
                     >
                       {tab.label}
