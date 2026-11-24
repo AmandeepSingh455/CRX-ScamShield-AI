@@ -130,9 +130,9 @@ export const translations = {
     call1930Notice: "If you have transferred funds or shared confidential banking OTPs, immediately dial Cyber Helpline 1930 or lodge an official complaint at cybercrime.gov.in.",
 
     // AI Assistant
-    aiAssistantTitle: "ScamShield Security Copilot",
+    aiAssistantTitle: "ScamShield Security",
     aiAssistantSubtitle: "Real-time behavioral scam analysis & threat mitigation",
-    aiAssistantGreeting: "Hello Analyst. I have activated your cognitive safety node. I analyze communication vectors, behavioral manipulation cues, and financial risk.\n\nWhat offer, message, or scenario would you like to audit today?",
+    aiAssistantGreeting: "Hello! I am your ScamShield Security assistant. I can help you verify job offers, audit suspicious messages, check company CIN credentials, or answer your cybersecurity questions.\n\nHow can I help you today?",
     aiInputPlaceholder: "Ask about this offer, verify credentials, or seek reporting guidance...",
     sendBtn: "Send",
 
@@ -288,9 +288,9 @@ export const translations = {
     call1930Notice: "यदि आपने पैसे ट्रांसफर किए हैं या बैंक OTP साझा किया है, तो तुरंत साइबर हेल्पलाइन 1930 डायल करें या cybercrime.gov.in पर रिपोर्ट दर्ज करें।",
 
     // AI Assistant
-    aiAssistantTitle: "स्कैमशील्ड सुरक्षा सहायक",
+    aiAssistantTitle: "स्कैमशील्ड सुरक्षा",
     aiAssistantSubtitle: "वास्तविक समय व्यवहार विश्लेषण व साइबर सुरक्षा मार्गदर्शन",
-    aiAssistantGreeting: "नमस्ते विश्लेषक। आपका सुरक्षा सहायक सक्रिय है। मैं संचार माध्यमों, मनोवैज्ञानिक दबाव और वित्तीय जोखिम की गहन जांच करता हूँ।\n\nआज आप किस ऑफर या संदेश की जांच करना चाहते हैं?",
+    aiAssistantGreeting: "नमस्ते! मैं आपका स्कैमशील्ड सुरक्षा सहायक हूँ। मैं जॉब ऑफर की पुष्टि करने, संदिग्ध संदेशों की जांच करने, कंपनी CIN चेक करने या आपके किसी भी प्रश्न का उत्तर देने में मदद कर सकता हूँ।\n\nआज मैं आपकी क्या सहायता कर सकता हूँ?",
     aiInputPlaceholder: "इस ऑफर के बारे में पूछें, क्रेडेंशियल जांचें, या सलाह लें...",
     sendBtn: "भेजें",
 
@@ -446,9 +446,9 @@ export const translations = {
     call1930Notice: "ਜੇਕਰ ਤੁਹਾਡੇ ਪੈਸੇ ਕੱਟੇ ਗਏ ਹਨ ਜਾਂ ਬੈਂਕ OTP ਸਾਂਝਾ ਕੀਤਾ ਗਿਆ ਹੈ, ਤਾਂ ਤੁਰੰਤ ਕੌਮੀ ਸਾਈਬਰ ਹੈਲਪਲਾਈਨ 1930 ਡਾਇਲ ਕਰੋ ਜਾਂ cybercrime.gov.in 'ਤੇ ਸ਼ਿਕਾਇਤ ਦਰਜ ਕਰੋ।",
 
     // AI Assistant
-    aiAssistantTitle: "ਸਕੈਮਸ਼ੀਲਡ ਸੁਰੱਖਿਆ ਸਹਾਇਕ",
+    aiAssistantTitle: "ਸਕੈਮਸ਼ੀਲਡ ਸੁਰੱਖਿਆ",
     aiAssistantSubtitle: "ਰੀਅਲ-ਟਾਈਮ ਵਿਵਹਾਰਕ ਵਿਸ਼ਲੇਸ਼ਣ ਅਤੇ ਸਾਈਬਰ ਸੁਰੱਖਿਆ ਮਾਰਗਦਰਸ਼ਨ",
-    aiAssistantGreeting: "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ ਵਿਸ਼ਲੇਸ਼ਕ। ਤੁਹਾਡਾ ਸੁਰੱਖਿਆ ਸਹਾਇਕ ਸਰਗਰਮ ਹੈ। ਮੈਂ ਸੰਚਾਰ ਮਾਧਿਅਮਾਂ, ਮਨੋਵਿਗਿਆਨਕ ਦਬਾਅ ਅਤੇ ਵਿੱਤੀ ਜੋਖਮਾਂ ਦੀ ਡੂੰਘੀ ਜਾਂਚ ਕਰਦਾ ਹਾਂ।\n\nਅੱਜ ਤੁਸੀਂ ਕਿਸ ਆਫ਼ਰ ਜਾਂ ਸੁਨੇਹੇ ਦੀ ਜਾਂਚ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?",
+    aiAssistantGreeting: "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! ਮੈਂ ਤੁਹਾਡਾ ਸਕੈਮਸ਼ੀਲਡ ਸੁਰੱਖਿਆ ਸਹਾਇਕ ਹਾਂ। ਮੈਂ ਨੌਕਰੀ ਦੇ ਆਫ਼ਰਾਂ ਦੀ ਪੜਤਾਲ ਕਰਨ, ਸ਼ੱਕੀ ਸੁਨੇਹਿਆਂ ਦੀ ਜਾਂਚ ਕਰਨ, ਕੰਪਨੀ CIN ਚੈੱਕ ਕਰਨ ਜਾਂ ਤੁਹਾਡੇ ਸਵਾਲਾਂ ਦੇ ਜਵਾਬ ਦੇਣ ਵਿੱਚ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ।\n\nਅੱਜ ਮੈਂ ਤੁਹਾਡੀ ਕੀ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ?",
     aiInputPlaceholder: "ਇਸ ਆਫ਼ਰ ਬਾਰੇ ਪੁੱਛੋ, ਪ੍ਰਮਾਣ ਪੱਤਰ ਜਾਂਚੋ, ਜਾਂ ਸਲਾਹ ਲਵੋ...",
     sendBtn: "ਭੇਜੋ",
 

@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useApp } from "../context/AppContext";
 import { MessageSquare, X, Send, Bot, Trash2, Sparkles, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { sendChatMessage, getApiConfig } from "../services/aiChatService";
+import { sendChatMessage } from "../services/aiChatService";
+import FormattedMessage from "./FormattedMessage";
 
 const QUICK_PROMPTS = [
   { label: "Verify Company & CIN", query: "How do I check if a company CIN and job recruiter are genuine on MCA portal?" },
@@ -131,33 +132,6 @@ export default function AiAssistant() {
     }
   };
 
-  const apiConfig = getApiConfig();
-
-  // Helper to format simple markdown bolding and bullet lists
-  const renderFormattedText = (raw) => {
-    if (!raw) return null;
-    return raw.split("\n").map((line, idx) => {
-      // Bold replacer
-      const parts = line.split(/(\*\*.*?\*\*)/g);
-      const formattedLine = parts.map((part, pIdx) => {
-        if (part.startsWith("**") && part.endsWith("**")) {
-          return (
-            <strong key={pIdx} className="font-semibold text-slate-900 dark:text-white">
-              {part.slice(2, -2)}
-            </strong>
-          );
-        }
-        return part;
-      });
-
-      return (
-        <span key={idx} className="block min-h-[1.1rem]">
-          {formattedLine}
-        </span>
-      );
-    });
-  };
-
   return (
     <div className="fixed bottom-6 right-6 z-50">
       <AnimatePresence>
@@ -176,14 +150,9 @@ export default function AiAssistant() {
                   <Bot className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-xs font-bold text-white tracking-wide">
-                      {t('aiAssistantTitle')}
-                    </h3>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded font-mono font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      {apiConfig.provider}
-                    </span>
-                  </div>
+                  <h3 className="text-xs font-bold text-white tracking-wide">
+                    {t('aiAssistantTitle')}
+                  </h3>
                   <span className="text-[10px] text-slate-400 flex items-center gap-1.5 font-medium mt-0.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     Cybersecurity Specialist • EN / HI / PA
@@ -232,7 +201,7 @@ export default function AiAssistant() {
                         : "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-bl-xs"
                     }`}
                   >
-                    {renderFormattedText(m.text)}
+                    <FormattedMessage text={m.text} isUser={m.sender === "user"} />
                   </div>
                 </div>
               ))}
