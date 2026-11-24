@@ -25,6 +25,8 @@ import {
   PhoneCall,
   Languages,
   ChevronDown,
+  Activity,
+  Globe,
   Image as ImageIcon
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -293,10 +295,34 @@ export default function Navbar() {
 
               <button
                 onClick={handleNewScan}
-                className="flex items-center gap-1.5 px-3.5 py-2 ml-3 text-xs font-bold rounded-xl bg-accent-color hover:bg-accent-hover text-white dark:text-app-bg transition-all duration-200 shadow-sm cursor-pointer active:scale-98"
+                className="flex items-center gap-1.5 px-3.5 py-2 mx-1 text-xs font-bold rounded-xl bg-accent-color hover:bg-accent-hover text-white dark:text-app-bg transition-all duration-200 shadow-sm cursor-pointer active:scale-98"
               >
                 <Plus className="w-3.5 h-3.5" />
                 {t('newScan')}
+              </button>
+
+              <button
+                onClick={() => handleNavigation('/live-monitor')}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                  isActive('/live-monitor')
+                    ? 'bg-btn-bg text-btn-text'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-app-bg'
+                }`}
+              >
+                <Activity className="w-4 h-4" />
+                {t('liveMonitor') || 'Live Monitor'}
+              </button>
+
+              <button
+                onClick={() => handleNavigation('/threat-map')}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                  isActive('/threat-map')
+                    ? 'bg-btn-bg text-btn-text'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-app-bg'
+                }`}
+              >
+                <Globe className="w-4 h-4" />
+                {t('threatMap') || 'Threat Map'}
               </button>
             </div>
 
@@ -456,6 +482,40 @@ export default function Navbar() {
               className="relative h-full w-80 bg-slate-950/90 dark:bg-slate-950/95 backdrop-blur-2xl border-r border-border-color/20 text-slate-100 p-5 flex flex-col justify-between shadow-2xl z-40 overflow-hidden"
             >
               <div className="flex flex-col gap-4 overflow-hidden h-full">
+                {/* Mobile Quick Navigation */}
+                <div className="flex md:hidden items-center gap-1.5 pb-2 border-b border-border-color/10 shrink-0 overflow-x-auto">
+                  <button
+                    type="button"
+                    onClick={() => handleNavigation('/dashboard')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shrink-0 ${
+                      isActive('/dashboard') ? 'bg-accent-color text-slate-950 font-bold' : 'text-slate-300 hover:bg-slate-900'
+                    }`}
+                  >
+                    <LayoutDashboard className="w-3.5 h-3.5" />
+                    {t('dashboard')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNavigation('/live-monitor')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shrink-0 ${
+                      isActive('/live-monitor') ? 'bg-accent-color text-slate-950 font-bold' : 'text-slate-300 hover:bg-slate-900'
+                    }`}
+                  >
+                    <Activity className="w-3.5 h-3.5" />
+                    {t('liveMonitor') || 'Live Monitor'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNavigation('/threat-map')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shrink-0 ${
+                      isActive('/threat-map') ? 'bg-accent-color text-slate-950 font-bold' : 'text-slate-300 hover:bg-slate-900'
+                    }`}
+                  >
+                    <Globe className="w-3.5 h-3.5" />
+                    {t('threatMap') || 'Threat Map'}
+                  </button>
+                </div>
+
                 <div className="relative shrink-0">
                   <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Search className="h-4 w-4 text-slate-400" />

@@ -5,6 +5,8 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import AnalysisResult from './pages/AnalysisResult';
+import LiveMonitor from './pages/LiveMonitor';
+import ThreatMap from './pages/ThreatMap';
 import AiAssistant from './components/AiAssistant';
 
 // Protected Route Component with BFcache Back-Button Prevention
@@ -96,6 +98,22 @@ function AppContent() {
         element={
           <ProtectedRoute>
             <AnalysisResult />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/live-monitor"
+        element={
+          <ProtectedRoute>
+            <LiveMonitor />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/threat-map"
+        element={
+          <ProtectedRoute>
+            <ThreatMap />
           </ProtectedRoute>
         }
       />
