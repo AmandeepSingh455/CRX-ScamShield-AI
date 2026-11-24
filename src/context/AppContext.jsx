@@ -93,7 +93,7 @@ export function AppProvider({ children }) {
     try {
       const saved = sessionStorage.getItem("scamshield_active_scan");
       if (saved) return JSON.parse(saved);
-    } catch (e) {}
+    } catch (_) {}
     return null;
   });
 
@@ -101,12 +101,33 @@ export function AppProvider({ children }) {
     _setActiveScan(scan);
     try {
       if (scan) {
-        sessionStorage.setItem("scamshield_active_scan", JSON.stringify(scan));
+        let storableScan = scan;
+        if (scan.preview && typeof scan.preview === "string" && scan.preview.length > 200000) {
+          storableScan = { ...scan, preview: null };
+        }
+        sessionStorage.setItem("scamshield_active_scan", JSON.stringify(storableScan));
       } else {
         sessionStorage.removeItem("scamshield_active_scan");
       }
     } catch (e) {
       console.warn("sessionStorage active scan sync error:", e);
+    }
+  };
+
+  const safeSaveHistory = (updatedHistory) => {
+    try {
+      localStorage.setItem(getUserKey(), JSON.stringify(updatedHistory));
+    } catch (err) {
+      console.warn("Storage quota exceeded, stripping large preview images:", err);
+      try {
+        const sanitized = updatedHistory.map((item, idx) => ({
+          ...item,
+          preview: (idx < 2 && typeof item.preview === "string" && item.preview.length < 50000) ? item.preview : null,
+        }));
+        localStorage.setItem(getUserKey(), JSON.stringify(sanitized));
+      } catch (innerErr) {
+        console.error("Critical localStorage write failure:", innerErr);
+      }
     }
   };
 
@@ -195,7 +216,7 @@ export function AppProvider({ children }) {
 
     const updated = [newScan, ...history];
     setHistory(updated);
-    localStorage.setItem(getUserKey(), JSON.stringify(updated));
+    safeSaveHistory(updated);
     setActiveScan(newScan);
     return newScan;
   };
@@ -215,7 +236,7 @@ export function AppProvider({ children }) {
     }
     const updated = history.filter((scan) => scan.id !== id);
     setHistory(updated);
-    localStorage.setItem(getUserKey(), JSON.stringify(updated));
+    safeSaveHistory(updated);
 
     if (activeScan && activeScan.id === id) {
       setActiveScan(null);
@@ -233,7 +254,7 @@ export function AppProvider({ children }) {
       }
     });
     setHistory([]);
-    localStorage.setItem(getUserKey(), JSON.stringify([]));
+    safeSaveHistory([]);
     setActiveScan(null);
   };
 

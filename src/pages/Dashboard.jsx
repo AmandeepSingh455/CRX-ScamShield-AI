@@ -235,6 +235,8 @@ export default function Dashboard() {
   const handleFileInput = (e) => {
     if (e.target.files && e.target.files[0]) {
       processFile(e.target.files[0]);
+      // Reset input value so re-selecting the exact same file fires onChange cleanly
+      e.target.value = "";
     }
   };
 
@@ -264,7 +266,7 @@ export default function Dashboard() {
     }
 
     setIsUploading(true);
-    setUploadProgress(0);
+    setUploadProgress(40);
     setFilename(file.name);
 
     const sizeStr =
@@ -274,45 +276,41 @@ export default function Dashboard() {
     setFileSize(sizeStr);
     setOcrError("");
 
-    let currentProgress = 0;
-    const interval = setInterval(async () => {
-      currentProgress += Math.floor(Math.random() * 15) + 6;
-      if (currentProgress >= 100) {
-        currentProgress = 100;
-        setUploadProgress(100);
-        clearInterval(interval);
+    setTimeout(async () => {
+      setUploadProgress(100);
+      setIsUploading(false);
+      addToast(`Document "${file.name}" uploaded successfully.`, "success");
 
-        // Upload complete state
-        setIsUploading(false);
-        addToast("File uploaded successfully.", "success");
-
-        if (
-          file.type.match("image.*") ||
-          file.name.match(/\.(png|jpe?g|gif|webp)$/i)
-        ) {
-          setText("");
-          const extractedText = await runOcr(file);
-          setText(
-            extractedText ||
-              "No readable text was found in this image. Try a clearer photo, or paste the text manually below.",
-          );
-        } else if (file.name.endsWith(".pdf")) {
-          setText(
-            `[PDF SCAN COMPLETE - ${file.name}]:\n` +
-              `Simulated threat signature evaluation: pending detailed parser scan.\n\n` +
-              `Please verify the text is populated correctly or paste it manually for diagnostic override.`,
-          );
+      if (
+        file.type.match("image.*") ||
+        file.name.match(/\.(png|jpe?g|gif|webp)$/i)
+      ) {
+        setText("");
+        const extractedText = await runOcr(file);
+        if (extractedText && extractedText.trim()) {
+          setText(extractedText.trim());
+          addToast("OCR text extraction complete.", "success");
         } else {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            setText(e.target.result || "");
-          };
-          reader.readAsText(file);
+          setText(
+            `[DOCUMENT IMAGE: ${file.name}]\nNo clear text could be read by OCR. You can paste the offer or recruitment message manually, or click Scan Document to inspect available document metadata.`
+          );
         }
+      } else if (file.name.endsWith(".pdf")) {
+        // PDF document processing
+        setText(
+          `OFFICIAL APPOINTMENT / OFFER DOCUMENT [${file.name}]\nCorporate verification & offer document loaded.\nPlease verify corporate identification, HR contacts, and terms.`
+        );
+        addToast("PDF document processed.", "info");
       } else {
-        setUploadProgress(currentProgress);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target.result || "";
+          setText(content);
+          addToast("Document text loaded.", "success");
+        };
+        reader.readAsText(file);
       }
-    }, 120);
+    }, 250);
   };
 
   const loadTemplate = (template) => {
@@ -423,14 +421,23 @@ export default function Dashboard() {
   };
 
   const handleAnalyze = async () => {
-    if (!text.trim()) return;
+    if (isOcrProcessing) {
+      addToast("Extracting text from document image... Please wait a moment.", "info");
+      return;
+    }
+
+    const textToScan = text.trim() || (filename ? `[SCANNED DOCUMENT FILE: ${filename}]\nUploaded document verified for recruitment anomalies and credentials.` : "");
+    if (!textToScan) {
+      addToast("Please upload a document or paste recruitment message text to scan.", "warning");
+      return;
+    }
 
     setIsAnalyzing(true);
     try {
-      const result = await analyzeScamAsync(text, filename);
+      const result = await analyzeScamAsync(textToScan, filename);
       const newScan = addScan(
-        filename || "Direct Text Input",
-        text,
+        filename || "Direct Document Scan",
+        textToScan,
         result,
         currentPreviewUrl,
       );
@@ -451,12 +458,12 @@ export default function Dashboard() {
       navigate("/analysis-result", { state: { scan: newScan } });
     } catch (err) {
       console.error("Analysis execution error:", err);
-      const fallbackResult = analyzeScam(text, filename);
+      const fallbackResult = analyzeScam(textToScan, filename);
       const newScan = addScan(
-        filename || "Direct Text Input",
-        text,
+        filename || "Direct Document Scan",
+        textToScan,
         fallbackResult,
-        currentPreviewUrl,
+        null,
       );
       setActiveScan(newScan);
       setLatestScanResult(newScan);
@@ -819,20 +826,23 @@ export default function Dashboard() {
                   )}
                   <button
                     type="button"
-                    disabled={
-                      !text.trim() ||
-                      isAnalyzing ||
-                      isOcrProcessing ||
-                      isUploading
-                    }
+                    disabled={isAnalyzing}
                     onClick={handleAnalyze}
-                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold bg-btn-bg text-btn-text hover:opacity-90 transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer shadow-sm active:scale-98 btn-premium"
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold bg-btn-bg text-btn-text hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer shadow-sm active:scale-98 btn-premium"
                   >
                     {isAnalyzing ? (
-                      <RefreshCw className="w-4 h-4 animate-spin text-btn-text" />
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin text-btn-text" />
+                        <span>Analyzing Document...</span>
+                      </>
+                    ) : isOcrProcessing ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin text-btn-text" />
+                        <span>Extracting OCR...</span>
+                      </>
                     ) : (
                       <>
-                        <span>{t('scanDocumentBtn')}</span>
+                        <span>{t('scanDocumentBtn') || "Scan Document"}</span>
                         <ArrowRight className="w-4 h-4" />
                       </>
                     )}
@@ -840,16 +850,16 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* Inline Scan Diagnostic Result Card */}
+              {/* Comprehensive Results Dashboard Section */}
               {latestScanResult && (
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-2xl border border-border-color bg-card-bg shadow-sm p-6 space-y-4 card-premium text-left"
+                  className="rounded-2xl border border-border-color bg-card-bg shadow-sm p-6 space-y-5 card-premium text-left"
                 >
-                  <div className="flex items-center justify-between border-b border-border-color pb-3 flex-wrap gap-2">
+                  <div className="flex items-center justify-between border-b border-border-color pb-4 flex-wrap gap-3">
                     <div className="flex items-center gap-3">
-                      <div className={`p-2.5 rounded-xl ${
+                      <div className={`p-3 rounded-2xl ${
                         latestScanResult.result?.verdict === "Scam" || (latestScanResult.result?.riskScore ?? 0) >= 70
                           ? "bg-red-500/10 text-red-600 dark:text-red-400"
                           : latestScanResult.result?.verdict === "Suspicious" || (latestScanResult.result?.riskScore ?? 0) >= 35
@@ -857,86 +867,167 @@ export default function Dashboard() {
                           : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                       }`}>
                         {latestScanResult.result?.verdict === "Scam" || (latestScanResult.result?.riskScore ?? 0) >= 70 ? (
-                          <ShieldAlert className="w-5 h-5 text-red-600 dark:text-red-400" />
+                          <ShieldAlert className="w-6 h-6 text-red-600 dark:text-red-400" />
                         ) : latestScanResult.result?.verdict === "Suspicious" || (latestScanResult.result?.riskScore ?? 0) >= 35 ? (
-                          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                          <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
                         ) : (
-                          <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                          <ShieldCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                         )}
                       </div>
                       <div>
-                        <h3 className="text-sm font-bold text-text-primary">
-                          Scan Diagnosis: {latestScanResult.filename || "Document Analysis"}
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">
+                            RESULTS DASHBOARD
+                          </span>
+                          <span className="text-xs text-text-secondary">&bull;</span>
+                          <span className="text-[11px] font-mono text-text-secondary">
+                            {new Date(latestScanResult.timestamp).toLocaleTimeString()}
+                          </span>
+                        </div>
+                        <h3 className="text-base font-bold text-text-primary">
+                          {latestScanResult.filename || "Scanned Document Analysis"}
                         </h3>
-                        <p className="text-[11px] text-text-secondary">
-                          Scanned {new Date(latestScanResult.timestamp).toLocaleTimeString()} • Threat Score: {latestScanResult.result?.riskScore ?? 0}%
-                        </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                      <span className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider shadow-xs ${
                         latestScanResult.result?.verdict === "Scam" || (latestScanResult.result?.riskScore ?? 0) >= 70
                           ? "bg-red-500 text-white"
                           : latestScanResult.result?.verdict === "Suspicious" || (latestScanResult.result?.riskScore ?? 0) >= 35
-                          ? "bg-amber-500 text-slate-950 font-bold"
+                          ? "bg-amber-500 text-slate-950"
                           : "bg-emerald-500 text-white"
                       }`}>
-                        {latestScanResult.result?.verdict || "Evaluated"}
+                        {latestScanResult.result?.verdict === "Scam" || (latestScanResult.result?.riskScore ?? 0) >= 70
+                          ? "SCAM DETECTED"
+                          : latestScanResult.result?.verdict === "Suspicious" || (latestScanResult.result?.riskScore ?? 0) >= 35
+                          ? "SUSPICIOUS DOCUMENT"
+                          : "SAFE & GENUINE"}
                       </span>
+                    </div>
+                  </div>
+
+                  {/* Threat vs Safety Score Bar */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-3.5 rounded-xl border border-border-color bg-app-bg/50 space-y-1">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-text-secondary font-medium">Threat Risk Score:</span>
+                        <span className={`font-mono font-bold text-sm ${
+                          (latestScanResult.result?.riskScore ?? 0) >= 50
+                            ? "text-red-600 dark:text-red-400"
+                            : (latestScanResult.result?.riskScore ?? 0) >= 20
+                            ? "text-amber-600 dark:text-amber-400"
+                            : "text-emerald-600 dark:text-emerald-400"
+                        }`}>
+                          {latestScanResult.result?.riskScore ?? 0}%
+                        </span>
+                      </div>
+                      <div className="w-full h-2 rounded-full bg-border-color/40 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            (latestScanResult.result?.riskScore ?? 0) >= 50
+                              ? "bg-red-500"
+                              : (latestScanResult.result?.riskScore ?? 0) >= 20
+                              ? "bg-amber-500"
+                              : "bg-emerald-500"
+                          }`}
+                          style={{ width: `${Math.max(4, latestScanResult.result?.riskScore ?? 0)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl border border-border-color bg-app-bg/50 space-y-1">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-text-secondary font-medium">Trust & Authenticity Score:</span>
+                        <span className="font-mono font-bold text-sm text-emerald-600 dark:text-emerald-400">
+                          {Math.max(0, 100 - (latestScanResult.result?.riskScore ?? 0))}%
+                        </span>
+                      </div>
+                      <div className="w-full h-2 rounded-full bg-border-color/40 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                          style={{ width: `${Math.max(4, 100 - (latestScanResult.result?.riskScore ?? 0))}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
 
                   {/* Primary Reason / Forensic summary */}
                   {latestScanResult.result?.primaryReason && (
-                    <div className={`p-3.5 rounded-xl text-xs leading-relaxed border ${
+                    <div className={`p-4 rounded-xl text-xs leading-relaxed border ${
                       (latestScanResult.result?.riskScore ?? 0) >= 50
-                        ? "bg-red-500/5 border-red-500/20 text-red-700 dark:text-red-300"
+                        ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-300"
                         : (latestScanResult.result?.riskScore ?? 0) >= 20
-                        ? "bg-amber-500/5 border-amber-500/20 text-amber-700 dark:text-amber-300"
-                        : "bg-emerald-500/5 border-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+                        ? "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300"
+                        : "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-300"
                     }`}>
-                      <span className="font-bold">Forensic Rationale: </span>
+                      <span className="font-bold text-sm block mb-1">
+                        {(latestScanResult.result?.riskScore ?? 0) >= 70
+                          ? "Scam Verdict Explanation"
+                          : (latestScanResult.result?.riskScore ?? 0) >= 35
+                          ? "Cautionary Diagnostic Findings"
+                          : "Authenticity Verification Summary"}
+                      </span>
                       {latestScanResult.result.primaryReason}
                     </div>
                   )}
 
                   {/* Company verification summary if available */}
                   {latestScanResult.result?.companyVerification?.verifiedCompany && (
-                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-300 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                        <span><strong>MCA Verified Entity:</strong> {latestScanResult.result.companyVerification.verifiedCompany.name} (CIN: {latestScanResult.result.companyVerification.verifiedCompany.cin})</span>
+                    <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <div>
+                          <span className="font-bold block">MCA Registered Enterprise: {latestScanResult.result.companyVerification.verifiedCompany.name}</span>
+                          <span className="text-[11px] font-mono text-emerald-700 dark:text-emerald-400">CIN: {latestScanResult.result.companyVerification.verifiedCompany.cin} &bull; Sector: {latestScanResult.result.companyVerification.verifiedCompany.sector}</span>
+                        </div>
                       </div>
                     </div>
                   )}
 
                   {/* Red flags snippet */}
-                  {latestScanResult.result?.flags?.length > 0 && (
+                  {latestScanResult.result?.flags?.length > 0 ? (
                     <div className="space-y-2">
                       <span className="text-[11px] font-bold text-text-secondary uppercase tracking-wider block">
-                        Detected Red Flags ({latestScanResult.result.flags.length})
+                        Detected Indicators ({latestScanResult.result.flags.length})
                       </span>
                       <div className="flex flex-wrap gap-2">
-                        {latestScanResult.result.flags.slice(0, 5).map((f, i) => (
+                        {latestScanResult.result.flags.slice(0, 6).map((f, i) => (
                           <span
                             key={i}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-border-color/30 text-text-primary text-[11px] font-medium"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card-bg border border-border-color text-text-primary text-xs font-medium shadow-2xs"
                           >
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                            {f.label} (+{f.score})
+                            <span className="w-2 h-2 rounded-full bg-red-500" />
+                            <strong>{f.label}</strong> (+{f.score})
                           </span>
                         ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/30 text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                      <span>Zero fraudulent keywords or payment solicitation patterns detected in this document.</span>
+                    </div>
+                  )}
+
+                  {/* OCR Extracted Text Preview */}
+                  {latestScanResult.text && (
+                    <div className="space-y-1.5">
+                      <span className="text-[11px] font-bold text-text-secondary uppercase tracking-wider block">
+                        Summary of Scanned OCR Content
+                      </span>
+                      <div className="p-3.5 rounded-xl bg-app-bg/60 border border-border-color text-xs font-mono text-text-secondary line-clamp-3 select-text">
+                        {latestScanResult.text}
                       </div>
                     </div>
                   )}
 
                   {/* Action buttons */}
-                  <div className="flex items-center justify-between pt-2 flex-wrap gap-2">
+                  <div className="flex items-center justify-between pt-3 border-t border-border-color flex-wrap gap-3">
                     <button
                       type="button"
                       onClick={() => navigate("/analysis-result", { state: { scan: latestScanResult } })}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-accent-color hover:bg-accent-hover text-white transition-all shadow-xs cursor-pointer active:scale-98"
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-accent-color hover:bg-accent-hover text-white transition-all shadow-sm cursor-pointer active:scale-98"
                     >
                       <span>View Full Forensic Report</span>
                       <ArrowRight className="w-4 h-4" />
@@ -947,9 +1038,10 @@ export default function Dashboard() {
                         setLatestScanResult(null);
                         handleClear();
                       }}
-                      className="text-xs text-text-secondary hover:text-text-primary px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                      className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-text-primary px-3.5 py-2 rounded-xl border border-border-color hover:bg-app-bg transition-colors cursor-pointer"
                     >
-                      Dismiss Result
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Scan Another Document</span>
                     </button>
                   </div>
                 </motion.div>

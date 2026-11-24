@@ -74,14 +74,35 @@ export default function AnalysisResult() {
   useEffect(() => {
     if (!user) {
       navigate("/login", { replace: true });
-    } else if (!currentScan) {
-      navigate("/dashboard", { replace: true });
     } else if (currentScan && (!activeScan || activeScan.id !== currentScan.id)) {
       setActiveScan(currentScan);
     }
   }, [user, currentScan, activeScan, navigate, setActiveScan]);
 
-  if (!currentScan) return null;
+  if (!currentScan) {
+    return (
+      <div className="min-h-screen flex flex-col bg-app-bg text-text-primary transition-all duration-300 pt-18">
+        <Navbar />
+        <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <div className="max-w-md w-full p-8 rounded-2xl border border-border-color bg-card-bg shadow-sm space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-accent-color/10 text-accent-color flex items-center justify-center mx-auto">
+              <ShieldCheck className="w-7 h-7" />
+            </div>
+            <h2 className="text-lg font-bold text-text-primary">No Scan Diagnostic Found</h2>
+            <p className="text-xs text-text-secondary leading-relaxed">
+              Upload a document or paste recruitment message text to generate a full forensic scam and authenticity report.
+            </p>
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="px-5 py-2.5 rounded-xl bg-btn-bg text-btn-text text-xs font-bold hover:opacity-90 transition-all cursor-pointer shadow-sm"
+            >
+              Go to Document Scanner
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   const { filename = "Scanned Document", text = "", result = {}, timestamp = new Date().toISOString() } = currentScan;
   const {
@@ -281,6 +302,8 @@ ${text.slice(0, 300)}...
         border: "border-red-200 dark:border-red-900/60",
         text: "text-red-600 dark:text-red-400",
         badge: "bg-red-500 text-white font-bold",
+        verdictLabel: "SCAM DETECTED",
+        statusText: "HIGH THREAT",
         icon: <ShieldAlert className="w-8 h-8 text-red-500" />,
       };
     } else if (riskScore >= 35 || verdict === "Suspicious") {
@@ -289,6 +312,8 @@ ${text.slice(0, 300)}...
         border: "border-amber-200 dark:border-amber-900/60",
         text: "text-amber-600 dark:text-amber-400",
         badge: "bg-amber-500 text-slate-950 font-bold",
+        verdictLabel: "SUSPICIOUS DOCUMENT",
+        statusText: "MODERATE RISK",
         icon: <AlertTriangle className="w-8 h-8 text-amber-500" />,
       };
     } else {
@@ -297,6 +322,8 @@ ${text.slice(0, 300)}...
         border: "border-emerald-200 dark:border-emerald-900/60",
         text: "text-emerald-600 dark:text-emerald-400",
         badge: "bg-emerald-500 text-white font-bold",
+        verdictLabel: "SAFE & GENUINE",
+        statusText: "VERIFIED SAFE",
         icon: <ShieldCheck className="w-8 h-8 text-emerald-500" />,
       };
     }
@@ -402,17 +429,16 @@ ${text.slice(0, 300)}...
                 </div>
 
                 <div
-                  className={`mt-6 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${severity.badge}`}
+                  className={`mt-6 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider ${severity.badge}`}
                 >
-                  {verdict}
+                  {severity.verdictLabel}
                 </div>
-                <div className="mt-4 text-xs text-text-secondary max-w-60">
-                  Risk calculations indicate{" "}
-                  {riskScore >= 50
-                    ? "extremely suspicious markers typical of employment phishing."
-                    : riskScore >= 20
-                      ? "moderate anomalies that deserve verification before responding."
-                      : "normal patterns compatible with standard official offers."}
+                <div className="mt-4 text-xs text-text-secondary max-w-64 leading-relaxed">
+                  {riskScore >= 70
+                    ? "Zero-trust evaluation identified critical scam signatures and unverified payment demands."
+                    : riskScore >= 35
+                    ? "Moderate anomalies identified. Cross-verify recruiter details before transferring any funds or data."
+                    : "Official recruitment standards met. No suspicious payment requests or forged credentials found."}
                 </div>
               </div>
               <div className="rounded-2xl border border-border-color bg-card-bg p-5 shadow-sm space-y-4 card-premium">
@@ -489,30 +515,30 @@ ${text.slice(0, 300)}...
 
               {/* Emergency Cyber Helpline 1930 Warning for High Threats */}
               {riskScore >= 40 && (
-                <div className="p-4.5 rounded-2xl border border-red-800 bg-red-700 dark:bg-red-800 text-white flex items-start gap-3.5 text-left shadow-sm">
-                  <div className="w-8 h-8 rounded-lg bg-red-900/80 border border-red-400/40 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-                    <PhoneCall className="w-4 h-4 text-white" />
+                <div className="p-4.5 rounded-2xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-200 flex items-start gap-3.5 text-left shadow-xs">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/80 border border-red-300 dark:border-red-800 text-red-600 dark:text-red-300 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                    <PhoneCall className="w-4 h-4 text-red-600 dark:text-red-300" />
                   </div>
                   <div className="space-y-1.5 grow">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-black text-lg tracking-wider text-white">
+                        <span className="font-mono font-black text-lg tracking-wider text-red-600 dark:text-red-400">
                           1930
                         </span>
-                        <span className="text-xs font-bold text-red-100 uppercase tracking-wide">
+                        <span className="text-xs font-bold text-red-800 dark:text-red-200 uppercase tracking-wide">
                           {t('criticalAdvisoryTitle')} &bull; {t('cyberHelpline')}
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={openHelpline}
-                        className="px-3.5 py-1.5 rounded-lg bg-red-950/80 hover:bg-black/90 text-white font-mono text-xs font-bold transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer border border-red-400/40 active:scale-98"
+                        className="px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-mono text-xs font-bold transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-98"
                       >
-                        <PhoneCall className="w-3.5 h-3.5" />
+                        <PhoneCall className="w-3.5 h-3.5 text-white" />
                         <span>{t('callNowBtn')}</span>
                       </button>
                     </div>
-                    <p className="text-[11px] text-red-100 leading-relaxed font-medium">
+                    <p className="text-[11px] text-red-700 dark:text-red-300 leading-relaxed font-medium">
                       {t("call1930Notice")}
                     </p>
                   </div>
