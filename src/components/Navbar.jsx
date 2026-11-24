@@ -40,7 +40,7 @@ function ImageThumbnail({ scan, onClick }) {
     <motion.div
       whileHover={{ scale: 1.03 }}
       onClick={onClick}
-      className="group flex flex-col p-2 bg-slate-900/50 hover:bg-slate-900 border border-border-color/20 rounded-xl cursor-pointer transition-all text-left overflow-hidden"
+      className="group flex flex-col p-2 bg-[#f8fafc] dark:bg-slate-900/50 hover:bg-[#f1f5f9] dark:hover:bg-slate-900 border border-[#e2e8f0] dark:border-border-color/20 rounded-xl cursor-pointer transition-all text-left overflow-hidden"
     > 
       <div className="h-20 w-full rounded-xl bg-emerald-500/5 border border-emerald-500/10 flex items-center justify-center text-accent-color mb-1.5 group-hover:border-accent-color/30 transition-all overflow-hidden relative">
         {scan.preview && !hasError && (
@@ -55,7 +55,7 @@ function ImageThumbnail({ scan, onClick }) {
           <ImageIcon className="w-4 h-4 text-accent-color/60 animate-pulse" />
         )}
       </div>
-      <span className="text-[9px] font-bold text-white truncate block">
+      <span className="text-[9px] font-bold text-[#0f172a] dark:text-white truncate block">
         {scan.filename}
       </span>
       <span className="text-[8px] text-slate-400 mt-0.5">
@@ -581,50 +581,50 @@ export default function Navbar() {
                 <div className="flex-1 overflow-y-auto space-y-5 pr-1 py-1">
                   {history.length > 0 && (
                     <div className="flex flex-col gap-2 shrink-0">
-                      <span className="text-[9px] uppercase font-bold text-accent-color tracking-widest">Latest Scan</span>
+                      <span className="text-[9px] uppercase font-bold text-[#059669] dark:text-emerald-400 tracking-widest">Latest Scan</span>
                       <div
                         onClick={resumeLastScan}
-                        className="group relative cursor-pointer overflow-hidden p-3 rounded-xl border border-border-color/20 bg-slate-900/50 hover:bg-slate-900 hover:border-accent-color/40 transition-all duration-300 shadow-sm"
+                        className="group relative cursor-pointer overflow-hidden p-3 rounded-xl border border-[#e2e8f0] dark:border-slate-800 bg-[#f8fafc] dark:bg-[#0b1329]/70 hover:border-[#2563eb]/40 transition-all duration-300 shadow-xs"
                       >
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-accent-color/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500" />
+                        <div className="absolute top-0 right-0 w-16 h-16 bg-[#2563eb]/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500" />
                         <div className="flex items-start justify-between">
                           <div className="flex flex-col min-w-0 pr-2">
-                            <span className="text-xs font-semibold text-white truncate block">{history[0].filename}</span>
-                            <span className="text-[9px] text-slate-400 mt-0.5">
+                            <span className="text-xs font-semibold text-[#0f172a] dark:text-white truncate block">{history[0].filename}</span>
+                            <span className="text-[9px] text-[#64748b] dark:text-slate-400 mt-0.5 font-mono">
                               {new Date(history[0].timestamp).toLocaleString()}
                             </span>
                           </div>
-                          <ArrowUpRight className="w-3.5 h-3.5 text-accent-color group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                          <ArrowUpRight className="w-3.5 h-3.5 text-[#2563eb] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                         </div>
                       </div>
                     </div>
                   )}
                   <div className="flex flex-col gap-2.5">
-                    <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                      <FileText className="w-3.5 h-3.5 text-accent-color" />
+                    <h3 className="text-[10px] font-bold text-[#64748b] dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <FileText className="w-3.5 h-3.5 text-[#059669] dark:text-emerald-400" />
                       Recent Uploads (Last 5)
                     </h3>
                     <div className="flex flex-col gap-1.5">
                       {leftFilteredScans.filter((s) => s.filename && s.filename !== 'Direct Text Input').slice(0, 5).length === 0 ? (
-                        <span className="text-[10px] text-slate-500 italic px-2">No matching uploads.</span>
+                        <span className="text-[10px] text-[#94a3b8] dark:text-slate-500 italic px-2">No matching uploads.</span>
                       ) : (
                         leftFilteredScans.filter((s) => s.filename && s.filename !== 'Direct Text Input').slice(0, 5).map((scan) => (
                           <div
                             key={scan.id}
                             onClick={() => selectScan(scan)}
-                            className="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-slate-900/40 border border-transparent hover:border-border-color/10 transition-all text-xs text-slate-300"
+                            className="flex items-center justify-between p-2 rounded-lg cursor-pointer bg-[#f8fafc] dark:bg-slate-900/40 hover:bg-[#f1f5f9] dark:hover:bg-slate-800/60 border border-[#e2e8f0] dark:border-slate-800/60 transition-all text-xs text-[#0f172a] dark:text-slate-200"
                           >
                             <div className="flex items-center gap-2 min-w-0 pr-2">
                               <span className={`w-1.5 h-1.5 shrink-0 rounded-full ${
                                 (scan.result?.riskScore ?? 0) >= 50
                                   ? 'bg-red-500'
                                   : (scan.result?.riskScore ?? 0) >= 20
-                                    ? 'bg-yellow-500'
-                                    : 'bg-green-500'
+                                    ? 'bg-amber-500'
+                                    : 'bg-emerald-500'
                               }`} />
                               <span className="truncate">{scan.filename}</span>
                             </div>
-                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold shrink-0">
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-500/10 text-[#059669] dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 font-bold shrink-0">
                               Ready
                             </span>
                           </div>
@@ -633,25 +633,25 @@ export default function Navbar() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-2.5">
-                    <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                      <MessageSquare className="w-3.5 h-3.5 text-accent-color" />
+                    <h3 className="text-[10px] font-bold text-[#64748b] dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <MessageSquare className="w-3.5 h-3.5 text-[#059669] dark:text-emerald-400" />
                       Saved Chats
                     </h3>
                     <div className="flex flex-col gap-1.5">
                       {leftFilteredScans.filter((s) => s.chatHistory && s.chatHistory.length > 0).length === 0 ? (
-                        <span className="text-[10px] text-slate-500 italic px-2">No matching chats.</span>
+                        <span className="text-[10px] text-[#94a3b8] dark:text-slate-500 italic px-2">No matching chats.</span>
                       ) : (
                         leftFilteredScans.filter((s) => s.chatHistory && s.chatHistory.length > 0).map((scan) => (
                           <div
                             key={scan.id}
                             onClick={() => selectScan(scan)}
-                            className="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-slate-900/40 border border-transparent hover:border-border-color/10 transition-all text-xs text-slate-300"
+                            className="flex items-center justify-between p-2 rounded-lg cursor-pointer bg-[#f8fafc] dark:bg-slate-900/40 hover:bg-[#f1f5f9] dark:hover:bg-slate-800/60 border border-[#e2e8f0] dark:border-slate-800/60 transition-all text-xs text-[#0f172a] dark:text-slate-200"
                           >
                             <div className="flex items-center gap-2 min-w-0 pr-2">
-                              <Sparkles className="w-3 h-3 text-accent-color shrink-0 animate-pulse" />
+                              <Sparkles className="w-3 h-3 text-[#2563eb] shrink-0 animate-pulse" />
                               <span className="truncate">{scan.filename.split('.')[0]} Chat</span>
                             </div>
-                            <span className="text-[9px] text-slate-400 shrink-0 font-mono">
+                            <span className="text-[9px] text-[#64748b] dark:text-slate-400 shrink-0 font-mono">
                               {scan.chatHistory.length} msg
                             </span>
                           </div>
@@ -682,50 +682,50 @@ export default function Navbar() {
                     )}
                   </div>
                   <div className="flex flex-col gap-2.5 border-t border-border-color/10 pt-4">
-                    <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                      <Sparkles className="w-3.5 h-3.5 text-accent-color" />
+                    <h3 className="text-[10px] font-bold text-[#64748b] dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <Sparkles className="w-3.5 h-3.5 text-[#059669] dark:text-emerald-400" />
                       Test History
                     </h3>
                     {templateScans.length > 0 && (
                       <div className="grid grid-cols-4 gap-1 text-center shrink-0 mb-2">
-                        <div className="bg-slate-900/60 p-1 rounded-lg border border-border-color/10">
-                          <span className="text-[8px] text-slate-400 block font-semibold uppercase">Total</span>
-                          <span className="text-xs font-bold font-mono text-white">{testAnalytics.total}</span>
+                        <div className="bg-[#f8fafc] dark:bg-slate-900/60 p-1 rounded-lg border border-[#e2e8f0] dark:border-slate-800">
+                          <span className="text-[8px] text-[#64748b] dark:text-slate-400 block font-semibold uppercase">Total</span>
+                          <span className="text-xs font-bold font-mono text-[#0f172a] dark:text-white">{testAnalytics.total}</span>
                         </div>
-                        <div className="bg-slate-900/60 p-1 rounded-lg border border-emerald-500/10">
-                          <span className="text-[8px] text-emerald-400 block font-semibold uppercase">Safe</span>
-                          <span className="text-xs font-bold font-mono text-emerald-400">{testAnalytics.safe}</span>
+                        <div className="bg-emerald-50 dark:bg-emerald-500/10 p-1 rounded-lg border border-emerald-200 dark:border-emerald-500/20">
+                          <span className="text-[8px] text-[#059669] dark:text-emerald-400 block font-semibold uppercase">Safe</span>
+                          <span className="text-xs font-bold font-mono text-[#059669] dark:text-emerald-400">{testAnalytics.safe}</span>
                         </div>
-                        <div className="bg-slate-900/60 p-1 rounded-lg border border-red-500/10">
-                          <span className="text-[8px] text-red-400 block font-semibold uppercase">Scam</span>
-                          <span className="text-xs font-bold font-mono text-red-400">{testAnalytics.scam}</span>
+                        <div className="bg-red-50 dark:bg-red-500/10 p-1 rounded-lg border border-red-200 dark:border-red-500/20">
+                          <span className="text-[8px] text-[#dc2626] dark:text-red-400 block font-semibold uppercase">Scam</span>
+                          <span className="text-xs font-bold font-mono text-[#dc2626] dark:text-red-400">{testAnalytics.scam}</span>
                         </div>
-                        <div className="bg-slate-900/60 p-1 rounded-lg border border-amber-500/10">
-                          <span className="text-[8px] text-amber-400 block font-semibold uppercase">Susp</span>
-                          <span className="text-xs font-bold font-mono text-amber-400">{testAnalytics.suspicious}</span>
+                        <div className="bg-amber-50 dark:bg-amber-500/10 p-1 rounded-lg border border-amber-200 dark:border-amber-500/20">
+                          <span className="text-[8px] text-[#ea580c] dark:text-amber-400 block font-semibold uppercase">Susp</span>
+                          <span className="text-xs font-bold font-mono text-[#ea580c] dark:text-amber-400">{testAnalytics.suspicious}</span>
                         </div>
                       </div>
                     )}
 
                     <div className="flex flex-col gap-1.5">
                       {templateScans.length === 0 ? (
-                        <span className="text-[10px] text-slate-500 italic px-2">No templates tested yet.</span>
+                        <span className="text-[10px] text-[#94a3b8] dark:text-slate-500 italic px-2">No templates tested yet.</span>
                       ) : (
                         templateScans.map((scan) => {
-                          const risk = scan.result.riskScore;
-                          let badge = "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20";
-                          if (risk >= 50) badge = "bg-red-500/15 text-red-400 border border-red-500/20";
-                          else if (risk >= 20) badge = "bg-amber-500/15 text-amber-400 border border-amber-500/20";
+                          const risk = scan.result?.riskScore ?? 0;
+                          let badge = "bg-emerald-50 dark:bg-emerald-500/15 text-[#059669] dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30";
+                          if (risk >= 50) badge = "bg-red-50 dark:bg-red-500/15 text-[#dc2626] dark:text-red-400 border border-red-200 dark:border-red-500/30";
+                          else if (risk >= 20) badge = "bg-amber-50 dark:bg-amber-500/15 text-[#ea580c] dark:text-amber-400 border border-amber-200 dark:border-amber-500/30";
 
                           return (
                             <div
                               key={scan.id}
                               onClick={() => selectScan(scan)}
-                              className="group flex flex-col p-2 bg-slate-900/30 hover:bg-slate-900/50 border border-border-color/10 rounded-xl cursor-pointer text-left transition-colors"
+                              className="group flex flex-col p-2 bg-[#f8fafc] dark:bg-slate-900/40 hover:bg-[#f1f5f9] dark:hover:bg-slate-800/60 border border-[#e2e8f0] dark:border-slate-800 rounded-xl cursor-pointer text-left transition-colors"
                             >
-                              <span className="text-[10px] font-bold text-white truncate block">{scan.filename}</span>
+                              <span className="text-[10px] font-bold text-[#0f172a] dark:text-white truncate block">{scan.filename}</span>
                               <div className="flex justify-between items-center mt-1">
-                                <span className="text-[8px] text-slate-400">{new Date(scan.timestamp).toLocaleDateString()}</span>
+                                <span className="text-[8px] text-[#64748b] dark:text-slate-400 font-mono">{new Date(scan.timestamp).toLocaleDateString()}</span>
                                 <span className={`text-[8px] px-1.5 py-0.5 rounded font-mono font-bold ${badge}`}>{risk}%</span>
                               </div>
                             </div>
@@ -734,16 +734,16 @@ export default function Navbar() {
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-col gap-2.5 border-t border-border-color/10 pt-4">
+                  <div className="flex flex-col gap-2.5 border-t border-[#e2e8f0] dark:border-slate-800 pt-4">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <ShieldAlert className="w-3.5 h-3.5 text-accent-color" />
+                      <h3 className="text-[10px] font-bold text-[#64748b] dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <ShieldAlert className="w-3.5 h-3.5 text-[#059669] dark:text-emerald-400" />
                         History Log
                       </h3>
                       {history.length > 0 && (
                         <button
                           onClick={handleClearHistory}
-                          className="text-[9px] text-danger-color hover:underline font-bold cursor-pointer"
+                          className="text-[9px] text-[#dc2626] hover:underline font-bold cursor-pointer"
                         >
                           Clear All
                         </button>
@@ -752,30 +752,30 @@ export default function Navbar() {
 
                     <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1">
                       {leftFilteredScans.length === 0 ? (
-                        <div className="text-center py-6 px-4 bg-slate-900/20 rounded-xl border border-border-color/10">
-                          <span className="text-[10px] text-slate-400 block font-semibold">No activity yet</span>
-                          <span className="text-[9px] text-slate-500 mt-1 block">Start a scan to fill the history log.</span>
+                        <div className="text-center py-6 px-4 bg-[#f8fafc] dark:bg-slate-900/20 rounded-xl border border-[#e2e8f0] dark:border-slate-800">
+                          <span className="text-[10px] text-[#64748b] dark:text-slate-400 block font-semibold">No activity yet</span>
+                          <span className="text-[9px] text-[#94a3b8] dark:text-slate-500 mt-1 block">Start a scan to fill the history log.</span>
                         </div>
                       ) : (
                         leftFilteredScans.map((scan) => (
                           <div
                             key={scan.id}
-                            className="group flex items-center justify-between p-2 rounded-lg text-xs bg-slate-900/30 hover:bg-slate-900/60 border border-transparent hover:border-border-color/10 transition-all"
+                            className="group flex items-center justify-between p-2 rounded-lg text-xs bg-[#f8fafc] dark:bg-slate-900/30 hover:bg-[#f1f5f9] dark:hover:bg-slate-800/60 border border-transparent hover:border-[#e2e8f0] dark:hover:border-slate-700/40 transition-all"
                           >
                             <div
                               onClick={() => selectScan(scan)}
                               className="flex flex-col min-w-0 pr-2 cursor-pointer grow text-left"
                             >
-                              <span className="truncate font-semibold text-slate-200 group-hover:text-accent-color transition-colors">
+                              <span className="truncate font-semibold text-[#0f172a] dark:text-slate-200 group-hover:text-[#2563eb] dark:group-hover:text-emerald-400 transition-colors">
                                 {scan.filename}
                               </span>
-                              <span className="text-[8px] text-slate-400/80 mt-0.5">
+                              <span className="text-[8px] text-[#64748b] dark:text-slate-400 mt-0.5 font-mono">
                                 {new Date(scan.timestamp).toLocaleString()} - {scan.result.verdict} ({scan.result.riskScore}%)
                               </span>
                             </div>
                             <button
                               onClick={() => handleDeleteScan(scan.id, scan.filename)}
-                              className="p-1 rounded hover:bg-danger-color/10 text-slate-400 hover:text-danger-color opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity cursor-pointer"
+                              className="p-1 rounded hover:bg-red-50 dark:hover:bg-red-500/10 text-[#94a3b8] hover:text-[#dc2626] opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity cursor-pointer"
                               aria-label="Delete scan history"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -807,13 +807,13 @@ export default function Navbar() {
                 </button>
 
                 {/* Mobile Language Switcher */}
-                <div className="flex items-center justify-between p-1.5 rounded-xl border border-border-color/30 bg-slate-900/60 text-xs">
-                  <span className="text-[11px] font-semibold text-slate-400 px-2">{t('language')}:</span>
+                <div className="flex items-center justify-between p-1.5 rounded-xl border border-[#e2e8f0] dark:border-border-color/30 bg-[#f8fafc] dark:bg-slate-900/60 text-xs">
+                  <span className="text-[11px] font-semibold text-[#64748b] dark:text-slate-400 px-2">{t('language')}:</span>
                   <div className="flex gap-1">
                     <button
                       onClick={() => setLanguage('en')}
                       className={`px-2 py-1 rounded text-[10px] font-bold ${
-                        language === 'en' ? 'bg-accent-color text-slate-950' : 'text-slate-300 hover:bg-white/5'
+                        language === 'en' ? 'bg-[#2563eb] text-white' : 'text-[#64748b] dark:text-slate-300 hover:bg-[#e2e8f0] dark:hover:bg-white/5'
                       }`}
                     >
                       EN
@@ -821,7 +821,7 @@ export default function Navbar() {
                     <button
                       onClick={() => setLanguage('hi')}
                       className={`px-2 py-1 rounded text-[10px] font-bold ${
-                        language === 'hi' ? 'bg-accent-color text-slate-950' : 'text-slate-300 hover:bg-white/5'
+                        language === 'hi' ? 'bg-[#2563eb] text-white' : 'text-[#64748b] dark:text-slate-300 hover:bg-[#e2e8f0] dark:hover:bg-white/5'
                       }`}
                     >
                       हिन्दी
@@ -829,7 +829,7 @@ export default function Navbar() {
                     <button
                       onClick={() => setLanguage('pa')}
                       className={`px-2 py-1 rounded text-[10px] font-bold ${
-                        language === 'pa' ? 'bg-accent-color text-slate-950' : 'text-slate-300 hover:bg-white/5'
+                        language === 'pa' ? 'bg-[#2563eb] text-white' : 'text-[#64748b] dark:text-slate-300 hover:bg-[#e2e8f0] dark:hover:bg-white/5'
                       }`}
                     >
                       ਪੰਜਾਬੀ
@@ -838,12 +838,12 @@ export default function Navbar() {
                 </div>
 
                 <div className="flex items-center gap-3 pt-1">
-                  <div className="w-9 h-9 rounded-xl bg-accent-color text-slate-950 font-bold flex items-center justify-center uppercase">
+                  <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/50 text-[#2563eb] dark:text-blue-300 font-bold flex items-center justify-center uppercase">
                     {user.name ? user.name.charAt(0) : 'U'}
                   </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-bold text-white truncate">{user.name}</span>
-                    <span className="text-[10px] text-slate-400 truncate">{user.email}</span>
+                  <div className="flex flex-col min-w-0 text-left">
+                    <span className="text-xs font-bold text-[#0f172a] dark:text-white truncate">{user.name}</span>
+                    <span className="text-[10px] text-[#64748b] dark:text-slate-400 truncate">{user.email}</span>
                   </div>
                 </div>
                 
@@ -934,42 +934,48 @@ export default function Navbar() {
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex flex-col items-center justify-center h-64 text-center p-6 bg-slate-900/20 rounded-2xl border border-border-color/10"
+                      className="flex flex-col items-center justify-center h-64 text-center p-6 bg-[#f8fafc] dark:bg-slate-900/20 rounded-2xl border border-[#e2e8f0] dark:border-slate-800"
                     >
-                      <ShieldAlert className="w-8 h-8 mb-2 text-slate-500 opacity-60" />
-                      <span className="text-xs font-bold text-white block">{t('noScansFound')}</span>
+                      <ShieldAlert className="w-8 h-8 mb-2 text-[#94a3b8] dark:text-slate-500 opacity-60" />
+                      <span className="text-xs font-bold text-[#0f172a] dark:text-white block">{t('noScansFound')}</span>
                     </motion.div>
                   ) : (
                     rightFilteredScans.map((scan) => {
-                      const risk = scan.result.riskScore;
-                      let badge = "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20";
-                      if (risk >= 50) badge = "bg-red-500/15 text-red-400 border border-red-500/20";
-                      else if (risk >= 20) badge = "bg-amber-500/15 text-amber-400 border border-amber-500/20";
+                      const risk = scan.result?.riskScore ?? 0;
+                      const verdict = scan.result?.verdict || "Completed";
+                      const isScam = verdict === "Scam" || risk >= 70;
+                      const isSuspicious = !isScam && (verdict === "Suspicious" || risk >= 35);
+
+                      const badgeStyle = isScam
+                        ? "bg-red-50 dark:bg-red-500/15 text-[#dc2626] dark:text-red-400 border border-red-200 dark:border-red-500/30"
+                        : isSuspicious
+                        ? "bg-amber-50 dark:bg-amber-500/15 text-[#ea580c] dark:text-amber-400 border border-amber-200 dark:border-amber-500/30"
+                        : "bg-emerald-50 dark:bg-emerald-500/15 text-[#059669] dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30";
 
                       return (
                         <motion.div
                           key={scan.id}
                           layout
                           onClick={() => selectScan(scan)}
-                          className="group flex flex-col gap-2 p-3.5 rounded-xl border border-border-color/20 bg-slate-900/40 hover:border-accent-color/40 transition-all cursor-pointer text-left"
+                          className="group flex flex-col gap-2 p-3.5 rounded-xl border border-[#e2e8f0] dark:border-slate-800 bg-white dark:bg-[#0b1329]/70 hover:border-[#2563eb]/50 dark:hover:border-blue-500/50 hover:shadow-xs transition-all cursor-pointer text-left shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
                         >
                           <div className="flex justify-between items-start gap-2">
-                            <span className="text-xs font-bold text-white truncate pr-1 group-hover:text-accent-color transition-colors">
+                            <span className="text-xs font-bold text-[#0f172a] dark:text-white truncate pr-1 group-hover:text-[#2563eb] dark:group-hover:text-blue-400 transition-colors">
                               {scan.filename}
                             </span>
-                            <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-bold shrink-0 ${badge}`}>
-                              {scan.result.verdict} ({risk}%)
+                            <span className={`text-[9px] px-2 py-0.5 rounded-md font-mono font-bold shrink-0 ${badgeStyle}`}>
+                              {verdict} ({risk}%)
                             </span>
                           </div>
 
-                          <div className="flex items-center justify-between text-[10px] text-slate-400">
-                            <span>{new Date(scan.timestamp).toLocaleString()}</span>
+                          <div className="flex items-center justify-between text-[10px] text-[#64748b] dark:text-slate-400">
+                            <span className="font-mono">{new Date(scan.timestamp).toLocaleString()}</span>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleDeleteScan(scan.id, scan.filename);
                               }}
-                              className="p-1 rounded hover:bg-danger-color/10 text-slate-400 hover:text-danger-color opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                              className="p-1 rounded hover:bg-red-50 dark:hover:bg-red-500/15 text-[#94a3b8] hover:text-[#dc2626] dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                               aria-label="Delete scan"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -980,10 +986,10 @@ export default function Navbar() {
                     })
                   )}
                 </div>
-                <div className="border-t border-border-color/20 pt-3 mt-1 text-[10px] text-slate-400 flex items-center justify-between shrink-0">
+                <div className="border-t border-[#e2e8f0] dark:border-slate-800 pt-3 mt-1 text-[10px] text-[#64748b] dark:text-slate-400 flex items-center justify-between shrink-0">
                   <span>Total scans: {rightFilteredScans.length}</span>
-                  <span className="flex items-center gap-1 font-semibold text-accent-color">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-accent-color animate-pulse" />
+                  <span className="flex items-center gap-1 font-semibold text-[#059669] dark:text-emerald-400">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#059669] dark:text-emerald-400 animate-pulse" />
                     Engine Active
                   </span>
                 </div>
