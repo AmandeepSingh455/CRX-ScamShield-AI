@@ -33,32 +33,32 @@ export default function StateTileMap({ states = [], topCities = [] }) {
   const rows = 8;
 
   return (
-    <div className="bg-card-bg rounded-2xl border border-border-color shadow-xs p-5 flex flex-col justify-between h-full transition-colors">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs p-5 flex flex-col justify-between h-full transition-colors">
       {/* Card Header */}
-      <div className="flex items-center justify-between pb-3 mb-2 border-b border-border-color">
+      <div className="flex items-center justify-between pb-3 mb-2 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400">
+          <div className="w-8 h-8 rounded-lg bg-[#eff6ff] dark:bg-blue-950/40 border border-[#dbeafe] dark:border-blue-900/50 flex items-center justify-center text-[#2563eb] dark:text-blue-400">
             <Map className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-text-primary tracking-tight">
+            <h3 className="text-sm font-bold text-[#0f172a] dark:text-white tracking-tight">
               Scam reports by state
             </h3>
-            <span className="text-[11px] text-text-secondary font-medium">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
               Last 7 days
             </span>
           </div>
         </div>
 
         {/* Legend */}
-        <div className="hidden sm:flex items-center gap-2 text-xs text-text-secondary font-medium">
-          <span className="text-[11px] text-text-secondary">Low</span>
+        <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
+          <span className="text-[11px] text-slate-400 dark:text-slate-500">Low</span>
           <span
             className="h-2 w-28 rounded-full"
             style={{ background: 'linear-gradient(90deg,#ecfdf5,#f59e0b,#ef4444)' }}
             aria-hidden
           />
-          <span className="text-[11px] text-text-secondary">High</span>
+          <span className="text-[11px] text-slate-400 dark:text-slate-500">High</span>
         </div>
       </div>
 
@@ -143,7 +143,7 @@ export default function StateTileMap({ states = [], topCities = [] }) {
           </div>
 
           {/* Bottom Gradient Bar on Mobile/Small Screen */}
-          <div className="flex sm:hidden items-center gap-2 mt-3 text-xs text-text-secondary w-full justify-center">
+          <div className="flex sm:hidden items-center gap-2 mt-3 text-xs text-slate-500 dark:text-slate-400 w-full justify-center">
             <span className="text-[10px]">Low</span>
             <span
               className="h-2 flex-1 max-w-[160px] rounded-full"
@@ -155,12 +155,12 @@ export default function StateTileMap({ states = [], topCities = [] }) {
         </div>
 
         {/* Right: TOP CITIES */}
-        <div className="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-border-color lg:pl-6 pt-4 lg:pt-0 w-full">
+        <div className="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-slate-100 dark:border-slate-800 lg:pl-6 pt-4 lg:pt-0 w-full">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-[11px] font-bold text-text-secondary uppercase tracking-wider">
+            <h4 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Top Cities
             </h4>
-            <span className="text-[10px] text-text-secondary font-medium flex items-center gap-1">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium flex items-center gap-1">
               <TrendingUp className="w-3 h-3 text-[#ef4444] dark:text-red-400" />
               Live reports
             </span>
@@ -170,13 +170,13 @@ export default function StateTileMap({ states = [], topCities = [] }) {
             {topCities.map((city) => (
               <div
                 key={city.rank}
-                className="flex items-center justify-between py-1 px-1.5 rounded-md hover:bg-slate-100/60 dark:hover:bg-slate-800/60 transition-colors text-xs"
+                className="flex items-center justify-between py-1 px-1.5 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors text-xs"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <span className="text-text-secondary font-mono text-xs w-3 text-right">
+                  <span className="text-slate-400 dark:text-slate-500 font-mono text-xs w-3 text-right">
                     {city.rank}
                   </span>
-                  <span className="font-semibold text-text-primary truncate">
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">
                     {city.name}
                   </span>
                 </div>

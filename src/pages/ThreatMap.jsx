@@ -105,7 +105,7 @@ export default function ThreatMap() {
 
   return (
     <div
-      className="min-h-screen flex flex-col bg-app-bg text-text-primary transition-colors duration-300 pt-18"
+      className="min-h-screen flex flex-col bg-[#f8fafc] dark:bg-[#020617] text-[#0f172a] dark:text-slate-100 transition-colors duration-300 pt-18"
       style={{
         backgroundImage:
           theme === 'dark'
@@ -121,21 +121,21 @@ export default function ThreatMap() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2.5">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0f172a] dark:text-white tracking-tight">
                 Threat map
               </h1>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold shadow-xs border border-slate-700/50">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#0f172a] dark:bg-slate-800 text-white text-[11px] font-bold shadow-xs border border-slate-700/50">
                 <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />
                 Live
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-text-secondary font-medium mt-1">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
               Scams detected across India, updated in real time.
             </p>
           </div>
 
           {/* Controls: Live toggle & Manual refresh */}
-          <div className="flex items-center gap-2 self-start sm:self-auto bg-card-bg border border-border-color rounded-xl p-1 shadow-2xs text-xs transition-colors">
+          <div className="flex items-center gap-2 self-start sm:self-auto bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-xl p-1 shadow-2xs text-xs transition-colors">
             <button
               type="button"
               onClick={() => setIsLiveActive(!isLiveActive)}
@@ -162,13 +162,13 @@ export default function ThreatMap() {
             <button
               type="button"
               onClick={handleManualRefresh}
-              className="p-1.5 text-text-secondary hover:text-text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
               title="Refresh telemetry"
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
 
-            <span className="text-[10px] text-text-secondary font-mono px-2 hidden sm:inline">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono px-2 hidden sm:inline">
               Updated: {lastUpdatedTime}
             </span>
           </div>
@@ -177,12 +177,12 @@ export default function ThreatMap() {
         {/* 4 KPI Summary Cards (Equal 4-Column Grid) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: SCAMS DETECTED TODAY */}
-          <div className="bg-card-bg rounded-2xl border border-border-color p-5 shadow-xs flex flex-col justify-between transition-colors">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between transition-colors">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold tracking-wider text-text-secondary uppercase">
+              <span className="text-[11px] font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
                 Scams Detected Today
               </span>
-              <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 flex items-center justify-center text-[#dc2626] dark:text-red-400">
+              <div className="w-8 h-8 rounded-lg bg-[#fef2f2] dark:bg-red-950/40 border border-[#fee2e2] dark:border-red-900/50 flex items-center justify-center text-[#dc2626] dark:text-red-400">
                 <ShieldAlert className="w-4 h-4" />
               </div>
             </div>
@@ -194,12 +194,12 @@ export default function ThreatMap() {
           </div>
 
           {/* Card 2: ACTIVE SCAM SCRIPTS */}
-          <div className="bg-card-bg rounded-2xl border border-border-color p-5 shadow-xs flex flex-col justify-between transition-colors">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between transition-colors">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold tracking-wider text-text-secondary uppercase">
+              <span className="text-[11px] font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
                 Active Scam Scripts
               </span>
-              <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900/50 flex items-center justify-center text-[#ea580c] dark:text-amber-400">
+              <div className="w-8 h-8 rounded-lg bg-[#fff7ed] dark:bg-amber-950/40 border border-[#ffedd5] dark:border-amber-900/50 flex items-center justify-center text-[#ea580c] dark:text-amber-400">
                 <FileCode className="w-4 h-4" />
               </div>
             </div>
@@ -211,29 +211,29 @@ export default function ThreatMap() {
           </div>
 
           {/* Card 3: FLAGGED UPI IDS */}
-          <div className="bg-card-bg rounded-2xl border border-border-color p-5 shadow-xs flex flex-col justify-between transition-colors">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between transition-colors">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold tracking-wider text-text-secondary uppercase">
+              <span className="text-[11px] font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
                 Flagged UPI IDs
               </span>
-              <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-text-primary">
+              <div className="w-8 h-8 rounded-lg bg-[#f1f5f9] dark:bg-slate-800 border border-[#e2e8f0] dark:border-slate-700 flex items-center justify-center text-[#0f172a] dark:text-slate-100">
                 <AtSign className="w-4 h-4" />
               </div>
             </div>
             <div className="mt-4">
-              <span className="text-3xl font-extrabold text-text-primary font-mono tracking-tight">
+              <span className="text-3xl font-extrabold text-[#0f172a] dark:text-white font-mono tracking-tight">
                 {kpis.flaggedUpiIds.toLocaleString()}
               </span>
             </div>
           </div>
 
           {/* Card 4: REPORTS FILED */}
-          <div className="bg-card-bg rounded-2xl border border-border-color p-5 shadow-xs flex flex-col justify-between transition-colors">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between transition-colors">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold tracking-wider text-text-secondary uppercase">
+              <span className="text-[11px] font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
                 Reports Filed
               </span>
-              <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/50 flex items-center justify-center text-[#059669] dark:text-emerald-400">
+              <div className="w-8 h-8 rounded-lg bg-[#ecfdf5] dark:bg-emerald-950/40 border border-[#d1fae5] dark:border-emerald-900/50 flex items-center justify-center text-[#059669] dark:text-emerald-400">
                 <FileText className="w-4 h-4" />
               </div>
             </div>

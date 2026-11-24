@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --color-app-bg: #f8fafc;
   --color-card-bg: #ffffff;

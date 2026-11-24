@@ -16,25 +16,25 @@ export default function HourlyLineChart({ hourlyData = [] }) {
   const { path, area, points } = generateSplinePath(hourlyData, width, height, 30);
 
   return (
-    <div className="bg-card-bg rounded-2xl border border-border-color shadow-xs p-5 flex flex-col justify-between h-full transition-colors">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs p-5 flex flex-col justify-between h-full transition-colors">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 mb-2 border-b border-border-color">
+      <div className="flex items-center justify-between pb-3 mb-2 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400">
+          <div className="w-8 h-8 rounded-lg bg-[#eff6ff] dark:bg-blue-950/40 border border-[#dbeafe] dark:border-blue-900/50 flex items-center justify-center text-[#2563eb] dark:text-blue-400">
             <TrendingUp className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-text-primary tracking-tight">
+            <h3 className="text-sm font-bold text-[#0f172a] dark:text-white tracking-tight">
               Scams detected per hour
             </h3>
-            <span className="text-[11px] text-text-secondary font-medium">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
               Last 24 hours
             </span>
           </div>
         </div>
 
         {activePoint && (
-          <div className="text-xs bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 font-bold px-2.5 py-1 rounded-lg border border-blue-100 dark:border-blue-800 font-mono">
+          <div className="text-xs bg-[#eff6ff] dark:bg-blue-950/50 text-[#1d4ed8] dark:text-blue-300 font-bold px-2.5 py-1 rounded-lg border border-[#dbeafe] dark:border-blue-800 font-mono">
             {activePoint.label}: {activePoint.val} scams
           </div>
         )}
@@ -110,12 +110,12 @@ export default function HourlyLineChart({ hourlyData = [] }) {
         </svg>
 
         {/* X-Axis Time Labels */}
-        <div className="flex justify-between items-center px-6 pt-1 text-[10px] text-text-secondary font-mono select-none">
+        <div className="flex justify-between items-center px-6 pt-1 text-[10px] text-slate-500 dark:text-slate-400 font-mono select-none">
           {hourlyData.map((d, i) => (
             <span
               key={i}
               className={`transition-colors ${
-                activePoint?.label === d.time ? 'text-blue-600 dark:text-blue-400 font-bold' : ''
+                activePoint?.label === d.time ? 'text-[#2563eb] dark:text-blue-400 font-bold' : ''
               }`}
             >
               {d.time}
