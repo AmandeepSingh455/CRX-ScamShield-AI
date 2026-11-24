@@ -37,6 +37,7 @@ export default function ScanHistory() {
   const safeCount = history.filter(
     (s) =>
       s.result?.verdict === 'Safe' ||
+      s.result?.verdict === 'Genuine' ||
       (s.result?.verdict !== 'Scam' &&
         s.result?.verdict !== 'Suspicious' &&
         (s.result?.riskScore ?? 0) < 35)
@@ -64,7 +65,7 @@ export default function ScanHistory() {
       return verdict === 'Suspicious' || (risk >= 35 && risk < 70);
     }
     if (filterVerdict === 'SAFE') {
-      return verdict === 'Safe' || (verdict !== 'Scam' && verdict !== 'Suspicious' && risk < 35);
+      return verdict === 'Safe' || verdict === 'Genuine' || (verdict !== 'Scam' && verdict !== 'Suspicious' && risk < 35);
     }
     return true;
   });

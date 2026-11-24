@@ -31,9 +31,9 @@ Core Behavior & Tone:
  * Resolves API configuration based on the provided key or environment variable.
  */
 export function getApiConfig(customKey = '') {
-  const envKey = (import.meta.env.VITE_AI_API_KEY || '').trim();
+  const envKey = (import.meta.env?.VITE_AI_API_KEY || '').trim();
   const apiKey = (customKey || envKey).trim();
-  const envModel = (import.meta.env.VITE_AI_MODEL || '').trim();
+  const envModel = (import.meta.env?.VITE_AI_MODEL || '').trim();
 
   const isXai = apiKey.startsWith('xai-');
   const endpoint = isXai ? DEFAULT_XAI_ENDPOINT : DEFAULT_GROQ_ENDPOINT;

@@ -63,6 +63,7 @@ export default function Dashboard() {
   const genuineScams = history.filter(
     (item) =>
       item.result?.verdict === "Safe" ||
+      item.result?.verdict === "Genuine" ||
       (item.result?.verdict !== "Scam" &&
         item.result?.verdict !== "Suspicious" &&
         (item.result?.riskScore ?? 0) < 35)
