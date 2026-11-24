@@ -12,7 +12,7 @@ import {
 import { motion } from "framer-motion";
 
 export default function CompanyRegistryModal({ isOpen, onClose, onSelectCompany }) {
-  const { t } = useApp();
+  const { t, openHelpline } = useApp();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSector, setSelectedSector] = useState("All");
   const [copiedCin, setCopiedCin] = useState(null);
@@ -202,7 +202,7 @@ export default function CompanyRegistryModal({ isOpen, onClose, onSelectCompany 
             {Math.min(filteredCompanies.length, 60)} / {filteredCompanies.length} {t('enterprisesCount')}
           </span>
           <span className="text-[10px]">
-            {t('cyberHelpline')}: <a href="tel:1930" className="text-red-500 font-bold underline">1930</a>
+            {t('cyberHelpline')}: <button type="button" onClick={openHelpline} className="text-red-700 dark:text-red-400 font-bold underline cursor-pointer hover:opacity-80">1930</button>
           </span>
         </div>
       </motion.div>

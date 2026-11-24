@@ -24,6 +24,15 @@ export const translations = {
     cyberHelplineBadge: "National Cyber Helpline",
     cyberHelplineTooltip: "Government of India National Cyber Crime Reporting Portal (Dial 1930 for Financial Fraud)",
     cyberHelplineAdvisory: "If you have transferred funds or shared confidential banking OTPs, immediately dial National Cyber Crime Helpline 1930 or lodge an official complaint at cybercrime.gov.in.",
+    helplineModalTitle: "National Cyber Crime Reporting Helpline",
+    helplineModalSubtitle: "Ministry of Home Affairs (MHA) • Indian Cyber Crime Coordination Centre (I4C)",
+    callNowBtn: "Call 1930",
+    copyNumberBtn: "Copy Number",
+    numberCopied: "1930 Copied!",
+    visitPortalBtn: "Visit cybercrime.gov.in",
+    goldenHourAdvice: "Report financial fraud immediately within the golden hour to freeze fraudulent bank transfers before funds leave the banking system.",
+    tollFreeBadge: "Toll-Free • 24x7 Emergency",
+    closeBtn: "Close",
 
     // Security Workspace (Dashboard Main)
     securityWorkspaceTitle: "Security Workspace",
@@ -173,6 +182,15 @@ export const translations = {
     cyberHelplineBadge: "राष्ट्रीय साइबर हेल्पलाइन",
     cyberHelplineTooltip: "भारत सरकार राष्ट्रीय साइबर अपराध रिपोर्टिंग पोर्टल (वित्तीय धोखाधड़ी के लिए 1930 डायल करें)",
     cyberHelplineAdvisory: "यदि आपने पैसे ट्रांसफर किए हैं या बैंक OTP साझा किया है, तो तुरंत राष्ट्रीय साइबर हेल्पलाइन 1930 डायल करें या cybercrime.gov.in पर शिकायत दर्ज करें।",
+    helplineModalTitle: "राष्ट्रीय साइबर अपराध रिपोर्टिंग हेल्पलाइन",
+    helplineModalSubtitle: "गृह मंत्रालय (MHA) • भारतीय साइबर अपराध समन्वय केंद्र (I4C)",
+    callNowBtn: "1930 पर कॉल करें",
+    copyNumberBtn: "नंबर कॉपी करें",
+    numberCopied: "1930 कॉपी किया गया!",
+    visitPortalBtn: "cybercrime.gov.in पर जाएं",
+    goldenHourAdvice: "बैंक से पैसे निकलने से पहले फर्जी ट्रांसफर को फ्रीज करने के लिए गोल्डन ऑवर (पहले 2-3 घंटों) में तुरंत रिपोर्ट करें।",
+    tollFreeBadge: "टोल-फ्री • 24x7 आपातकालीन सेवा",
+    closeBtn: "बंद करें",
 
     // Security Workspace (Dashboard Main)
     securityWorkspaceTitle: "सुरक्षा कार्यक्षेत्र",
@@ -322,6 +340,15 @@ export const translations = {
     cyberHelplineBadge: "ਕੌਮੀ ਸਾਈਬਰ ਹੈਲਪਲਾਈਨ",
     cyberHelplineTooltip: "ਭਾਰਤ ਸਰਕਾਰ ਕੌਮੀ ਸਾਈਬਰ ਅਪਰਾਧ ਰਿਪੋਰਟਿੰਗ ਪੋਰਟਲ (ਵਿੱਤੀ ਧੋਖਾਧੜੀ ਲਈ 1930 ਡਾਇਲ ਕਰੋ)",
     cyberHelplineAdvisory: "ਜੇਕਰ ਤੁਹਾਡੇ ਪੈਸੇ ਕੱਟੇ ਗਏ ਹਨ ਜਾਂ ਬੈਂਕ OTP ਸਾਂਝਾ ਕੀਤਾ ਗਿਆ ਹੈ, ਤਾਂ ਤੁਰੰਤ ਕੌਮੀ ਸਾਈਬਰ ਹੈਲਪਲਾਈਨ 1930 ਡਾਇਲ ਕਰੋ ਜਾਂ cybercrime.gov.in 'ਤੇ ਰਿਪੋਰਟ ਕਰੋ।",
+    helplineModalTitle: "ਕੌਮੀ ਸਾਈਬਰ ਅਪਰਾਧ ਰਿਪੋਰਟਿੰਗ ਹੈਲਪਲਾਈਨ",
+    helplineModalSubtitle: "ਗ੍ਰਹਿ ਮੰਤਰਾਲਾ (MHA) • ਭਾਰਤੀ ਸਾਈਬਰ ਅਪਰਾਧ ਤਾਲਮੇਲ ਕੇਂਦਰ (I4C)",
+    callNowBtn: "1930 'ਤੇ ਕਾਲ ਕਰੋ",
+    copyNumberBtn: "ਨੰਬਰ ਕਾਪੀ ਕਰੋ",
+    numberCopied: "1930 ਕਾਪੀ ਹੋ ਗਿਆ!",
+    visitPortalBtn: "cybercrime.gov.in 'ਤੇ ਜਾਓ",
+    goldenHourAdvice: "ਬੈਂਕ ਵਿੱਚੋਂ ਪੈਸੇ ਨਿਕਲਣ ਤੋਂ ਪਹਿਲਾਂ ਧੋਖਾਧੜੀ ਵਾਲੇ ਟ੍ਰਾਂਸਫਰ ਨੂੰ ਫਰੀਜ਼ ਕਰਨ ਲਈ ਗੋਲਡਨ ਆਵਰ ਵਿੱਚ ਤੁਰੰਤ ਰਿਪੋਰਟ ਕਰੋ।",
+    tollFreeBadge: "ਟੋਲ-ਫ੍ਰੀ • 24x7 ਐਮਰਜੈਂਸੀ ਸੇਵਾ",
+    closeBtn: "ਬੰਦ ਕਰੋ",
 
     // Security Workspace (Dashboard Main)
     securityWorkspaceTitle: "ਸੁਰੱਖਿਆ ਵਰਕਸਪੇਸ",

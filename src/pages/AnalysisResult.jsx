@@ -27,6 +27,7 @@ export default function AnalysisResult() {
     isLeftDrawerOpen,
     setIsLeftDrawerOpen,
     setIsRightDrawerOpen,
+    openHelpline,
     t,
   } = useApp();
   const navigate = useNavigate();
@@ -446,24 +447,30 @@ ${text.slice(0, 300)}...
 
               {/* Emergency Cyber Helpline 1930 Warning for High Threats */}
               {riskScore >= 40 && (
-                <div className="p-4 rounded-2xl border border-red-300 dark:border-red-900/60 bg-red-50/80 dark:bg-red-950/25 flex items-start gap-3.5 text-left shadow-xs">
-                  <div className="w-6 h-6 rounded-md bg-red-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-                    <PhoneCall className="w-3.5 h-3.5" />
+                <div className="p-4.5 rounded-2xl border border-red-800 bg-red-700 dark:bg-red-800 text-white flex items-start gap-3.5 text-left shadow-sm">
+                  <div className="w-8 h-8 rounded-lg bg-red-900/80 border border-red-400/40 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                    <PhoneCall className="w-4 h-4 text-white" />
                   </div>
-                  <div className="space-y-1 grow">
+                  <div className="space-y-1.5 grow">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-red-700 dark:text-red-300 uppercase tracking-wide">
-                        {t('criticalAdvisoryTitle')} &bull; {t('cyberHelpline')}
-                      </span>
-                      <a
-                        href="tel:1930"
-                        className="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white font-mono text-xs font-bold transition-colors shadow-xs flex items-center gap-1 cursor-pointer"
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-black text-lg tracking-wider text-white">
+                          1930
+                        </span>
+                        <span className="text-xs font-bold text-red-100 uppercase tracking-wide">
+                          {t('criticalAdvisoryTitle')} &bull; {t('cyberHelpline')}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={openHelpline}
+                        className="px-3.5 py-1.5 rounded-lg bg-red-950/80 hover:bg-black/90 text-white font-mono text-xs font-bold transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer border border-red-400/40 active:scale-98"
                       >
-                        <PhoneCall className="w-3 h-3" />
-                        {t('cyberHelplineShort')}
-                      </a>
+                        <PhoneCall className="w-3.5 h-3.5" />
+                        <span>{t('callNowBtn')}</span>
+                      </button>
                     </div>
-                    <p className="text-[11px] text-red-700/90 dark:text-red-300/90 leading-relaxed">
+                    <p className="text-[11px] text-red-100 leading-relaxed font-medium">
                       {t("call1930Notice")}
                     </p>
                   </div>

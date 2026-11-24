@@ -249,7 +249,25 @@ export function AppProvider({ children }) {
   const [shouldOpenFilePicker, setShouldOpenFilePicker] = useState(false);
   const [isLeftDrawerOpen, setIsLeftDrawerOpen] = useState(false);
   const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false);
+  const [isHelplineModalOpen, setIsHelplineModalOpen] = useState(false);
   const [toasts, setToasts] = useState([]);
+
+  const openHelpline = () => {
+    const isMobile =
+      typeof navigator !== "undefined" &&
+      (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      ) ||
+        (typeof window !== "undefined" &&
+          window.innerWidth < 768 &&
+          window.matchMedia("(pointer: coarse)").matches));
+
+    if (isMobile) {
+      window.location.href = "tel:1930";
+    } else {
+      setIsHelplineModalOpen(true);
+    }
+  };
 
   const addToast = (message, type = "info") => {
     const id = `toast-${Date.now()}`;
@@ -291,6 +309,9 @@ export function AppProvider({ children }) {
         setIsLeftDrawerOpen,
         isRightDrawerOpen,
         setIsRightDrawerOpen,
+        isHelplineModalOpen,
+        setIsHelplineModalOpen,
+        openHelpline,
         toasts,
         addToast,
       }}

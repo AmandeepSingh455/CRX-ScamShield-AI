@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import CyberHelplineModal from './CyberHelplineModal';
 
 function ImageThumbnail({ scan, onClick }) {
   const [hasError, setHasError] = useState(false);
@@ -80,6 +81,9 @@ export default function Navbar() {
     setIsLeftDrawerOpen,
     isRightDrawerOpen,
     setIsRightDrawerOpen,
+    isHelplineModalOpen,
+    setIsHelplineModalOpen,
+    openHelpline,
     toasts,
     addToast
   } = useApp();
@@ -298,23 +302,25 @@ export default function Navbar() {
 
             <div className="flex items-center gap-2.5">
               {/* National Cyber Crime Helpline 1930 */}
-              <a
-                href="tel:1930"
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50/80 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-700 dark:text-red-300 transition-colors shadow-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500/20 group"
+              <button
+                type="button"
+                onClick={openHelpline}
+                className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl border border-red-800/90 dark:border-red-700/80 bg-red-700 hover:bg-red-800 dark:bg-red-800 dark:hover:bg-red-700 text-white transition-all shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500/40 group active:scale-98"
                 title={t('cyberHelplineTooltip')}
+                aria-label={t('cyberHelplineTooltip')}
               >
-                <div className="flex items-center justify-center w-5 h-5 rounded-md bg-red-600 text-white shrink-0 shadow-xs">
-                  <PhoneCall className="w-3 h-3" />
+                <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-red-900/70 border border-red-400/40 text-white shrink-0 shadow-xs">
+                  <PhoneCall className="w-3.5 h-3.5 text-white" />
                 </div>
-                <div className="flex flex-col text-left leading-none">
-                  <span className="font-mono font-bold tracking-tight text-xs text-red-900 dark:text-red-200">
+                <div className="flex flex-col text-left leading-tight">
+                  <span className="font-mono font-black tracking-wide text-sm sm:text-base text-white drop-shadow-xs">
                     1930
                   </span>
-                  <span className="text-[9px] font-semibold tracking-wider text-red-600 dark:text-red-400 hidden xl:inline mt-0.5">
+                  <span className="text-[9px] font-bold tracking-wider text-red-100 uppercase hidden xl:inline">
                     {t('cyberHelplineBadge')}
                   </span>
                 </div>
-              </a>
+              </button>
 
               {/* Language Selector Dropdown */}
               <div className="relative">
@@ -701,19 +707,22 @@ export default function Navbar() {
               </div>
               <div className="border-t border-border-color/20 pt-4 mt-4 shrink-0 space-y-3">
                 {/* Mobile Cyber Helpline 1930 */}
-                <a
-                  href="tel:1930"
-                  className="flex items-center justify-between p-2.5 rounded-xl border border-red-500/30 bg-red-950/40 hover:bg-red-950/60 text-red-300 font-semibold text-xs transition-colors shadow-none"
+                <button
+                  type="button"
+                  onClick={openHelpline}
+                  className="w-full flex items-center justify-between p-3 rounded-xl border border-red-800 bg-red-700 hover:bg-red-800 text-white font-bold text-xs transition-colors shadow-sm cursor-pointer active:scale-98"
                   title={t('cyberHelplineTooltip')}
                 >
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-md bg-red-600 text-white flex items-center justify-center shrink-0">
-                      <PhoneCall className="w-3 h-3" />
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-red-900/70 border border-red-400/40 text-white flex items-center justify-center shrink-0">
+                      <PhoneCall className="w-4 h-4 text-white" />
                     </div>
-                    <span>{t('cyberHelpline')}</span>
+                    <span className="text-white text-xs font-semibold">{t('cyberHelpline')}</span>
                   </div>
-                  <span className="font-mono bg-red-600 text-white font-bold px-2 py-0.5 rounded text-[11px]">1930</span>
-                </a>
+                  <span className="font-mono bg-red-950/80 text-white font-black text-sm px-2.5 py-1 rounded-md border border-red-400/30 tracking-wider">
+                    1930
+                  </span>
+                </button>
 
                 {/* Mobile Language Switcher */}
                 <div className="flex items-center justify-between p-1.5 rounded-xl border border-border-color/30 bg-slate-900/60 text-xs">
@@ -990,6 +999,11 @@ export default function Navbar() {
           })}
         </AnimatePresence>
       </div>
+
+      <CyberHelplineModal
+        isOpen={isHelplineModalOpen}
+        onClose={() => setIsHelplineModalOpen(false)}
+      />
     </>
   );
 }
