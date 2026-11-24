@@ -451,6 +451,8 @@ export default function Dashboard() {
         addToast("Alert: High-threat scam document detected!", "error");
       } else if (result.verdict === "Suspicious" || result.riskScore >= 35) {
         addToast("Warning: Suspicious document anomalies identified.", "warning");
+      } else if (result.verdict === "Needs Verification") {
+        addToast("Caution: Document unverified. Independent verification needed.", "warning");
       } else {
         addToast("Success: Document evaluated authentic & genuine.", "success");
       }
@@ -864,12 +866,16 @@ export default function Dashboard() {
                           ? "bg-red-500/10 text-red-600 dark:text-red-400"
                           : latestScanResult.result?.verdict === "Suspicious" || (latestScanResult.result?.riskScore ?? 0) >= 35
                           ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                          : latestScanResult.result?.verdict === "Needs Verification"
+                          ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
                           : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                       }`}>
                         {latestScanResult.result?.verdict === "Scam" || (latestScanResult.result?.riskScore ?? 0) >= 70 ? (
                           <ShieldAlert className="w-6 h-6 text-red-600 dark:text-red-400" />
                         ) : latestScanResult.result?.verdict === "Suspicious" || (latestScanResult.result?.riskScore ?? 0) >= 35 ? (
                           <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                        ) : latestScanResult.result?.verdict === "Needs Verification" ? (
+                          <AlertTriangle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                         ) : (
                           <ShieldCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                         )}
@@ -896,12 +902,16 @@ export default function Dashboard() {
                           ? "bg-red-500 text-white"
                           : latestScanResult.result?.verdict === "Suspicious" || (latestScanResult.result?.riskScore ?? 0) >= 35
                           ? "bg-amber-500 text-slate-950"
+                          : latestScanResult.result?.verdict === "Needs Verification"
+                          ? "bg-blue-600 text-white"
                           : "bg-emerald-500 text-white"
                       }`}>
                         {latestScanResult.result?.verdict === "Scam" || (latestScanResult.result?.riskScore ?? 0) >= 70
                           ? "SCAM DETECTED"
                           : latestScanResult.result?.verdict === "Suspicious" || (latestScanResult.result?.riskScore ?? 0) >= 35
                           ? "SUSPICIOUS DOCUMENT"
+                          : latestScanResult.result?.verdict === "Needs Verification"
+                          ? "NEEDS VERIFICATION"
                           : "SAFE & GENUINE"}
                       </span>
                     </div>
@@ -957,8 +967,10 @@ export default function Dashboard() {
                     <div className={`p-4 rounded-xl text-xs leading-relaxed border ${
                       (latestScanResult.result?.riskScore ?? 0) >= 50
                         ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-300"
-                        : (latestScanResult.result?.riskScore ?? 0) >= 20
+                        : (latestScanResult.result?.riskScore ?? 0) >= 35
                         ? "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300"
+                        : latestScanResult.result?.verdict === "Needs Verification"
+                        ? "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900/50 text-blue-800 dark:text-blue-300"
                         : "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-300"
                     }`}>
                       <span className="font-bold text-sm block mb-1">
@@ -966,6 +978,8 @@ export default function Dashboard() {
                           ? "Scam Verdict Explanation"
                           : (latestScanResult.result?.riskScore ?? 0) >= 35
                           ? "Cautionary Diagnostic Findings"
+                          : latestScanResult.result?.verdict === "Needs Verification"
+                          ? "Verification Notice"
                           : "Authenticity Verification Summary"}
                       </span>
                       {latestScanResult.result.primaryReason}

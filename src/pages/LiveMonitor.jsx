@@ -334,6 +334,8 @@ export default function LiveMonitor() {
           addToast('Alert: High-threat scam document detected!', 'error');
         } else if (analysis.verdict === 'Suspicious') {
           addToast('Warning: Suspicious document anomalies identified.', 'warning');
+        } else if (analysis.verdict === 'Needs Verification') {
+          addToast('Caution: Document unverified. Independent verification needed.', 'warning');
         } else {
           addToast('Success: Document evaluated authentic & genuine.', 'success');
         }

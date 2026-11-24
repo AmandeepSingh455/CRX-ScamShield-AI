@@ -6,21 +6,22 @@
 import { getApiConfig } from './aiChatService.js';
 
 const AI_ANALYSIS_PROMPT = `You are the Lead Cybersecurity Forensics AI for CRX ScamShield.
-Your mission is to perform a rigorous, zero-trust scam and authenticity evaluation of the provided text (which may be a job offer letter, recruitment message, police/customs notice, task invitation, or chat message).
+Your mission is to perform a rigorous, zero-trust scam and authenticity evaluation of the provided text (which may be a job offer letter, recruitment message, police/customs notice, task invitation, or chat message) in English, Hindi (हिन्दी / Hinglish), or Punjabi (ਪੰਜਾਬੀ).
 
-CRITICAL FORENSIC RULES:
-1. ZERO TOLERANCE FOR PAYMENT DEMANDS: Legitimate employers NEVER charge candidates for registration, onboarding, interview, training, gate pass, laptop security deposit, background checks, or courier delivery. If any money/deposit/UPI transfer is requested, classify as SCAM (Risk >= 85) regardless of how official or genuine the company name appears!
-2. CORPORATE IMPERSONATION: If a document claims to be from a major company (e.g. Tata Motors, TCS, Infosys, Amazon, Google, Reliance, Wipro) but uses a public webmail address (@gmail.com, @yahoo.com, @outlook.com) or an unverified Telegram handle, it is an IMPERSONATION SCAM.
-3. DIGITAL ARREST / LAW ENFORCEMENT FRAUD: Indian police, CBI, and Customs never arrest citizens over video calls or demand clearance bonds via bank/UPI. Classify as SCAM (Risk >= 95).
-4. UNREALISTIC SALARY / NO INTERVIEW: Direct job offer letters issued without an interview round or offering absurd daily task wages (e.g., ₹5,000/day for liking YouTube videos) are advance-fee fraud traps.
-5. GENUINE CRITERIA: A document is GENUINE (Risk < 25) ONLY if: official enterprise domain email (@company.com), zero fees/deposits, legitimate hiring process, and verified corporate presence.
+CRITICAL ZERO-TRUST FORENSIC RULES:
+1. ZERO TOLERANCE FOR PAYMENT DEMANDS: Legitimate employers NEVER charge candidates for registration, onboarding, interview, training, gate pass, ID card issuance, laptop security deposit, background checks, or courier delivery. If ANY money/deposit/UPI transfer is requested (in English, Hindi, or Punjabi, e.g. "pay ₹500", "paisa bhejo", "fees pay karo", "security deposit"), classify as SCAM (Risk >= 85) regardless of how official or genuine the company name appears!
+2. CORPORATE IMPERSONATION: If a document claims to be from a major company (e.g. Tata, TCS, Infosys, Amazon, Google, Reliance, Wipro) but uses a public webmail address (@gmail.com, @yahoo.com, @outlook.com) or an unverified Telegram/WhatsApp handle or personal mobile number, it is an IMPERSONATION SCAM.
+3. DIGITAL ARREST / LAW ENFORCEMENT FRAUD: Indian police, CBI, Narcotics Control Bureau, and Customs never arrest citizens over video calls or demand clearance bonds via bank/UPI. Classify as SCAM (Risk >= 95).
+4. TASK & PREPAID REVIEW SCAMS: Promises of daily task wages (e.g. ₹2,000 to ₹5,000/day for liking YouTube videos, subscribing to Telegram channels, rating hotels) or demanding prepaid task deposits are advance-fee fraud traps. Classify as SCAM (Risk >= 90).
+5. GENUINE CRITERIA: A document is GENUINE (Risk < 20) ONLY if: official enterprise domain email (@company.com), zero fees/deposits, legitimate hiring process, and verified corporate presence.
+6. INSUFFICIENT EVIDENCE / CASUAL TEXT: If the text contains no clear scam indicators but also lacks official corporate domain or MCA verification credentials, classify as "Needs Verification" (Risk 25-35), NEVER blindly certify it as "Genuine".
 
-You MUST respond strictly with a valid JSON object in the following format (no markdown, no extra commentary):
+You MUST respond strictly with a valid JSON object in the following format (no markdown fences, no extra commentary):
 {
-  "verdict": "Scam" | "Suspicious" | "Genuine",
+  "verdict": "SCAM" | "SUSPICIOUS" | "NEEDS_VERIFICATION" | "GENUINE",
   "riskScore": number (0 to 100),
   "confidenceScore": number (50 to 99),
-  "primaryReason": "One-sentence executive reason explaining why it is Scam, Suspicious, or Genuine.",
+  "primaryReason": "One-sentence executive reason explaining why it is Scam, Suspicious, Needs Verification, or Genuine.",
   "detailedExplanation": "Clear, direct forensic explanation of the findings.",
   "companyVerificationStatus": "Verified Active MCA Entity" | "Suspected Impersonation" | "Unregistered / Unknown Entity" | "Government Agency Impersonation" | "Not Applicable",
   "detectedAnomalies": ["Array of concise detected red flags or safety markers"],
@@ -47,7 +48,7 @@ ${text.slice(0, 4000)}
 Perform thorough forensic scam and company verification. Return only valid JSON.`;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 7500); // 7.5s max timeout
+  const timeoutId = setTimeout(() => controller.abort(), 14000); // 14s max timeout for queue spikes
 
   try {
     const response = await fetch(config.endpoint, {
@@ -89,19 +90,25 @@ Perform thorough forensic scam and company verification. Return only valid JSON.
       .trim();
 
     const parsed = JSON.parse(cleanJson);
+    const rawVerdict = (parsed.verdict || '').toUpperCase();
+    const rawRisk = Number(parsed.riskScore) || 0;
 
-    // Normalize verdict
+    // Robust verdict normalization across model variations
     let normalizedVerdict = 'Suspicious';
-    if (parsed.riskScore >= 70 || parsed.verdict?.toLowerCase() === 'scam') {
+    if (rawVerdict.includes('SCAM') || rawVerdict.includes('FRAUD') || rawRisk >= 70) {
       normalizedVerdict = 'Scam';
-    } else if (parsed.riskScore <= 30 && parsed.verdict?.toLowerCase() === 'genuine') {
-      normalizedVerdict = 'Genuine';
+    } else if (rawVerdict.includes('GENUINE') || rawVerdict.includes('LEGITIMATE') || rawVerdict.includes('SAFE')) {
+      normalizedVerdict = rawRisk <= 25 ? 'Genuine' : 'Needs Verification';
+    } else if (rawVerdict.includes('VERIFICATION') || rawVerdict.includes('INCONCLUSIVE') || (rawRisk >= 20 && rawRisk < 35)) {
+      normalizedVerdict = 'Needs Verification';
+    } else {
+      normalizedVerdict = 'Suspicious';
     }
 
     return {
       source: 'AI Intelligence Engine (' + config.provider + ')',
       verdict: normalizedVerdict,
-      riskScore: Math.max(0, Math.min(100, Number(parsed.riskScore) || 50)),
+      riskScore: Math.max(0, Math.min(100, rawRisk)),
       confidenceScore: Math.max(50, Math.min(99, Number(parsed.confidenceScore) || 85)),
       primaryReason: parsed.primaryReason || 'Contextual AI assessment completed.',
       detailedExplanation: parsed.detailedExplanation || '',

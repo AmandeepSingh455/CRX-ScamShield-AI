@@ -41,8 +41,9 @@ export default function LiveAnalysisPanel({
 
   const { riskScore = 0, confidenceScore = 80, verdict = 'Likely Safe', status = 'safe', flags = [], timestamp } = activeAnalysis;
 
-  const isScam = status === 'scam' || riskScore >= 70;
-  const isSuspicious = status === 'suspicious' || (riskScore >= 35 && riskScore < 70);
+  const isScam = status === 'scam' || verdict === 'Scam' || riskScore >= 70;
+  const isSuspicious = status === 'suspicious' || verdict === 'Suspicious' || (riskScore >= 35 && riskScore < 70);
+  const isNeedsVerification = status === 'unverified' || verdict === 'Needs Verification' || (riskScore >= 15 && riskScore < 35);
 
   // Verdict theme
   const verdictConfig = isScam
@@ -63,13 +64,22 @@ export default function LiveAnalysisPanel({
         barColor: 'bg-[#ea580c]',
         directive: 'WARNING: Several scam indicators or unverified entity patterns detected. Exercise extreme caution.',
       }
+    : isNeedsVerification
+    ? {
+        badge: 'NEEDS VERIFICATION',
+        badgeBg: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/60',
+        icon: AlertTriangle,
+        color: '#2563eb',
+        barColor: 'bg-blue-600',
+        directive: 'CAUTION: Unverified communication lacking verified corporate domain or official MCA credentials. Cross-check before proceeding.',
+      }
     : {
         badge: 'VERIFIED / SAFE',
         badgeBg: 'bg-[#ecfdf5] dark:bg-emerald-950/40 text-[#059669] dark:text-emerald-400 border-[#d1fae5] dark:border-emerald-900/60',
         icon: CheckCircle2,
         color: '#059669',
         barColor: 'bg-[#059669]',
-        directive: 'No malicious triggers or extortion demands identified in the current frame.',
+        directive: 'Official enterprise credentials verified with 0 suspicious fee demands.',
       };
 
   const VerdictIcon = verdictConfig.icon;
@@ -225,6 +235,8 @@ export default function LiveAnalysisPanel({
                       ? 'text-[#dc2626] dark:text-red-400'
                       : item.status === 'suspicious'
                       ? 'text-[#ea580c] dark:text-amber-400'
+                      : item.status === 'unverified'
+                      ? 'text-blue-600 dark:text-blue-400'
                       : 'text-[#059669] dark:text-emerald-400'
                   }`}
                 >

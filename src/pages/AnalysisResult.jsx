@@ -316,6 +316,16 @@ ${text.slice(0, 300)}...
         statusText: "MODERATE RISK",
         icon: <AlertTriangle className="w-8 h-8 text-amber-500" />,
       };
+    } else if (verdict === "Needs Verification" || riskScore >= 15) {
+      return {
+        bg: "bg-blue-500/10 dark:bg-blue-500/15",
+        border: "border-blue-200 dark:border-blue-900/60",
+        text: "text-blue-600 dark:text-blue-400",
+        badge: "bg-blue-600 text-white font-bold",
+        verdictLabel: "NEEDS VERIFICATION",
+        statusText: "UNVERIFIED CREDENTIALS",
+        icon: <AlertTriangle className="w-8 h-8 text-blue-500" />,
+      };
     } else {
       return {
         bg: "bg-emerald-500/10 dark:bg-emerald-500/15",
@@ -401,6 +411,8 @@ ${text.slice(0, 300)}...
                           ? "text-danger-color"
                           : riskScore >= 20
                             ? "text-warning-color"
+                            : verdict === "Needs Verification"
+                            ? "text-blue-500"
                             : "text-accent-color"
                       }
                       strokeWidth={strokeWidth}
@@ -438,6 +450,8 @@ ${text.slice(0, 300)}...
                     ? "Zero-trust evaluation identified critical scam signatures and unverified payment demands."
                     : riskScore >= 35
                     ? "Moderate anomalies identified. Cross-verify recruiter details before transferring any funds or data."
+                    : verdict === "Needs Verification" || riskScore >= 15
+                    ? "Unverified document lacking corporate domain credentials or official MCA registration. Further verification required before taking action."
                     : "Official recruitment standards met. No suspicious payment requests or forged credentials found."}
                 </div>
               </div>
@@ -493,6 +507,30 @@ ${text.slice(0, 300)}...
                   </p>
                 )}
               </div>
+
+              {/* Needs Verification Checklist Box */}
+              {verdict === "Needs Verification" && (
+                <div className="rounded-2xl border border-blue-200 dark:border-blue-900/60 bg-blue-50 dark:bg-blue-950/30 p-5 shadow-xs space-y-3 text-left">
+                  <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300 font-bold text-xs uppercase tracking-wider">
+                    <AlertTriangle className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                    Verification Advisory: Why This Document is Unverified
+                  </div>
+                  <p className="text-xs text-blue-900/80 dark:text-blue-200/80 leading-relaxed">
+                    This document does not contain explicit fee demands, but it cannot be certified as <strong>Genuine</strong> because it lacks an authenticated 21-digit MCA Corporate Identification Number (CIN) or communication originating from a verified enterprise email domain (@company.com).
+                  </p>
+                  <div className="space-y-1.5 pt-1">
+                    <div className="text-[11px] font-bold text-blue-950 dark:text-blue-100 uppercase tracking-wide">
+                      Mandatory Verification Steps Before Responding:
+                    </div>
+                    <ul className="text-xs text-blue-900/90 dark:text-blue-200/90 space-y-1 list-disc pl-4">
+                      <li>Demand that all recruitment communications come directly from an official company email domain (e.g. <code>recruiter@company.com</code>), never Gmail, Yahoo, or Telegram.</li>
+                      <li>Ask for the company's 21-digit CIN and verify its active status on the official MCA portal (<code>mca.gov.in</code>).</li>
+                      <li>Check the official company career portal to confirm the exact Job Requisition ID exists.</li>
+                      <li><strong>Strict Golden Rule:</strong> Legitimate employers NEVER demand training fees, laptop security deposits, or ID card charges. If asked for any payment, terminate contact immediately.</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
 
               <div className="rounded-2xl border border-border-color bg-card-bg p-6 shadow-sm space-y-4 card-premium">
                 <div className="flex justify-between items-center border-b border-border-color pb-3">
@@ -630,13 +668,21 @@ ${text.slice(0, 300)}...
 
                 <div className="flex flex-col gap-3">
                   {flags.length === 0 ? (
-                    <div className="flex items-center gap-3 p-4 rounded-xl bg-accent-color/10 border border-accent-color/20 text-xs text-accent-color">
-                      <ShieldCheck className="w-5 h-5 shrink-0" />
-                      <span>
-                        Security scanning found 0 critical scam keywords inside
-                        the offer text. Genuine transaction.
-                      </span>
-                    </div>
+                    verdict === "Needs Verification" ? (
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-600 dark:text-blue-400">
+                        <AlertTriangle className="w-5 h-5 shrink-0 text-blue-500" />
+                        <span>
+                          No critical scam keywords detected, but this document lacks official corporate domain credentials or MCA registration. Independent verification is recommended.
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-600 dark:text-emerald-400">
+                        <ShieldCheck className="w-5 h-5 shrink-0 text-emerald-500" />
+                        <span>
+                          Security scanning verified legitimate enterprise credentials with 0 fee demands. Authentic communication.
+                        </span>
+                      </div>
+                    )
                   ) : (
                     flags.map((flag) => (
                       <div
