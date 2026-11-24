@@ -1,0 +1,221 @@
+@import "tailwindcss";
+
+:root {
+  --color-app-bg: #f8fafc;
+  --color-card-bg: #ffffff;
+  --color-border-color: #e2e8f0;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-accent-color: #10b981;
+  --color-accent-hover: #059669;
+  --color-warning-color: #f59e0b;
+  --color-danger-color: #ef4444;
+  --color-btn-bg: #0f172a;
+  --color-btn-text: #ffffff;
+}
+
+.dark {
+  --color-app-bg: #020617;
+  --color-card-bg: #0f172a;
+  --color-border-color: #1e293b;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-accent-color: #10b981;
+  --color-accent-hover: #059669;
+  --color-warning-color: #f59e0b;
+  --color-danger-color: #ef4444;
+  --color-btn-bg: #10b981;
+  --color-btn-text: #020617;
+}
+
+@theme {
+  /* Premium SaaS Theme Mapped Variables */
+  --color-app-bg: var(--color-app-bg);
+  --color-card-bg: var(--color-card-bg);
+  --color-border-color: var(--color-border-color);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-accent-color: var(--color-accent-color);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-warning-color: var(--color-warning-color);
+  --color-danger-color: var(--color-danger-color);
+  --color-btn-bg: var(--color-btn-bg);
+  --color-btn-text: var(--color-btn-text);
+
+  --font-sans: "Inter", sans-serif;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+}
+
+/* Custom Premium Glass Scrollbar Config */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.2); /* Emerald tint scrollbar in dark mode */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(
+    15,
+    23,
+    42,
+    0.15
+  ); /* Dark slate tint scrollbar in light mode */
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.4);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.3);
+}
+
+/* Root DOM Structural Reset with Flawless Global Transition Context */
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: "Inter", sans-serif;
+  transition:
+    background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Global Light/Dark Default Fallbacks for Custom Elements Interaction */
+html {
+  background-color: var(--color-app-bg);
+  color: var(--color-text-primary);
+}
+
+::selection {
+  background-color: rgba(
+    16,
+    185,
+    129,
+    0.25
+  ); /* Premium Emerald green text selection */
+  color: inherit;
+}
+
+/* Glassmorphism layouts optimized for light and dark modes */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border-color);
+  box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.03);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.7);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Premium Card Styles */
+.card-premium {
+  background-color: var(--color-card-bg);
+  border: 1px solid var(--color-border-color);
+  border-radius: 16px;
+  transition:
+    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-premium:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.05),
+    0 10px 10px -5px rgba(0, 0, 0, 0.02);
+}
+
+.dark .card-premium:hover {
+  box-shadow:
+    0 0 20px 2px rgba(16, 185, 129, 0.05),
+    0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* Premium Button Styles */
+.btn-premium {
+  background-color: var(--color-btn-bg);
+  color: var(--color-btn-text);
+  border-radius: 12px;
+  font-weight: 700;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-premium:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.dark .btn-premium:hover:not(:disabled) {
+  background-color: var(--color-accent-hover);
+  color: #020617;
+}
+
+.btn-premium:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Premium Input Styles */
+.input-premium {
+  background-color: var(--color-app-bg);
+  border: 1px solid var(--color-border-color);
+  color: var(--color-text-primary);
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-premium:focus {
+  border-color: var(--color-accent-color);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+  outline: none;
+}
+
+/* Mirror camera layout setup */
+.camera-view {
+  transform: scaleX(-1);
+}
+
+#root {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  text-align: left;
+  border-inline: none;
+  min-height: 100svh;
+}
+
+/* Dynamic scanner scanning waves pulse keyframe */
+@keyframes cyber-pulse {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(1.01);
+  }
+}
+
+.animate-cyber-pulse {
+  animation: cyber-pulse 3s infinite ease-in-out;
+}
