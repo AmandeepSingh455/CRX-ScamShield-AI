@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import { analyzeScam, analyzeScamAsync } from "../utils/scamAnalyzer";
 import { createWorker } from "tesseract.js";
 import {
@@ -515,8 +514,7 @@ export default function Scan() {
         </aside>
 
         {/* ===================== MAIN CONTENT AREA ===================== */}
-        <main className="flex-1 overflow-y-auto w-full bg-[#f8fafc] dark:bg-[#0b1329] transition-colors flex flex-col justify-between">
-          <div className="flex-1 p-4 sm:p-6 lg:p-10 max-w-5xl mx-auto w-full">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10 max-w-5xl mx-auto w-full bg-[#f8fafc] dark:bg-[#0b1329] transition-colors">
           {/* If viewing a selected scan result */}
           {selectedScan ? (
             <div className="space-y-6 text-left">
@@ -1099,8 +1097,6 @@ export default function Scan() {
               </div>
             </div>
           )}
-          </div>
-          <Footer />
         </main>
       </div>
     </div>
