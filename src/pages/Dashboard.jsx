@@ -351,35 +351,6 @@ export default function Dashboard() {
                   </div>
                 )}
               </div>
-
-              {/* National Cyber Helpline 1930 Notice */}
-              <div className="p-4.5 rounded-2xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-200 flex items-start gap-3.5 shadow-xs">
-                <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/80 border border-red-300 dark:border-red-800 text-red-600 dark:text-red-300 flex items-center justify-center shrink-0 mt-0.5">
-                  <PhoneCall className="w-4 h-4 text-red-600 dark:text-red-300" />
-                </div>
-                <div className="space-y-1 grow">
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-black text-lg text-red-600 dark:text-red-400">
-                        1930
-                      </span>
-                      <span className="text-xs font-bold text-red-800 dark:text-red-200 uppercase">
-                        National Cyber Fraud Emergency Helpline
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={openHelpline}
-                      className="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white font-mono text-xs font-bold transition-colors cursor-pointer"
-                    >
-                      Call Now
-                    </button>
-                  </div>
-                  <p className="text-[11px] text-red-700 dark:text-red-300 leading-relaxed">
-                    If financial loss has occurred or money was transferred via UPI/QR code, lodge a complaint immediately at cybercrime.gov.in or dial 1930 within the golden hour to freeze fraudulent beneficiary accounts.
-                  </p>
-                </div>
-              </div>
             </div>
 
             {/* Right Column: Registry, Trends & Awareness */}
@@ -427,6 +398,35 @@ export default function Dashboard() {
                   <li><strong>No Telegram tasks:</strong> Legitimate brands never pay via UPI for liking YouTube videos or submitting online hotel reviews.</li>
                 </ul>
               </div>
+            </div>
+          </div>
+
+          {/* Full-Width National Cyber Helpline 1930 Notice */}
+          <div className="w-full mt-8 p-4.5 sm:p-5 rounded-2xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-200 flex items-start sm:items-center gap-3.5 shadow-xs text-left">
+            <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/80 border border-red-300 dark:border-red-800 text-red-600 dark:text-red-300 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+              <PhoneCall className="w-5 h-5 text-red-600 dark:text-red-300 stroke-[2.2]" />
+            </div>
+            <div className="space-y-1 grow min-w-0">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-2.5">
+                  <span className="font-mono font-black text-lg sm:text-xl text-red-600 dark:text-red-400">
+                    1930
+                  </span>
+                  <span className="text-xs sm:text-sm font-bold text-red-800 dark:text-red-200 uppercase tracking-wide">
+                    National Cyber Fraud Emergency Helpline
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={openHelpline}
+                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 active:scale-95 text-white font-mono text-xs font-bold transition-all cursor-pointer shadow-xs shrink-0"
+                >
+                  Call Now
+                </button>
+              </div>
+              <p className="text-[11px] sm:text-xs text-red-700 dark:text-red-300 leading-relaxed">
+                If financial loss has occurred or money was transferred via UPI/QR code, lodge a complaint immediately at cybercrime.gov.in or dial 1930 within the golden hour to freeze fraudulent beneficiary accounts.
+              </p>
             </div>
           </div>
         </motion.main>
