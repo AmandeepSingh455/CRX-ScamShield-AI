@@ -38,7 +38,7 @@ export default function Signup() {
     }
   }, [user, navigate]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -59,19 +59,19 @@ export default function Signup() {
     }
 
     if (cleanPassword.length < 6) {
-      setError("Password must be at least 6 characters.");
+      setError("Password must be at least 6 characters long.");
       return;
     }
 
     setIsLoading(true);
 
-    setTimeout(() => {
-      const res = signup(cleanName, cleanEmail, cleanPassword);
-      setIsLoading(false);
+    try {
+      const res = await signup(cleanName, cleanEmail, cleanPassword);
       if (res && res.success) {
         setSuccess("Account created successfully! Redirecting to login...");
         setTimeout(() => {
           navigate("/login", {
+            replace: true,
             state: {
               email: cleanEmail,
               successMessage: "Account created successfully. You can now log in!",
@@ -81,7 +81,12 @@ export default function Signup() {
       } else {
         setError(res?.message || "Something went wrong. Please try again.");
       }
-    }, 200);
+    } catch (err) {
+      console.error("Signup error:", err);
+      setError("An unexpected error occurred during registration. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

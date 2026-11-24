@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import Login from './pages/Login';
@@ -7,12 +7,33 @@ import Dashboard from './pages/Dashboard';
 import AnalysisResult from './pages/AnalysisResult';
 import AiAssistant from './components/AiAssistant';
 
-// Protected Route Component
+// Protected Route Component with BFcache Back-Button Prevention
 function ProtectedRoute({ children }) {
-  const { user } = useApp();
-  if (!user) {
+  const { isAuthenticated, isAuthLoading } = useApp();
+
+  useEffect(() => {
+    const handlePageShow = (e) => {
+      // If page was restored from browser BFcache and user is not authenticated
+      if (e.persisted && !isAuthenticated) {
+        window.location.replace('/login');
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, [isAuthenticated]);
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-app-bg text-text-primary">
+        <div className="w-8 h-8 border-2 border-accent-color border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
+
   return (
     <>
       {children}
@@ -21,16 +42,50 @@ function ProtectedRoute({ children }) {
   );
 }
 
+// Public Route Component (prevents authenticated users from viewing login/signup)
+function PublicRoute({ children }) {
+  const { isAuthenticated, isAuthLoading } = useApp();
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-app-bg text-text-primary">
+        <div className="w-8 h-8 border-2 border-accent-color border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+}
+
 function AppContent() {
   return (
     <Routes>
       {/* Public Auth Routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <PublicRoute>
+            <Signup />
+          </PublicRoute>
+        }
+      />
 
       {/* Protected Main App Routes */}
       <Route
-        path="/dashboard"element={
+        path="/dashboard"
+        element={
           <ProtectedRoute>
             <Dashboard />
           </ProtectedRoute>

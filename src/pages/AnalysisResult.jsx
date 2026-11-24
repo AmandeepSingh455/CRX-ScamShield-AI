@@ -60,9 +60,9 @@ export default function AnalysisResult() {
 
   useEffect(() => {
     if (!user) {
-      navigate("/login");
+      navigate("/login", { replace: true });
     } else if (!activeScan) {
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     }
   }, [user, activeScan, navigate]);
 

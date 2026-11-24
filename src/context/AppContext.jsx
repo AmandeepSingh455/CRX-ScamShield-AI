@@ -1,6 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { analyzeScam } from "../utils/scamAnalyzer";
 import { translations } from "../utils/translations";
+import {
+  authenticateUser,
+  registerUser,
+  loadAuthSession,
+  clearAuthSession,
+} from "../utils/auth";
 
 const AppContext = createContext();
 
@@ -40,10 +45,31 @@ export function AppProvider({ children }) {
     );
   };
 
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("scamshield_user");
-    return saved ? safeJsonParse(saved, null) : null;
-  });
+  // Initialize authentication from verified token and stored profile
+  const [sessionState, setSessionState] = useState(() => loadAuthSession());
+  const user = sessionState.user;
+  const token = sessionState.token;
+  const isAuthenticated = Boolean(user && token);
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
+
+  // Synchronize authentication across tabs or on BFcache pageshow
+  useEffect(() => {
+    const handleStorageSync = () => {
+      const current = loadAuthSession();
+      if (!current.isAuthenticated && isAuthenticated) {
+        setSessionState({ token: null, user: null, isAuthenticated: false });
+      } else if (current.isAuthenticated && current.token !== token) {
+        setSessionState(current);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageSync);
+    window.addEventListener("pageshow", handleStorageSync);
+    return () => {
+      window.removeEventListener("storage", handleStorageSync);
+      window.removeEventListener("pageshow", handleStorageSync);
+    };
+  }, [isAuthenticated, token]);
 
   const getUserKey = () => {
     return user
@@ -52,62 +78,12 @@ export function AppProvider({ children }) {
   };
 
   const [history, setHistory] = useState(() => {
-    const savedUser = localStorage.getItem("scamshield_user");
-    if (savedUser) {
-      const parsedUser = safeJsonParse(savedUser, null);
-      if (parsedUser) {
-        const userKey = `scamshield_history_${parsedUser.email.toLowerCase()}`;
-        const savedHistory = localStorage.getItem(userKey);
-        if (savedHistory) {
-          return safeJsonParse(savedHistory, []);
-        }
-        if (parsedUser.email.toLowerCase() === "admin@scamshield.ai") {
-          const seed = [
-            {
-              id: "seed-1",
-              timestamp: new Date(
-                Date.now() - 24 * 60 * 60 * 1000,
-              ).toISOString(),
-              filename: "Remote Data Entry Job Offer.pdf",
-              text: "Congratulations! You have been selected for our Work From Home Data Entry position. The pay is $45 per hour. To proceed, please pay a registration fee of $30 to cover the software licensing fee. We guarantee 100% placement and limited seats are available. Pay now immediately to secure your seat.",
-              result: analyzeScam(
-                "Congratulations! You have been selected for our Work From Home Data Entry position. The pay is $45 per hour. To proceed, please pay a registration fee of $30 to cover the software licensing fee. We guarantee 100% placement and limited seats are available. Pay now immediately to secure your seat.",
-                "Remote Data Entry Job Offer.pdf",
-              ),
-              chatHistory: [
-                {
-                  sender: "user",
-                  text: "Is this real? They sent this PDF via Telegram.",
-                  timestamp: new Date(
-                    Date.now() - 23.9 * 60 * 60 * 1000,
-                  ).toISOString(),
-                },
-                {
-                  sender: "ai",
-                  text: 'This job offer exhibits multiple critical scam indicators. Firstly, legitimate companies never charge a "registration fee" or "software fee" to employees. Secondly, the urgency to "pay now immediately" and "limited seats" are pressure tactics used in advance-fee employment scams. I highly recommend cutting contact.',
-                  timestamp: new Date(
-                    Date.now() - 23.8 * 60 * 60 * 1000,
-                  ).toISOString(),
-                },
-              ],
-            },
-            {
-              id: "seed-2",
-              timestamp: new Date(
-                Date.now() - 2 * 24 * 60 * 60 * 1000,
-              ).toISOString(),
-              filename: "Google Software Engineer Offer.png",
-              text: "Thank you for your interest in Google. We are pleased to offer you the position of Software Engineer in our Mountain View campus. Your compensation will include a base salary, stock options, and full health benefits. The formal background check will begin once you sign the agreement. No payment is required.",
-              result: analyzeScam(
-                "Thank you for your interest in Google. We are pleased to offer you the position of Software Engineer in our Mountain View campus. Your compensation will include a base salary, stock options, and full health benefits. The formal background check will begin once you sign the agreement. No payment is required.",
-                "Google Software Engineer Offer.png",
-              ),
-              chatHistory: [],
-            },
-          ];
-          localStorage.setItem(userKey, JSON.stringify(seed));
-          return seed;
-        }
+    const current = loadAuthSession();
+    if (current.isAuthenticated && current.user) {
+      const userKey = `scamshield_history_${current.user.email.toLowerCase()}`;
+      const savedHistory = localStorage.getItem(userKey);
+      if (savedHistory) {
+        return safeJsonParse(savedHistory, []);
       }
     }
     return [];
@@ -122,59 +98,12 @@ export function AppProvider({ children }) {
       if (saved) {
         setHistory(safeJsonParse(saved, []));
       } else {
-        if (user.email.toLowerCase() === "admin@scamshield.ai") {
-          const seed = [
-            {
-              id: "seed-1",
-              timestamp: new Date(
-                Date.now() - 24 * 60 * 60 * 1000,
-              ).toISOString(),
-              filename: "Remote Data Entry Job Offer.pdf",
-              text: "Congratulations! You have been selected for our Work From Home Data Entry position. The pay is $45 per hour. To proceed, please pay a registration fee of $30 to cover the software licensing fee. We guarantee 100% placement and limited seats are available. Pay now immediately to secure your seat.",
-              result: analyzeScam(
-                "Congratulations! You have been selected for our Work From Home Data Entry position. The pay is $45 per hour. To proceed, please pay a registration fee of $30 to cover the software licensing fee. We guarantee 100% placement and limited seats are available. Pay now immediately to secure your seat.",
-                "Remote Data Entry Job Offer.pdf",
-              ),
-              chatHistory: [
-                {
-                  sender: "user",
-                  text: "Is this real? They sent this PDF via Telegram.",
-                  timestamp: new Date(
-                    Date.now() - 23.9 * 60 * 60 * 1000,
-                  ).toISOString(),
-                },
-                {
-                  sender: "ai",
-                  text: 'This job offer exhibits multiple critical scam indicators. Firstly, legitimate companies never charge a "registration fee" or "software fee" to employees. Secondly, the urgency to "pay now immediately" and "limited seats" are pressure tactics used in advance-fee employment scams. I highly recommend cutting contact.',
-                  timestamp: new Date(
-                    Date.now() - 23.8 * 60 * 60 * 1000,
-                  ).toISOString(),
-                },
-              ],
-            },
-            {
-              id: "seed-2",
-              timestamp: new Date(
-                Date.now() - 2 * 24 * 60 * 60 * 1000,
-              ).toISOString(),
-              filename: "Google Software Engineer Offer.png",
-              text: "Thank you for your interest in Google. We are pleased to offer you the position of Software Engineer in our Mountain View campus. Your compensation will include a base salary, stock options, and full health benefits. The formal background check will begin once you sign the agreement. No payment is required.",
-              result: analyzeScam(
-                "Thank you for your interest in Google. We are pleased to offer you the position of Software Engineer in our Mountain View campus. Your compensation will include a base salary, stock options, and full health benefits. The formal background check will begin once you sign the agreement. No payment is required.",
-                "Google Software Engineer Offer.png",
-              ),
-              chatHistory: [],
-            },
-          ];
-          setHistory(seed);
-          localStorage.setItem(userKey, JSON.stringify(seed));
-        } else {
-          setHistory([]);
-          localStorage.setItem(userKey, JSON.stringify([]));
-        }
+        setHistory([]);
+        localStorage.setItem(userKey, JSON.stringify([]));
       }
     } else {
       setHistory([]);
+      setActiveScan(null);
     }
   }, [user]);
 
@@ -188,75 +117,50 @@ export function AppProvider({ children }) {
     localStorage.setItem("scamshield_theme", theme);
   }, [theme]);
 
-  const login = (email, password) => {
-    const cleanEmail = (email || "").trim().toLowerCase();
-    const cleanPassword = (password || "").trim();
-
-    const registeredUsers = safeJsonParse(
-      localStorage.getItem("scamshield_registered_users"),
-      [],
-    );
-    const defaultUser = {
-      name: "Demo Analyst",
-      email: "admin@scamshield.ai",
-      password: "password123",
-    };
-    const allUsers = [defaultUser, ...registeredUsers];
-
-    const match = allUsers.find(
-      (u) =>
-        u.email.toLowerCase() === cleanEmail &&
-        u.password === cleanPassword,
-    );
-
-    if (match) {
-      const userData = { name: match.name, email: match.email };
-      setUser(userData);
-      // Persist logged-in user in localStorage reliably
-      localStorage.setItem("scamshield_user", JSON.stringify(userData));
-      return { success: true, user: userData };
-    } else {
+  const login = async (email, password, remember = true) => {
+    setIsAuthLoading(true);
+    try {
+      const res = await authenticateUser({ email, password, remember });
+      if (res.success) {
+        setSessionState({
+          token: res.token,
+          user: res.user,
+          isAuthenticated: true,
+        });
+      }
+      return res;
+    } catch (err) {
+      console.error("Login authentication error:", err);
       return {
         success: false,
-        message: "Invalid email or password. Please try again!",
+        message: "An unexpected error occurred during login. Please try again.",
       };
+    } finally {
+      setIsAuthLoading(false);
     }
   };
 
-  const signup = (name, email, password) => {
-    const cleanName = (name || "").trim();
-    const cleanEmail = (email || "").trim().toLowerCase();
-    const cleanPassword = (password || "").trim();
-
-    const registeredUsers = safeJsonParse(
-      localStorage.getItem("scamshield_registered_users"),
-      [],
-    );
-
-    if (
-      cleanEmail === "admin@scamshield.ai" ||
-      registeredUsers.some((u) => u.email.toLowerCase() === cleanEmail)
-    ) {
-      return { success: false, message: "Email is already registered. Please login." };
+  const signup = async (name, email, password) => {
+    setIsAuthLoading(true);
+    try {
+      return await registerUser({ name, email, password });
+    } catch (err) {
+      console.error("Signup error:", err);
+      return {
+        success: false,
+        message: "An unexpected error occurred during registration. Please try again.",
+      };
+    } finally {
+      setIsAuthLoading(false);
     }
-
-    const newUser = { name: cleanName, email: cleanEmail, password: cleanPassword };
-    registeredUsers.push(newUser);
-    localStorage.setItem(
-      "scamshield_registered_users",
-      JSON.stringify(registeredUsers),
-    );
-
-    return { success: true };
   };
 
   const logout = () => {
-    setUser(null);
+    clearAuthSession();
+    setSessionState({ token: null, user: null, isAuthenticated: false });
     setActiveScan(null);
     setIsLeftDrawerOpen(false);
     setIsRightDrawerOpen(false);
-    localStorage.removeItem("scamshield_user");
-    sessionStorage.removeItem("scamshield_user");
   };
 
   const addScan = (filename, text, result, preview) => {
@@ -368,6 +272,9 @@ export function AppProvider({ children }) {
         setLanguage,
         t,
         user,
+        token,
+        isAuthenticated,
+        isAuthLoading,
         login,
         signup,
         logout,

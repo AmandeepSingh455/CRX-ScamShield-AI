@@ -13,13 +13,12 @@ import {
   PhoneCall,
   Globe,
   Check,
-  Zap,
 } from "lucide-react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 
 export default function Login() {
-  const { login, user, theme, toggleTheme, language, setLanguage, t } = useApp();
+  const { login, isAuthenticated, theme, toggleTheme, language, setLanguage, t } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -44,12 +43,12 @@ export default function Login() {
   }, [location]);
 
   useEffect(() => {
-    if (user) {
+    if (isAuthenticated) {
       navigate("/dashboard", { replace: true });
     }
-  }, [user, navigate]);
+  }, [isAuthenticated, navigate]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     setError("");
 
@@ -63,31 +62,19 @@ export default function Login() {
 
     setIsLoading(true);
 
-    // Fast, responsive login verification
-    setTimeout(() => {
-      const res = login(cleanEmail, cleanPass);
-      setIsLoading(false);
+    try {
+      const res = await login(cleanEmail, cleanPass, remember);
       if (res && res.success) {
         navigate("/dashboard", { replace: true });
       } else {
-        setError(res?.message || "Invalid credentials. Please try again.");
+        setError(res?.message || "Invalid email or password. Please try again.");
       }
-    }, 150);
-  };
-
-  const handleDemoLogin = () => {
-    setEmail("admin@scamshield.ai");
-    setPassword("password123");
-    setError("");
-    setIsLoading(true);
-
-    setTimeout(() => {
-      const res = login("admin@scamshield.ai", "password123");
+    } catch (err) {
+      console.error("Login submission error:", err);
+      setError("An error occurred during authentication. Please try again.");
+    } finally {
       setIsLoading(false);
-      if (res && res.success) {
-        navigate("/dashboard", { replace: true });
-      }
-    }, 150);
+    }
   };
 
   return (
@@ -240,7 +227,7 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@scamshield.ai"
+                  placeholder="analyst@domain.com"
                   className="w-full py-3 pl-11 pr-4 text-sm transition-colors input-premium"
                 />
               </div>
@@ -300,17 +287,6 @@ export default function Login() {
               ) : (
                 t("signInBtn")
               )}
-            </button>
-
-            {/* Quick 1-Click Demo Login Button */}
-            <button
-              type="button"
-              onClick={handleDemoLogin}
-              disabled={isLoading}
-              className="w-full py-2.5 px-3 rounded-xl border border-accent-color/30 bg-accent-color/10 hover:bg-accent-color/20 text-accent-color font-bold text-xs transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-            >
-              <Zap className="w-4 h-4 fill-current" />
-              {t("demoLoginBtn")}
             </button>
           </form>
 
