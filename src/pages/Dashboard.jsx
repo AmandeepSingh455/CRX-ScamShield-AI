@@ -60,6 +60,13 @@ export default function Dashboard() {
       item.result?.verdict === "Suspicious" ||
       ((item.result?.riskScore ?? 0) >= 35 && (item.result?.riskScore ?? 0) < 70)
   ).length;
+  const genuineScams = history.filter(
+    (item) =>
+      item.result?.verdict === "Safe" ||
+      (item.result?.verdict !== "Scam" &&
+        item.result?.verdict !== "Suspicious" &&
+        (item.result?.riskScore ?? 0) < 35)
+  ).length;
   const avgRisk =
     totalScans > 0
       ? Math.round(
@@ -171,7 +178,7 @@ export default function Dashboard() {
               </span>
             </motion.div>
 
-            {/* Stat 4: Avg Threat Index */}
+            {/* Stat 4: Genuine Documents */}
             <motion.div
               whileHover={{ y: -2 }}
               transition={{ duration: 0.15 }}
@@ -181,13 +188,13 @@ export default function Dashboard() {
                 <CheckCircle2 className="w-4.5 h-4.5" />
               </div>
               <span className="text-[10px] font-bold text-accent-color uppercase tracking-wider block">
-                {t('avgThreatIndex') || "AVERAGE THREAT INDEX"}
+                {t('genuineScans') || "GENUINE"}
               </span>
               <span className="text-3xl font-extrabold block mt-2 font-mono text-accent-color">
-                {avgRisk}%
+                {genuineScams}
               </span>
               <span className="text-[9px] text-accent-color/80 mt-1 block">
-                {t('avgThreatIndexDesc') || "Aggregate risk baseline across user records"}
+                {t('genuineScansDesc') || "Verified authentic communications"}
               </span>
             </motion.div>
           </div>

@@ -49,6 +49,8 @@ export const translations = {
     suspiciousLogsDesc: "Threat index score 20–49%",
     avgThreatIndex: "Avg Threat Index",
     avgThreatIndexDesc: "Fleet-wide average risk score",
+    genuineScans: "Genuine",
+    genuineScansDesc: "Verified authentic communications",
 
     // Document Workspace
     documentWorkspaceTitle: "Document Workspace",
@@ -209,6 +211,8 @@ export const translations = {
     suspiciousLogsDesc: "थ्रेट इंडेक्स स्कोर 20–49%",
     avgThreatIndex: "औसत थ्रेट इंडेक्स",
     avgThreatIndexDesc: "सिस्टम का औसत जोखिम सूचकांक",
+    genuineScans: "प्रमाणिक (Genuine)",
+    genuineScansDesc: "सत्यापित सुरक्षित एवं वैध ऑफर",
 
     // Document Workspace
     documentWorkspaceTitle: "दस्तावेज़ कार्यक्षेत्र",
@@ -369,6 +373,8 @@ export const translations = {
     suspiciousLogsDesc: "ਥ੍ਰੈੱਟ ਇੰਡੈਕਸ ਸਕੋਰ 20–49%",
     avgThreatIndex: "ਔਸਤ ਥ੍ਰੈੱਟ ਇੰਡੈਕਸ",
     avgThreatIndexDesc: "ਸਿਸਟਮ ਦਾ ਔਸਤ ਜੋਖਮ ਸੂਚਕਾਂਕ",
+    genuineScans: "ਅਸਲੀ (Genuine)",
+    genuineScansDesc: "ਤਸਦੀਕਸ਼ੁਦਾ ਸੁਰੱਖਿਅਤ ਅਤੇ ਪ੍ਰਮਾਣਿਕ ਆਫ਼ਰ",
 
     // Document Workspace
     documentWorkspaceTitle: "ਦਸਤਾਵੇਜ਼ ਵਰਕਸਪੇਸ",
